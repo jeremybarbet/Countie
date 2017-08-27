@@ -31,7 +31,7 @@ export default class Container extends Component {
 }
 
 const s = StyleSheet.create({
-  container__content: {
+  container: {
     minHeight: '100%',
 
     backgroundColor: '#fff',
