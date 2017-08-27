@@ -8,6 +8,8 @@ export default class DatePicker extends PureComponent {
   static propTypes = {
     open: PropTypes.bool,
     toggle: PropTypes.func,
+    onChange: PropTypes.func.isRequired,
+    date: PropTypes.string,
   }
 
   static defaultProps = {
@@ -15,21 +17,8 @@ export default class DatePicker extends PureComponent {
     toggle: () => {},
   }
 
-  static defaultProps = {
-    date: new Date(),
-  }
-
-  state = {
-    date: this.props.date,
-  }
-
-  onDateChange = (date) => {
-    this.setState({ date });
-  }
-
   render() {
-    const { open, toggle } = this.props;
-    const { date } = this.state;
+    const { open, toggle, onChange, date } = this.props;
 
     return (
       <Modal
@@ -52,7 +41,7 @@ export default class DatePicker extends PureComponent {
             style={s.picker__component}
             date={date}
             mode="date"
-            onDateChange={this.onDateChange}
+            onDateChange={onChange}
             // minimumDate={date}
           />
         </View>

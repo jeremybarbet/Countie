@@ -25,19 +25,28 @@ export default class Welcome extends PureComponent {
     pickerIsShown: false,
   }
 
+  onDateChange = (date) => {
+    this.setState({ date });
+  }
+
   submit = () => {
     const { date } = this.state;
-    this.props.navigator.push('counter');
+    const from = new Date();
+    const to = date;
+    const diff = to.getTime() - from.getTime();
+
+    if (diff <= 0) return;
+
+    this.props.navigator.push('counter', { from: new Date(), to: date });
   }
 
   togglePicker = () => {
     const { pickerIsShown } = this.state;
-
     this.setState({ pickerIsShown: !pickerIsShown });
   }
 
   render() {
-    const { pickerIsShown } = this.state;
+    const { pickerIsShown, date } = this.state;
 
     return (
       <Container>
@@ -49,6 +58,8 @@ export default class Welcome extends PureComponent {
           <DatePicker
             open={pickerIsShown}
             toggle={this.togglePicker}
+            date={date}
+            onChange={this.onDateChange}
           />
 
           <TouchableOpacity
