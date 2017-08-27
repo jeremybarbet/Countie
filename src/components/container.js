@@ -1,43 +1,45 @@
-import React, { Component } from 'react';
-import { View, ScrollView, StyleSheet } from 'react-native';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
+import { View, StyleSheet, StatusBar, Dimensions } from 'react-native';
 
-export default class Container extends Component {
+const { height } = Dimensions.get('window');
+const STATUSBAR_HEIGHT = 20;
+
+export default class Welcome extends PureComponent {
 
   static propTypes = {
     children: PropTypes.node.isRequired,
-    scrollable: PropTypes.bool,
-  }
-
-  static defaultProps = {
-    scrollable: false,
   }
 
   render() {
-    const { children, scrollable } = this.props;
+    const { children } = this.props;
 
     return (
-      <ScrollView
-        contentContainerStyle={[
-          s.container,
-          scrollable ? s.containerPadding : '',
-        ]}
-        scrollEnabled={scrollable}
-      >
-        {children}
-      </ScrollView>
+      <View style={s.host}>
+        <StatusBar barStyle="light-content" />
+
+        <View style={s.host__content}>
+          {children}
+        </View>
+      </View>
     );
   }
 }
 
 const s = StyleSheet.create({
-  container: {
-    minHeight: '100%',
+  host: {
+    flex: 1,
 
-    backgroundColor: '#fff',
+    backgroundColor: '#1a1a1a',
   },
 
-  containerPadding: {
-    paddingBottom: 18,
+  host__content: {
+    marginTop: STATUSBAR_HEIGHT,
+
+    height: height - STATUSBAR_HEIGHT,
+
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 4,
+    borderTopRightRadius: 4,
   },
 });
