@@ -1,8 +1,9 @@
 /* eslint-disable react-native/split-platform-components */
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Easing } from 'react-native';
-import Modal from 'react-native-modalbox';
+import { Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+
+import Modal from './modal';
 
 export default class Input extends PureComponent {
 
@@ -19,58 +20,34 @@ export default class Input extends PureComponent {
     toggle: () => {},
   }
 
+  componentDidMount() {
+    console.log(this.input);
+    // this.input.focus();
+  }
+
   render() {
     const { open, toggle, onChange, text, placeholder } = this.props;
 
     return (
-      <Modal
-        animationDuration={300}
-        easing={Easing.ease}
-        isOpen={open}
-        style={s.input__modal}
-        position="bottom"
-        swipeToClose={false}
-        backdropOpacity={0.9}
-        backdropColor="#fff"
-        coverScreen
-      >
-        <View style={s.input}>
-          <TouchableOpacity onPress={toggle}>
-            <Text style={s.input__text}>{'Validate'.toUpperCase()}</Text>
-          </TouchableOpacity>
+      <Modal isOpen={open}>
+        <TouchableOpacity onPress={toggle}>
+          <Text style={s.input__text}>{'Validate'.toUpperCase()}</Text>
+        </TouchableOpacity>
 
-          <TextInput
-            style={s.input__component}
-            onChangeText={onChange}
-            value={text}
-            placeholder={placeholder}
-            placeholderTextColor="#c1ccdb"
-          />
-        </View>
+        <TextInput
+          ref={(c) => { this.input = c; }}
+          style={s.input__component}
+          onChangeText={onChange}
+          value={text}
+          placeholder={placeholder}
+          placeholderTextColor="#c1ccdb"
+        />
       </Modal>
     );
   }
 }
 
 const s = StyleSheet.create({
-  input: {
-    backgroundColor: '#6ef09f',
-
-    shadowColor: '#000',
-    shadowOffset: {
-      height: 4,
-      width: 0,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 14,
-  },
-
-  input__modal: {
-    justifyContent: 'flex-end',
-
-    backgroundColor: 'transparent',
-  },
-
   input__text: {
     paddingVertical: 15,
 

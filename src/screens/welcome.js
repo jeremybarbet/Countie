@@ -3,6 +3,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { View, Text, StyleSheet, TouchableOpacity, Image, Linking } from 'react-native';
 import moment from 'moment';
+import { isNil } from 'lodash';
 
 import Container from '../components/container';
 import Picker from '../components/picker';
@@ -42,7 +43,8 @@ export default class Welcome extends PureComponent {
     const from = new Date();
     const diff = to.getTime() - from.getTime();
 
-    if (diff <= 0 && text === null) return;
+    if (isNil(text) || isNil(date)) return;
+    if (diff <= 0) return;
 
     this.props.navigator.push('counter', { from, to, text });
   }
