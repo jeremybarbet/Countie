@@ -5,7 +5,10 @@ import { View, Text, StyleSheet, TouchableOpacity, Image, Linking } from 'react-
 import moment from 'moment';
 
 import Container from '../components/container';
-import DatePicker from '../components/date-picker';
+import Picker from '../components/picker';
+import Input from '../components/input';
+
+const PLACEHOLDER = 'my next travel';
 
 export default class Welcome extends PureComponent {
 
@@ -14,24 +17,25 @@ export default class Welcome extends PureComponent {
       push: PropTypes.func.isRequired,
       pop: PropTypes.func.isRequired,
     }).isRequired,
-    date: PropTypes.string,
-  }
-
-  static defaultProps = {
-    date: new Date(),
   }
 
   state = {
-    date: this.props.date,
+    date: new Date(),
+    text: null,
     pickerIsShown: false,
+    inputIsShown: false,
   }
 
   onDateChange = (date) => {
     this.setState({ date });
   }
 
+  onTextChange = (text) => {
+    this.setState({ text });
+  }
+
   submit = () => {
-    const { date } = this.state;
+    const { date, text } = this.state;
 
     const to = moment(date).startOf('day').toDate();
     const from = new Date();
@@ -39,7 +43,7 @@ export default class Welcome extends PureComponent {
 
     if (diff <= 0) return;
 
-    this.props.navigator.push('counter', { from, to });
+    this.props.navigator.push('counter', { from, to, text });
   }
 
   togglePicker = () => {
@@ -47,21 +51,36 @@ export default class Welcome extends PureComponent {
     this.setState({ pickerIsShown: !pickerIsShown });
   }
 
+  toggleInput = () => {
+    const { inputIsShown } = this.state;
+    this.setState({ inputIsShown: !inputIsShown });
+  }
+
   render() {
-    const { pickerIsShown, date } = this.state;
+    const { pickerIsShown, inputIsShown, date, text } = this.state;
+    const value = text || PLACEHOLDER;
+    const styles = text ? s.welcome__value : s.welcome__placeholder;
 
     return (
       <Container>
         <View style={s.welcome__form}>
           <Text style={s.welcome__text}>
-            Let’s count <Text style={s.welcome__placeholder} onPress={this.togglePicker}>days</Text> to <Text style={s.welcome__placeholder}>my next travel</Text>.
+            Let’s count <Text style={s.welcome__placeholder} onPress={this.togglePicker}>days</Text> to <Text style={styles} onPress={this.toggleInput}>{value}</Text>.
           </Text>
 
-          <DatePicker
+          <Picker
             open={pickerIsShown}
             toggle={this.togglePicker}
             date={date}
             onChange={this.onDateChange}
+          />
+
+          <Input
+            open={inputIsShown}
+            toggle={this.toggleInput}
+            text={text}
+            placeholder={PLACEHOLDER}
+            onChange={this.onTextChange}
           />
 
           <TouchableOpacity
@@ -90,17 +109,22 @@ const s = StyleSheet.create({
   },
 
   welcome__text: {
-    paddingHorizontal: 50,
+    paddingHorizontal: 30,
 
     fontFamily: 'Avenir-Medium',
     fontSize: 32,
-    color: '#333333',
-    lineHeight: 42,
+    color: '#333',
+    lineHeight: 46,
     textAlign: 'center',
   },
 
   welcome__placeholder: {
     color: '#c1ccdb',
+    textDecorationLine: 'underline',
+  },
+
+  welcome__value: {
+    color: '#6ef09f',
     textDecorationLine: 'underline',
   },
 
@@ -119,6 +143,6 @@ const s = StyleSheet.create({
   },
 
   welcome__link: {
-    color: '#6ef09f',
+    color: '#a2abb8',
   },
 });

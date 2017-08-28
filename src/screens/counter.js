@@ -13,6 +13,7 @@ export default class Counter extends PureComponent {
   static propTypes = {
     from: PropTypes.string.isRequired,
     to: PropTypes.string.isRequired,
+    text: PropTypes.string.isRequired,
   }
 
   constructor(props) {
@@ -68,7 +69,7 @@ export default class Counter extends PureComponent {
   }
 
   render() {
-    const { to } = this.props;
+    const { to, text } = this.props;
 
     return (
       <Container>
@@ -78,7 +79,7 @@ export default class Counter extends PureComponent {
           colors={['rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 0.5)']}
           style={s.counter__gradient}
         >
-          <Text style={s.counter__title}>Baby + Iceland ❤️</Text>
+          <Text style={s.counter__title}>{text}</Text>
 
           {this.isOver
             ? <Text style={s.counter__countdown}>It’s over ❤️</Text>

@@ -1,16 +1,17 @@
 /* eslint-disable react-native/split-platform-components */
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { View, Text, StyleSheet, DatePickerIOS, TouchableOpacity, Easing } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Easing } from 'react-native';
 import Modal from 'react-native-modalbox';
 
-export default class DatePicker extends PureComponent {
+export default class Input extends PureComponent {
 
   static propTypes = {
     open: PropTypes.bool,
     toggle: PropTypes.func,
     onChange: PropTypes.func.isRequired,
-    date: PropTypes.string.isRequired,
+    text: PropTypes.string.isRequired,
+    placeholder: PropTypes.string.isRequired,
   }
 
   static defaultProps = {
@@ -19,31 +20,31 @@ export default class DatePicker extends PureComponent {
   }
 
   render() {
-    const { open, toggle, onChange, date } = this.props;
+    const { open, toggle, onChange, text, placeholder } = this.props;
 
     return (
       <Modal
         animationDuration={200}
         easing={Easing.ease}
         isOpen={open}
-        style={s.picker__modal}
+        style={s.input__modal}
         position="bottom"
         swipeToClose={false}
         backdropOpacity={0.9}
         backdropColor="#fff"
         coverScreen
       >
-        <View style={s.picker}>
+        <View style={s.input}>
           <TouchableOpacity onPress={toggle}>
-            <Text style={s.picker__text}>{'Validate'.toUpperCase()}</Text>
+            <Text style={s.input__text}>{'Validate'.toUpperCase()}</Text>
           </TouchableOpacity>
 
-          <DatePickerIOS
-            style={s.picker__component}
-            date={date}
-            mode="date"
-            onDateChange={onChange}
-            // minimumDate={date}
+          <TextInput
+            style={s.input__component}
+            onChangeText={onChange}
+            value={text}
+            placeholder={placeholder}
+            placeholderTextColor="#c1ccdb"
           />
         </View>
       </Modal>
@@ -52,7 +53,7 @@ export default class DatePicker extends PureComponent {
 }
 
 const s = StyleSheet.create({
-  picker: {
+  input: {
     backgroundColor: '#6ef09f',
 
     shadowColor: '#000',
@@ -64,13 +65,13 @@ const s = StyleSheet.create({
     shadowRadius: 14,
   },
 
-  picker__modal: {
+  input__modal: {
     justifyContent: 'flex-end',
 
     backgroundColor: 'transparent',
   },
 
-  picker__text: {
+  input__text: {
     paddingVertical: 15,
 
     fontFamily: 'Avenir-Heavy',
@@ -80,7 +81,15 @@ const s = StyleSheet.create({
     textAlign: 'center',
   },
 
-  picker__component: {
+  input__component: {
+    paddingHorizontal: 30,
+
+    height: 80,
+
+    fontFamily: 'Avenir-Medium',
+    fontSize: 18,
+    color: '#333333',
+
     backgroundColor: '#fff',
   },
 });
