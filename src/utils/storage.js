@@ -7,16 +7,16 @@ const db = {
   */
   get(key) {
     if (!Array.isArray(key)) {
-      return AsyncStorage.getItem(key).then((value) => {
-        return JSON.parse(value);
-      })
-    } else {
-      return AsyncStorage.multiGet(key).then((values) => {
-        return values.map((value) => {
-          return JSON.parse(value[1]);
-        })
-      })
+      return AsyncStorage.getItem(key).then(value =>
+        JSON.parse(value),
+      );
     }
+
+    return AsyncStorage.multiGet(key).then(values =>
+      values.map(value =>
+        JSON.parse(value[1]),
+      ),
+    );
   },
 
   /**
@@ -25,20 +25,21 @@ const db = {
   save(key, value) {
     if (!Array.isArray(key)) {
       return AsyncStorage.setItem(key, JSON.stringify(value));
-    } else {
-      const pairs = key.map((pair) => [pair[0], JSON.stringify(pair[1])]);
-      return AsyncStorage.multiSet(pairs);
     }
+
+    const pairs = key.map(pair => [pair[0], JSON.stringify(pair[1])]);
+    return AsyncStorage.multiSet(pairs);
   },
 
   /**
-  * Updates the value in the store for a given key in AsyncStorage. If the value is a string it will be replaced. If the value is an object it will be deep merged.
+  * Updates the value in the store for a given key in AsyncStorage.
+  * If the value is a string it will be replaced. If the value is an object it will be deep merged.
   */
   update(key, value) {
     return this.get(key).then((item) => {
-      value = typeof value === 'string' ? value : merge({}, item, value);
+      value = typeof value === 'string' ? value : merge({}, item, value); // eslint-disable-line
       return AsyncStorage.setItem(key, JSON.stringify(value));
-    })
+    });
   },
 
   /**
@@ -62,10 +63,10 @@ const db = {
     return this.keys()
       .then((keys) => {
         keys
-          .filter((key) => key.split('countie/')[1])
-          .map((key) => AsyncStorage.removeItem(key));
-      })
+          .filter(key => key.split('countie/')[1])
+          .map(key => AsyncStorage.removeItem(key));
+      });
   },
-}
+};
 
 export default db;

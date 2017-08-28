@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { View, Text, StyleSheet, TouchableOpacity, Image, Linking } from 'react-native';
@@ -6,15 +7,14 @@ import moment from 'moment';
 import Container from '../components/container';
 import DatePicker from '../components/date-picker';
 
-const STATUSBAR_HEIGHT = 20;
-
 export default class Welcome extends PureComponent {
 
   static propTypes = {
     navigator: PropTypes.shape({
       push: PropTypes.func.isRequired,
       pop: PropTypes.func.isRequired,
-    }),
+    }).isRequired,
+    date: PropTypes.string,
   }
 
   static defaultProps = {

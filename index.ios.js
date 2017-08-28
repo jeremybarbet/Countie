@@ -4,6 +4,8 @@ import { NavigationProvider, StackNavigation } from '@expo/ex-navigation';
 
 import Router from './src/screens';
 
+console.disableYellowBox = true;
+
 export default class App extends PureComponent {
 
   render() {

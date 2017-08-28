@@ -1,3 +1,4 @@
+/* eslint-disable no-confusing-arrow, jsx-a11y/accessible-emoji */
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { StyleSheet, View, Text, Image } from 'react-native';
@@ -18,7 +19,9 @@ export default class Counter extends PureComponent {
     super(props);
 
     const t = props.to - props.from;
-    const get = (v) => datify(t)[v];
+    const get = v => datify(t)[v];
+
+    this.isOver = false;
 
     this.state = {
       date: {
@@ -32,8 +35,6 @@ export default class Counter extends PureComponent {
   }
 
   componentDidMount() {
-    const { from } = this.props;
-
     this.countdown = setInterval(() => {
       const t = this.state.date.total - 1000;
       this.counter(t);
@@ -46,6 +47,7 @@ export default class Counter extends PureComponent {
 
   counter(t) {
     if (t <= 0) {
+      this.isOver = true;
       clearInterval(this.countdown);
     }
 
@@ -55,7 +57,7 @@ export default class Counter extends PureComponent {
   renderCounter = () => {
     const { days, hours, minutes, seconds } = this.state.date;
 
-    const zero = (v) => v.toString().length > 1 ? v : `0${v}`;
+    const zero = v => v.toString().length > 1 ? v : `0${v}`;
     const f = (v, p) => v > 0 ? `${zero(v)}${p} ` : '';
 
     return (
@@ -66,7 +68,7 @@ export default class Counter extends PureComponent {
   }
 
   render() {
-    const { diff, to } = this.props;
+    const { to } = this.props;
 
     return (
       <Container>
@@ -77,7 +79,12 @@ export default class Counter extends PureComponent {
           style={s.counter__gradient}
         >
           <Text style={s.counter__title}>Baby + Iceland ❤️</Text>
-          {this.isOver ? <Text style={s.counter__countdown}>It’s over ❤️</Text> : this.renderCounter()}
+
+          {this.isOver
+            ? <Text style={s.counter__countdown}>It’s over ❤️</Text>
+            : this.renderCounter()
+          }
+
           <Text style={s.counter__date}>{moment(to).format('MMMM Do, YYYY')}</Text>
         </LinearGradient>
 
