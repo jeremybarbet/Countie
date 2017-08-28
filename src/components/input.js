@@ -24,7 +24,7 @@ export default class Input extends PureComponent {
 
     return (
       <Modal
-        animationDuration={200}
+        animationDuration={300}
         easing={Easing.ease}
         isOpen={open}
         style={s.input__modal}

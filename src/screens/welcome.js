@@ -8,7 +8,8 @@ import Container from '../components/container';
 import Picker from '../components/picker';
 import Input from '../components/input';
 
-const PLACEHOLDER = 'my next travel';
+const PLACEHOLDER_DATE = 'date';
+const PLACEHOLDER_TEXT = 'my next travel';
 
 export default class Welcome extends PureComponent {
 
@@ -20,7 +21,7 @@ export default class Welcome extends PureComponent {
   }
 
   state = {
-    date: new Date(),
+    date: null,
     text: null,
     pickerIsShown: false,
     inputIsShown: false,
@@ -41,13 +42,18 @@ export default class Welcome extends PureComponent {
     const from = new Date();
     const diff = to.getTime() - from.getTime();
 
-    if (diff <= 0) return;
+    if (diff <= 0 && text === null) return;
 
     this.props.navigator.push('counter', { from, to, text });
   }
 
   togglePicker = () => {
-    const { pickerIsShown } = this.state;
+    const { pickerIsShown, date } = this.state;
+
+    if (!date) {
+      this.setState({ date: new Date() });
+    }
+
     this.setState({ pickerIsShown: !pickerIsShown });
   }
 
@@ -58,14 +64,15 @@ export default class Welcome extends PureComponent {
 
   render() {
     const { pickerIsShown, inputIsShown, date, text } = this.state;
-    const value = text || PLACEHOLDER;
-    const styles = text ? s.welcome__value : s.welcome__placeholder;
+    const valueDate = date ? moment(date).format('DD/MM/YY') : PLACEHOLDER_DATE;
+    const valueText = text || PLACEHOLDER_TEXT;
+    const styles = state => state ? s.welcome__value : s.welcome__placeholder; // eslint-disable-line
 
     return (
       <Container>
         <View style={s.welcome__form}>
           <Text style={s.welcome__text}>
-            Let’s count <Text style={s.welcome__placeholder} onPress={this.togglePicker}>days</Text> to <Text style={styles} onPress={this.toggleInput}>{value}</Text>.
+            Let’s count <Text style={styles(date)} onPress={this.togglePicker}>{valueDate}</Text>{'\n'} for <Text style={styles(text)} onPress={this.toggleInput}>{valueText}</Text>.
           </Text>
 
           <Picker
@@ -79,7 +86,7 @@ export default class Welcome extends PureComponent {
             open={inputIsShown}
             toggle={this.toggleInput}
             text={text}
-            placeholder={PLACEHOLDER}
+            placeholder={PLACEHOLDER_TEXT}
             onChange={this.onTextChange}
           />
 

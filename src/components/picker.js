@@ -23,7 +23,7 @@ export default class Picker extends PureComponent {
 
     return (
       <Modal
-        animationDuration={200}
+        animationDuration={300}
         easing={Easing.ease}
         isOpen={open}
         style={s.picker__modal}
