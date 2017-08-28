@@ -105,7 +105,7 @@ const s = StyleSheet.create({
     right: 0,
 
     paddingHorizontal: 30,
-    paddingBottom: 30,
+    paddingBottom: 40,
 
     height: 280,
   },
