@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { View, Text, StyleSheet, TouchableOpacity, Image, Linking } from 'react-native';
+import moment from 'moment';
 
 import Container from '../components/container';
 import DatePicker from '../components/date-picker';
@@ -31,13 +32,14 @@ export default class Welcome extends PureComponent {
 
   submit = () => {
     const { date } = this.state;
+
+    const to = moment(date).startOf('day').toDate();
     const from = new Date();
-    const to = date;
     const diff = to.getTime() - from.getTime();
 
     if (diff <= 0) return;
 
-    this.props.navigator.push('counter', { from: new Date(), to: date });
+    this.props.navigator.push('counter', { from, to });
   }
 
   togglePicker = () => {

@@ -5,23 +5,38 @@ import LinearGradient from 'react-native-linear-gradient';
 import moment from 'moment';
 
 import Container from '../components/container';
-import storage from '../utils/storage';
+import datify from '../utils/date';
 
 export default class Counter extends PureComponent {
 
   static propTypes = {
-    from: PropTypes.string,
-    to: PropTypes.string,
+    from: PropTypes.string.isRequired,
+    to: PropTypes.string.isRequired,
   }
 
-  date = null
+  constructor(props) {
+    super(props);
+
+    const t = props.to - props.from;
+    const get = (v) => datify(t)[v];
+
+    this.state = {
+      date: {
+        total: get('total'),
+        days: get('days'),
+        hours: get('hours'),
+        minutes: get('minutes'),
+        seconds: get('seconds'),
+      },
+    };
+  }
 
   componentDidMount() {
-    const { from, to } = this.props;
+    const { from } = this.props;
 
     this.countdown = setInterval(() => {
-      console.log('coucou');
-      this.counter(from, to);
+      const t = this.state.date.total - 1000;
+      this.counter(t);
     }, 1000);
   }
 
@@ -29,37 +44,29 @@ export default class Counter extends PureComponent {
     clearInterval(this.countdown);
   }
 
-  counter(from, to) {
-    const diff = to.getTime() - from.getTime();
-    console.log('diff', diff);
+  counter(t) {
+    if (t <= 0) {
+      clearInterval(this.countdown);
+    }
 
-    this.isOver = false;
+    this.setState({ date: datify(t) });
+  }
 
-    // if (diff <= 0) {
-    //   clearInterval(this.countdown);
-    //   this.isOver = true;
-    // } else {
-      let seconds = Math.floor(diff / 1000);
-      let minutes = Math.floor(seconds / 60);
-      let hours = Math.floor(minutes / 60);
-      let days = Math.floor(hours / 24);
+  renderCounter = () => {
+    const { days, hours, minutes, seconds } = this.state.date;
 
-      hours %= 24;
-      minutes %= 60;
-      seconds %= 60;
+    const zero = (v) => v.toString().length > 1 ? v : `0${v}`;
+    const f = (v, p) => v > 0 ? `${zero(v)}${p} ` : '';
 
-      this.date = {
-        days,
-        hours,
-        minutes,
-        seconds,
-      };
-    // }
+    return (
+      <Text style={s.counter__countdown}>
+        {f(days, 'd')}{f(hours, 'h')}{f(minutes, 'm')}{f(seconds, 's')}
+      </Text>
+    );
   }
 
   render() {
     const { diff, to } = this.props;
-    console.log('this.date', this.date);
 
     return (
       <Container>
@@ -70,13 +77,7 @@ export default class Counter extends PureComponent {
           style={s.counter__gradient}
         >
           <Text style={s.counter__title}>Baby + Iceland ❤️</Text>
-
-          {this.isOver ? (
-            <Text style={s.counter__countdown}>30d 23h 13m 23s</Text>
-          ) : (
-            <Text style={s.counter__countdown}>It’s over ❤️</Text>
-          )}
-
+          {this.isOver ? <Text style={s.counter__countdown}>It’s over ❤️</Text> : this.renderCounter()}
           <Text style={s.counter__date}>{moment(to).format('MMMM Do, YYYY')}</Text>
         </LinearGradient>
 
