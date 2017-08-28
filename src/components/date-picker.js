@@ -54,6 +54,14 @@ export default class DatePicker extends PureComponent {
 const s = StyleSheet.create({
   picker: {
     backgroundColor: '#6ef09f',
+
+    shadowColor: '#000',
+    shadowOffset: {
+      height: 4,
+      width: 0,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 14,
   },
 
   picker__modal: {
