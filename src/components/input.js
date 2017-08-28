@@ -20,11 +20,6 @@ export default class Input extends PureComponent {
     toggle: () => {},
   }
 
-  componentDidMount() {
-    console.log(this.input);
-    // this.input.focus();
-  }
-
   render() {
     const { open, toggle, onChange, text, placeholder } = this.props;
 
@@ -35,7 +30,6 @@ export default class Input extends PureComponent {
         </TouchableOpacity>
 
         <TextInput
-          ref={(c) => { this.input = c; }}
           style={s.input__component}
           onChangeText={onChange}
           value={text}
