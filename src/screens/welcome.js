@@ -43,8 +43,8 @@ export default class Welcome extends PureComponent {
     const from = new Date();
     const diff = to.getTime() - from.getTime();
 
-    // if (isNil(text) || isNil(date)) return;
-    // if (diff <= 0) return;
+    if (isNil(text) || isNil(date)) return;
+    if (diff <= 0) return;
 
     this.props.navigator.push('counter', { from, to, text });
   }

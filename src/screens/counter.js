@@ -10,8 +10,6 @@ import moment from 'moment';
 import Container from '../components/container';
 import { datify, isOver } from '../utils/date';
 
-const test = new Date().setSeconds(new Date().getSeconds() + 20);
-
 const { width } = Dimensions.get('window');
 const ONE_SECOND = 1000;
 
@@ -27,9 +25,7 @@ export default class Counter extends PureComponent {
   constructor(props) {
     super(props);
 
-    // const t = props.to - props.from;
-
-    const t = moment(test).toDate() - new Date();
+    const t = props.to - props.from;
     const get = v => datify(t)[v];
 
     this.isOver = false;
@@ -42,15 +38,12 @@ export default class Counter extends PureComponent {
         minutes: get('minutes'),
         seconds: get('seconds'),
       },
-      progress: new Animated.Value(0),
-      value: 0,
     };
   }
 
   componentDidMount() {
     this.countdown = this.setInterval(() => {
-      const t = this.state.date.total;
-      this.counter(t);
+      this.counter(this.state.date.total);
     }, ONE_SECOND);
   }
 
@@ -77,7 +70,7 @@ export default class Counter extends PureComponent {
   }
 
   render() {
-    const { from, to, text } = this.props;
+    const { to, text } = this.props;
 
     return (
       <Container>
