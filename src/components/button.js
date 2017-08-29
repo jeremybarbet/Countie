@@ -7,19 +7,19 @@ export default class Button extends PureComponent {
 
   static propTypes = {
     children: PropTypes.node.isRequired,
-    toggle: PropTypes.func,
+    onPress: PropTypes.func,
   }
 
   static defaultProps = {
-    toggle: () => {},
+    onPress: () => {},
   }
 
   render() {
-    const { children, toggle } = this.props;
+    const { children, onPress } = this.props;
 
     return (
       <TouchableOpacity
-        onPress={toggle}
+        onPress={onPress}
         activeOpacity={0.75}
       >
         <Text style={s.button}>{children.toUpperCase()}</Text>

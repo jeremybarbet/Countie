@@ -2,7 +2,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { decorate } from 'react-mixin';
-import { StyleSheet, View, Text, Image, Animated, Dimensions } from 'react-native';
+import { StyleSheet, Text, Image, Animated, Dimensions } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import TimerMixin from 'react-native-timer-mixin';
 import moment from 'moment';

@@ -1,10 +1,12 @@
 /* eslint-disable react-native/split-platform-components */
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { StyleSheet, TextInput, KeyboardAvoidingView, Dimensions } from 'react-native';
 
 import Modal from './modal';
 import Button from './button';
+
+const { width } = Dimensions.get('window');
 
 export default class Input extends PureComponent {
 
@@ -12,35 +14,43 @@ export default class Input extends PureComponent {
     open: PropTypes.bool,
     toggle: PropTypes.func,
     onChange: PropTypes.func.isRequired,
-    text: PropTypes.string.isRequired,
+    text: PropTypes.string,
     placeholder: PropTypes.string.isRequired,
   }
 
   static defaultProps = {
     open: false,
     toggle: () => {},
+    text: null,
   }
 
   render() {
     const { open, toggle, onChange, text, placeholder } = this.props;
 
     return (
-      <Modal isOpen={open}>
-        <Button onPress={toggle}>Validate</Button>
+      <KeyboardAvoidingView behavior="position">
+        <Modal isOpen={open} style={s.input__modal}>
+          <Button onPress={toggle}>Validate</Button>
 
-        <TextInput
-          style={s.input__component}
-          onChangeText={onChange}
-          value={text}
-          placeholder={placeholder}
-          placeholderTextColor="#c1ccdb"
-        />
-      </Modal>
+          <TextInput
+            style={s.input__component}
+            onChangeText={onChange}
+            value={text}
+            placeholder={placeholder}
+            placeholderTextColor="#c1ccdb"
+          />
+        </Modal>
+      </KeyboardAvoidingView>
     );
   }
 }
 
 const s = StyleSheet.create({
+  input__modal: {
+    width,
+    height: 230,
+  },
+
   input__component: {
     paddingHorizontal: 30,
 
