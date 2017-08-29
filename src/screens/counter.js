@@ -17,8 +17,8 @@ const ONE_SECOND = 1000;
 export default class Counter extends PureComponent {
 
   static propTypes = {
-    from: PropTypes.string.isRequired,
-    to: PropTypes.string.isRequired,
+    from: PropTypes.object.isRequired,
+    to: PropTypes.object.isRequired,
     text: PropTypes.string.isRequired,
   }
 

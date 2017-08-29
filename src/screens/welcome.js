@@ -21,8 +21,10 @@ export default class Welcome extends PureComponent {
     }).isRequired,
   }
 
+  isShowForFirstTime: false
+
   state = {
-    date: null,
+    date: new Date(),
     text: null,
     pickerIsShown: false,
     inputIsShown: false,
@@ -51,11 +53,7 @@ export default class Welcome extends PureComponent {
 
   togglePicker = () => {
     const { pickerIsShown, date } = this.state;
-
-    if (!date) {
-      this.setState({ date: new Date() });
-    }
-
+    this.isShowForFirstTime = true;
     this.setState({ pickerIsShown: !pickerIsShown });
   }
 
@@ -66,7 +64,7 @@ export default class Welcome extends PureComponent {
 
   render() {
     const { pickerIsShown, inputIsShown, date, text } = this.state;
-    const valueDate = date ? moment(date).format('DD/MM/YY') : PLACEHOLDER_DATE;
+    const valueDate = this.isShowForFirstTime ? moment(date).format('DD/MM/YY') : PLACEHOLDER_DATE;
     const valueText = text || PLACEHOLDER_TEXT;
     const styles = state => state ? s.welcome__value : s.welcome__placeholder; // eslint-disable-line
 
@@ -74,7 +72,7 @@ export default class Welcome extends PureComponent {
       <Container>
         <View style={s.welcome__form}>
           <Text style={s.welcome__text}>
-            Let’s count <Text style={styles(date)} onPress={this.togglePicker}>{valueDate}</Text>{'\n'} for <Text style={styles(text)} onPress={this.toggleInput}>{valueText}</Text>.
+            Let’s count <Text style={styles(this.isShowForFirstTime)} onPress={this.togglePicker}>{valueDate}</Text>{'\n'} for <Text style={styles(text)} onPress={this.toggleInput}>{valueText}</Text>.
           </Text>
 
           <Picker
