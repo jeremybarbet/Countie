@@ -133,7 +133,7 @@ const s = StyleSheet.create({
   counter__date: {
     opacity: 0.6,
 
-    marginTop: 2,
+    marginTop: 4,
 
     fontFamily: 'Avenir-Medium',
     fontSize: 18,
