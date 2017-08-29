@@ -3342,7 +3342,7 @@ react-devtools-core@2.3.1:
     shell-quote "^1.6.1"
     ws "^2.0.3"
 
-react-mixin@^3.0.5:
+react-mixin@^3.0.5, react-mixin@^3.1.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/react-mixin/-/react-mixin-3.1.0.tgz#0c5dea2ee90d01455dabfbebe44db03a37497e53"
   dependencies:
@@ -3383,6 +3383,10 @@ react-native-tab-view@^0.0.61:
   resolved "https://registry.yarnpkg.com/react-native-tab-view/-/react-native-tab-view-0.0.61.tgz#9f5446c9ad33158b87f0bccf5004fbff79ca1f92"
   dependencies:
     prop-types "^15.5.8"
+
+react-native-timer-mixin@^0.11.0:
+  version "0.11.0"
+  resolved "https://registry.yarnpkg.com/react-native-timer-mixin/-/react-native-timer-mixin-0.11.0.tgz#acd7e267ac6666970c2ed2186f6a4484cc7833d8"
 
 react-native@0.47.2:
   version "0.47.2"
