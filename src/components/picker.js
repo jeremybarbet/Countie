@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { Text, StyleSheet, DatePickerIOS, TouchableOpacity } from 'react-native';
 
 import Modal from './modal';
+import Button from './button';
 
 export default class Picker extends PureComponent {
 
@@ -24,9 +25,7 @@ export default class Picker extends PureComponent {
 
     return (
       <Modal isOpen={open}>
-        <TouchableOpacity onPress={toggle}>
-          <Text style={s.picker__text}>{'Validate'.toUpperCase()}</Text>
-        </TouchableOpacity>
+        <Button onPress={toggle}>Validate</Button>
 
         <DatePickerIOS
           style={s.picker__component}

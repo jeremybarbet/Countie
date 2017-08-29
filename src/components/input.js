@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 
 import Modal from './modal';
+import Button from './button';
 
 export default class Input extends PureComponent {
 
@@ -25,9 +26,7 @@ export default class Input extends PureComponent {
 
     return (
       <Modal isOpen={open}>
-        <TouchableOpacity onPress={toggle}>
-          <Text style={s.input__text}>{'Validate'.toUpperCase()}</Text>
-        </TouchableOpacity>
+        <Button onPress={toggle}>Validate</Button>
 
         <TextInput
           style={s.input__component}
@@ -42,16 +41,6 @@ export default class Input extends PureComponent {
 }
 
 const s = StyleSheet.create({
-  input__text: {
-    paddingVertical: 15,
-
-    fontFamily: 'Avenir-Heavy',
-    fontSize: 14,
-    color: '#FFFFFF',
-    letterSpacing: 1,
-    textAlign: 'center',
-  },
-
   input__component: {
     paddingHorizontal: 30,
 
