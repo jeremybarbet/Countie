@@ -2,7 +2,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { decorate } from 'react-mixin';
-import { StyleSheet, Text, Image, Animated, Dimensions } from 'react-native';
+import { StyleSheet, Text, Image, Animated, Dimensions, Easing } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import TimerMixin from 'react-native-timer-mixin';
 import moment from 'moment';
@@ -38,6 +38,7 @@ export default class Counter extends PureComponent {
         minutes: get('minutes'),
         seconds: get('seconds'),
       },
+      progress: new Animated.Value(t),
     };
   }
 
@@ -47,13 +48,32 @@ export default class Counter extends PureComponent {
     }, ONE_SECOND);
   }
 
+  get width() {
+    const { from, to } = this.props;
+    const t = to - from;
+
+    return {
+      width: this.state.progress.interpolate({
+        inputRange: [ONE_SECOND, t],
+        outputRange: [0, width],
+      }),
+    };
+  }
+
   counter(t) {
-    const date = datify(t - ONE_SECOND);
+    const sub = t - ONE_SECOND;
+    const date = datify(sub);
 
     if (isOver(this.state.date)) {
       this.isOver = true;
       clearInterval(this.countdown);
     }
+
+    Animated.timing(this.state.progress, {
+      toValue: sub,
+      duration: ONE_SECOND,
+      easing: Easing.linear,
+    }).start();
 
     this.setState({ date });
   }
@@ -90,7 +110,7 @@ export default class Counter extends PureComponent {
           <Text style={s.counter__date}>{moment(to).format('MMMM Do, YYYY')}</Text>
         </LinearGradient>
 
-        <Animated.View style={s.counter__progress} />
+        <Animated.View style={[s.counter__progress, this.width]} />
       </Container>
     );
   }

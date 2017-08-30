@@ -21,7 +21,7 @@ export default class Welcome extends PureComponent {
     }).isRequired,
   }
 
-  isShowForFirstTime: false
+  isShowForFirstTime: false // eslint-disable-line
 
   state = {
     date: new Date(),
@@ -52,7 +52,7 @@ export default class Welcome extends PureComponent {
   }
 
   togglePicker = () => {
-    const { pickerIsShown, date } = this.state;
+    const { pickerIsShown } = this.state;
     this.isShowForFirstTime = true;
     this.setState({ pickerIsShown: !pickerIsShown });
   }
