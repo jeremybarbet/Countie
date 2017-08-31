@@ -3,14 +3,14 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { decorate } from 'react-mixin';
 import { inject, observer } from 'mobx-react/native';
-import { StyleSheet, Text, Image, Animated, Dimensions, Easing, AppState } from 'react-native';
+import { StyleSheet, Text, Image, Animated, Dimensions, Easing, AppState, TouchableOpacity, Alert } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import TimerMixin from 'react-native-timer-mixin';
 import moment from 'moment';
 
 import Container from '../components/container';
 import { datify, isOver } from '../utils/date';
-// import storage from '../utils/storage';
+import storage from '../utils/storage';
 
 const { width } = Dimensions.get('window');
 const ONE_SECOND = 1000;
@@ -20,6 +20,10 @@ const ONE_SECOND = 1000;
 export default class Counter extends Component {
 
   static propTypes = {
+    navigator: PropTypes.shape({
+      push: PropTypes.func.isRequired,
+      pop: PropTypes.func.isRequired,
+    }).isRequired,
     ui: PropTypes.object.isRequired,
     from: PropTypes.object.isRequired,
     to: PropTypes.object.isRequired,
@@ -45,6 +49,7 @@ export default class Counter extends Component {
   }
 
   componentWillMount() {
+    this.props.ui.counterActive = true;
     AppState.addEventListener('change', this.handleStateChange);
   }
 
@@ -56,6 +61,24 @@ export default class Counter extends Component {
 
   componentWillUnmount() {
     AppState.removeEventListener('change', this.handleStateChange);
+  }
+
+  onPress = () => {
+    Alert.alert(
+      'Delete counter',
+      'Are you sure you want to delete this counter?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Yes',
+          onPress: this.deleteCounter,
+          style: 'destructive',
+        },
+      ],
+    );
   }
 
   get width() {
@@ -74,21 +97,23 @@ export default class Counter extends Component {
     const { ui } = this.props;
 
     if (state === 'inactive') {
-      ui.lastClosed = new Date();
+      this.lastClosed = new Date();
       ui.timeRemaining = ui.date.total;
+      storage.set('@countie:last_closed', this.lastClosed);
+      storage.set('@countie:counter_active', ui.counterActive);
     }
 
     if (state === 'active') {
-      ui.lastOpened = new Date();
-      ui.timeDifference();
+      ui.timeDifference(this.lastClosed, new Date());
     }
   }
 
   counter(t) {
+    const { ui } = this.props;
     const sub = t - ONE_SECOND;
     const date = datify(sub);
 
-    if (isOver(this.props.ui.date)) {
+    if (isOver(ui.date)) {
       this.isOver = true;
       clearInterval(this.countdown);
     }
@@ -99,7 +124,12 @@ export default class Counter extends Component {
       easing: Easing.linear,
     }).start();
 
-    this.props.ui.date = date;
+    ui.date = date;
+  }
+
+  deleteCounter = () => {
+    storage.clear();
+    this.props.navigator.pop();
   }
 
   renderCounter = () => {
@@ -118,6 +148,14 @@ export default class Counter extends Component {
 
     return (
       <Container>
+        <TouchableOpacity
+          style={s.counter__close}
+          onPress={this.onPress}
+          activeOpacity={0.8}
+        >
+          <Image source={require('../images/close.png')} />
+        </TouchableOpacity>
+
         <Image source={require('../images/bg.png')} />
 
         <LinearGradient
@@ -141,6 +179,13 @@ export default class Counter extends Component {
 }
 
 const s = StyleSheet.create({
+  counter__close: {
+    position: 'absolute',
+    top: 30,
+    right: 30,
+    zIndex: 10,
+  },
+
   counter__gradient: {
     justifyContent: 'flex-end',
 

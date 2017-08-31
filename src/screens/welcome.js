@@ -39,6 +39,7 @@ export default class Welcome extends PureComponent {
   }
 
   submit = () => {
+    const { navigator } = this.props;
     const { date, text } = this.state;
 
     // const to = moment(new Date().setSeconds(new Date().getSeconds() + 50)).toDate();
@@ -49,7 +50,7 @@ export default class Welcome extends PureComponent {
     if (isNil(text) || isNil(date)) return;
     if (diff <= 0) return;
 
-    this.props.navigator.push('counter', { from, to, text });
+    navigator.push('counter', { from, to, text });
   }
 
   togglePicker = () => {
