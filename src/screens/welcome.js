@@ -41,6 +41,7 @@ export default class Welcome extends PureComponent {
   submit = () => {
     const { date, text } = this.state;
 
+    // const to = moment(new Date().setSeconds(new Date().getSeconds() + 50)).toDate();
     const to = moment(date).startOf('day').toDate();
     const from = new Date();
     const diff = to.getTime() - from.getTime();

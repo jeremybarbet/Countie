@@ -1,22 +1,26 @@
 /* eslint-disable no-confusing-arrow, jsx-a11y/accessible-emoji */
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { decorate } from 'react-mixin';
-import { StyleSheet, Text, Image, Animated, Dimensions, Easing } from 'react-native';
+import { inject, observer } from 'mobx-react/native';
+import { StyleSheet, Text, Image, Animated, Dimensions, Easing, AppState } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import TimerMixin from 'react-native-timer-mixin';
 import moment from 'moment';
 
 import Container from '../components/container';
 import { datify, isOver } from '../utils/date';
+// import storage from '../utils/storage';
 
 const { width } = Dimensions.get('window');
 const ONE_SECOND = 1000;
 
+@inject('ui') @observer
 @decorate(TimerMixin)
-export default class Counter extends PureComponent {
+export default class Counter extends Component {
 
   static propTypes = {
+    ui: PropTypes.object.isRequired,
     from: PropTypes.object.isRequired,
     to: PropTypes.object.isRequired,
     text: PropTypes.string.isRequired,
@@ -29,23 +33,29 @@ export default class Counter extends PureComponent {
     const get = v => datify(t)[v];
 
     this.isOver = false;
+    this.progress = new Animated.Value(t);
 
-    this.state = {
-      date: {
-        total: get('total'),
-        days: get('days'),
-        hours: get('hours'),
-        minutes: get('minutes'),
-        seconds: get('seconds'),
-      },
-      progress: new Animated.Value(t),
+    props.ui.date = { // eslint-disable-line
+      total: get('total'),
+      days: get('days'),
+      hours: get('hours'),
+      minutes: get('minutes'),
+      seconds: get('seconds'),
     };
   }
 
+  componentWillMount() {
+    AppState.addEventListener('change', this.handleStateChange);
+  }
+
   componentDidMount() {
-    this.countdown = this.setInterval(() => {
-      this.counter(this.state.date.total);
-    }, ONE_SECOND);
+    this.countdown = this.setInterval(() =>
+      this.counter(this.props.ui.date.total),
+    ONE_SECOND);
+  }
+
+  componentWillUnmount() {
+    AppState.removeEventListener('change', this.handleStateChange);
   }
 
   get width() {
@@ -53,33 +63,47 @@ export default class Counter extends PureComponent {
     const t = to - from;
 
     return {
-      width: this.state.progress.interpolate({
+      width: this.progress.interpolate({
         inputRange: [ONE_SECOND, t],
         outputRange: [0, width],
       }),
     };
   }
 
+  handleStateChange = (state) => {
+    const { ui } = this.props;
+
+    if (state === 'inactive') {
+      ui.lastClosed = new Date();
+      ui.timeRemaining = ui.date.total;
+    }
+
+    if (state === 'active') {
+      ui.lastOpened = new Date();
+      ui.timeDifference();
+    }
+  }
+
   counter(t) {
     const sub = t - ONE_SECOND;
     const date = datify(sub);
 
-    if (isOver(this.state.date)) {
+    if (isOver(this.props.ui.date)) {
       this.isOver = true;
       clearInterval(this.countdown);
     }
 
-    Animated.timing(this.state.progress, {
+    Animated.timing(this.progress, {
       toValue: sub,
       duration: ONE_SECOND,
       easing: Easing.linear,
     }).start();
 
-    this.setState({ date });
+    this.props.ui.date = date;
   }
 
   renderCounter = () => {
-    const { days, hours, minutes, seconds } = this.state.date;
+    const { days, hours, minutes, seconds } = this.props.ui.date;
     const f = (v, p) => v.toString().length > 1 ? `${v}${p}` : `0${v}${p}`;
 
     return (
