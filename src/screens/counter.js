@@ -1,4 +1,3 @@
-/* eslint-disable no-confusing-arrow, jsx-a11y/accessible-emoji */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { decorate } from 'react-mixin';
@@ -7,15 +6,17 @@ import { StyleSheet, Text, Image, Animated, Dimensions, Easing, AppState, Toucha
 import LinearGradient from 'react-native-linear-gradient';
 import TimerMixin from 'react-native-timer-mixin';
 import moment from 'moment';
+import get from 'lodash/get';
 
 import Container from '../components/container';
 import { datify, isOver } from '../utils/date';
-import storage from '../utils/storage';
+import storage, { prefix } from '../utils/storage';
 
 const { width } = Dimensions.get('window');
 const ONE_SECOND = 1000;
 
-@inject('ui') @observer
+@inject('ui')
+@observer
 @decorate(TimerMixin)
 export default class Counter extends Component {
 
@@ -33,27 +34,41 @@ export default class Counter extends Component {
   constructor(props) {
     super(props);
 
-    const t = props.to - props.from;
-    const get = v => datify(t)[v];
+    console.log(':::::::::::::', props.initialFrom)
 
-    this.isOver = false;
+    const initialTime = props.to - props.from;
+    const t = get(props.remaining, 'total') || initialTime;
+    // console.log('==============', t)
+
+    // const get = v => datify(props.progress || t)[v];
+    const value = v => datify(t)[v];
+
+    // console.log('----------props', props.ui)
+
+    // this.progress = new Animated.Value(props.progress || t);
     this.progress = new Animated.Value(t);
 
-    props.ui.date = { // eslint-disable-line
-      total: get('total'),
-      days: get('days'),
-      hours: get('hours'),
-      minutes: get('minutes'),
-      seconds: get('seconds'),
-    };
+    if (!props.remaining) {
+      props.ui.date = { // eslint-disable-line
+        total: value('total'),
+        days: value('days'),
+        hours: value('hours'),
+        minutes: value('minutes'),
+        seconds: value('seconds'),
+      };
+    }
   }
 
   componentWillMount() {
-    this.props.ui.counterActive = true;
     AppState.addEventListener('change', this.handleStateChange);
   }
 
   componentDidMount() {
+    // this.switchBackground();
+
+    // console.log('-------------- ui.date.total', this.props.ui.date.total)
+    // console.log('--------', isOver(this.props.ui.date))
+
     this.countdown = this.setInterval(() =>
       this.counter(this.props.ui.date.total),
     ONE_SECOND);
@@ -70,7 +85,6 @@ export default class Counter extends Component {
       [
         {
           text: 'Cancel',
-          style: 'cancel',
         },
         {
           text: 'Yes',
@@ -82,8 +96,15 @@ export default class Counter extends Component {
   }
 
   get width() {
-    const { from, to } = this.props;
-    const t = to - from;
+    const { initialFrom, from, to } = this.props;
+    const t = to - (initialFrom || from);
+    // console.log('---------- initialFrom', initialFrom)
+    // console.log('---------- from', from)
+    // console.log('---------- to', to)
+
+    if (t < 0) return;
+
+    // console.log('--------- get width t', t)
 
     return {
       width: this.progress.interpolate({
@@ -94,16 +115,33 @@ export default class Counter extends Component {
   }
 
   handleStateChange = (state) => {
-    const { ui } = this.props;
+    // console.log('---- state', state)
+
+    const { ui, from, to, text } = this.props;
 
     if (state === 'inactive') {
+
       this.lastClosed = new Date();
-      ui.timeRemaining = ui.date.total;
-      storage.set('@countie:last_closed', this.lastClosed);
-      storage.set('@countie:counter_active', ui.counterActive);
+      this.timeRemaining = ui.date;
+      // ui.timeRemaining = ui.date.total;
+
+      // ui.counter.from = from;
+      //   from,
+      //   // to,
+      //   // text,
+      // };
+
+      console.log('inactive this.lastClosed', this.lastClosed);
+
+
+      storage.set(prefix('appClosed'), this.lastClosed);
+      // storage.set(prefix('progress'), this.progress);
+      storage.set(prefix('remaining'), this.timeRemaining);
     }
 
     if (state === 'active') {
+      console.log('active this.lastClosed', this.lastClosed);
+      // this.switchBackground();
       ui.timeDifference(this.lastClosed, new Date());
     }
   }
@@ -112,9 +150,10 @@ export default class Counter extends Component {
     const { ui } = this.props;
     const sub = t - ONE_SECOND;
     const date = datify(sub);
+    console.log('-******** sub', sub)
+    console.log('-******** date', date)
 
     if (isOver(ui.date)) {
-      this.isOver = true;
       clearInterval(this.countdown);
     }
 
@@ -129,10 +168,19 @@ export default class Counter extends Component {
 
   deleteCounter = () => {
     storage.clear();
+
     this.props.navigator.pop();
+    this.props.ui.showDate = false;
+
+    this.props.ui.counter = {
+      from: undefined,
+      to: new Date(),
+      text: undefined,
+    };
   }
 
   renderCounter = () => {
+    console.log('*********', this.props.ui.date)
     const { days, hours, minutes, seconds } = this.props.ui.date;
     const f = (v, p) => v.toString().length > 1 ? `${v}${p}` : `0${v}${p}`;
 
@@ -144,7 +192,7 @@ export default class Counter extends Component {
   }
 
   render() {
-    const { to, text } = this.props;
+    const { ui, to, text } = this.props;
 
     return (
       <Container>
@@ -164,7 +212,7 @@ export default class Counter extends Component {
         >
           <Text style={s.counter__title}>{text}</Text>
 
-          {this.isOver
+          {isOver(ui.date)
             ? <Text style={s.counter__countdown}>Enjoy your time!</Text>
             : this.renderCounter()
           }
@@ -184,6 +232,7 @@ const s = StyleSheet.create({
     top: 30,
     right: 30,
     zIndex: 10,
+    opacity: 0.8,
   },
 
   counter__gradient: {
