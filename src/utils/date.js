@@ -14,8 +14,8 @@ export function datify(total) {
 }
 
 export function isOver(date) {
-  const isZero = v => date[v] === 0;
-  const goingToEnd = date.seconds === 1;
+  const isZero = v => date[v] <= 0;
+  const goingToEnd = date.seconds <= 1;
 
   if (isZero('days') && isZero('hours') && isZero('minutes') && goingToEnd) {
     return true;

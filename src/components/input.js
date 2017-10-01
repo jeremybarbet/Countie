@@ -24,6 +24,12 @@ export default class Input extends PureComponent {
     text: null,
   }
 
+  componentDidUpdate() {
+    if (this.props.open) {
+      this.input.focus();
+    }
+  }
+
   render() {
     const { open, toggle, onChange, text, placeholder } = this.props;
 
@@ -33,11 +39,13 @@ export default class Input extends PureComponent {
           <Button onPress={toggle}>Validate</Button>
 
           <TextInput
+            ref={(c) => { this.input = c; }}
             style={s.input__component}
             onChangeText={onChange}
             value={text}
             placeholder={placeholder}
             placeholderTextColor="#c1ccdb"
+            autoCapitalize="none"
           />
         </Modal>
       </KeyboardAvoidingView>
