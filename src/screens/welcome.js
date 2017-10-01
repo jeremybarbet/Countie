@@ -1,32 +1,32 @@
 /* eslint-disable max-len */
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { View, Text, StyleSheet, TouchableOpacity, Image, Linking } from 'react-native';
 import moment from 'moment';
 import { isNil } from 'lodash';
+import { inject, observer } from 'mobx-react/native';
 
 import Container from '../components/container';
 import Picker from '../components/picker';
 import Input from '../components/input';
-import storage from '../utils/storage';
+import storage, { prefix } from '../utils/storage';
 
 const PLACEHOLDER_DATE = 'date';
 const PLACEHOLDER_TEXT = 'my next travel';
 
-export default class Welcome extends PureComponent {
+@inject('ui')
+@observer
+export default class Welcome extends Component {
 
   static propTypes = {
     navigator: PropTypes.shape({
       push: PropTypes.func.isRequired,
       pop: PropTypes.func.isRequired,
     }).isRequired,
+    ui: PropTypes.object.isRequired,
   }
 
-  isShowForFirstTime = false // eslint-disable-line
-
   state = {
-    date: new Date(),
-    text: null,
     pickerIsShown: false,
     inputIsShown: false,
   }
@@ -35,42 +35,41 @@ export default class Welcome extends PureComponent {
     const lastOpened = new Date();
 
     try {
-      const lastClosed = await storage.get('@countie:last_closed');
+      const lastClosed = await storage.get(prefix('last_closed'));
 
       if (lastClosed) {
-        await this.ui.timeDifference(lastClosed, lastOpened);
+        await this.props.ui.timeDifference(lastClosed, lastOpened);
       }
     } catch (error) {
       console.log(error) // eslint-disable-line
     }
   }
 
-  onDateChange = (date) => {
-    this.setState({ date });
+  onDateChange = (to) => {
+    this.props.ui.counter.to = to;
   }
 
   onTextChange = (text) => {
-    this.setState({ text });
+    this.props.ui.counter.text = text;
   }
 
   submit = () => {
-    const { navigator } = this.props;
-    const { date, text } = this.state;
+    const { ui, navigator } = this.props;
 
     // const to = moment(new Date().setSeconds(new Date().getSeconds() + 50)).toDate();
-    const to = moment(date).startOf('day').toDate();
+    const to = moment(ui.counter.to).startOf('day').toDate();
     const from = new Date();
     const diff = to.getTime() - from.getTime();
 
-    if (isNil(text) || isNil(date)) return;
+    if (isNil(ui.counter.text) || isNil(ui.counter.to)) return;
     if (diff <= 0) return;
 
-    navigator.push('counter', { from, to, text });
+    navigator.push('counter', { from, to, text: ui.counter.text });
   }
 
   togglePicker = () => {
     const { pickerIsShown } = this.state;
-    this.isShowForFirstTime = true;
+    this.props.ui.showDate = true;
     this.setState({ pickerIsShown: !pickerIsShown });
   }
 
@@ -80,31 +79,32 @@ export default class Welcome extends PureComponent {
   }
 
   render() {
-    const { pickerIsShown, inputIsShown, date, text } = this.state;
+    const { ui } = this.props;
+    const { pickerIsShown, inputIsShown } = this.state;
 
-    const isClickable = date && text;
-    const valueDate = this.isShowForFirstTime ? moment(date).format('DD/MM/YY') : PLACEHOLDER_DATE;
-    const valueText = text || PLACEHOLDER_TEXT;
+    const isClickable = ui.counter.to && ui.counter.text;
+    const valueDate = ui.showDate ? moment(ui.counter.to).format('DD/MM/YY') : PLACEHOLDER_DATE;
+    const valueText = ui.counter.text || PLACEHOLDER_TEXT;
     const styles = state => state ? s.welcome__value : s.welcome__placeholder; // eslint-disable-line
 
     return (
       <Container>
         <View style={s.welcome__form}>
           <Text style={s.welcome__text}>
-            Let’s count <Text style={styles(this.isShowForFirstTime)} onPress={this.togglePicker}>{valueDate}</Text>{'\n'} for <Text style={styles(text)} onPress={this.toggleInput}>{valueText}</Text>.
+            Let’s count <Text style={styles(ui.showDate)} onPress={this.togglePicker}>{valueDate}</Text>{'\n'} for <Text style={styles(ui.counter.text)} onPress={this.toggleInput}>{valueText}</Text>.
           </Text>
 
           <Picker
             open={pickerIsShown}
             toggle={this.togglePicker}
-            date={date}
+            date={ui.counter.to}
             onChange={this.onDateChange}
           />
 
           <Input
             open={inputIsShown}
             toggle={this.toggleInput}
-            text={text}
+            text={ui.counter.text}
             placeholder={PLACEHOLDER_TEXT}
             onChange={this.onTextChange}
           />

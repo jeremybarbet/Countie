@@ -5,10 +5,20 @@ import { datify } from '../utils/date';
 export default class UIStore {
 
   @observable
-  timeRemaining = null;
+  timeRemaining = undefined;
+
+  @observable
+  showDate = false;
 
   @observable
   date = {};
+
+  @observable
+  counter = {
+    from: undefined,
+    to: new Date(),
+    text: undefined,
+  };
 
   timeDifference(closed, opened) {
     const converted = typeof closed === 'string'

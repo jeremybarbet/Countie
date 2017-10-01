@@ -10,12 +10,13 @@ import moment from 'moment';
 
 import Container from '../components/container';
 import { datify, isOver } from '../utils/date';
-import storage from '../utils/storage';
+import storage, { prefix } from '../utils/storage';
 
 const { width } = Dimensions.get('window');
 const ONE_SECOND = 1000;
 
-@inject('ui') @observer
+@inject('ui')
+@observer
 @decorate(TimerMixin)
 export default class Counter extends Component {
 
@@ -103,7 +104,7 @@ export default class Counter extends Component {
     if (state === 'inactive') {
       this.lastClosed = new Date();
       ui.timeRemaining = ui.date.total;
-      storage.set('@countie:last_closed', this.lastClosed);
+      storage.set(prefix('last_closed'), this.lastClosed);
     }
 
     if (state === 'active') {
@@ -131,6 +132,14 @@ export default class Counter extends Component {
 
   deleteCounter = () => {
     storage.clear();
+
+    this.props.ui.showDate = false;
+
+    this.props.ui.counter = {
+      from: undefined,
+      to: new Date(),
+      text: undefined,
+    };
 
     this.props.navigator.pop();
   }
