@@ -1,6 +1,8 @@
 import { AsyncStorage } from 'react-native';
 import merge from 'lodash/merge';
 
+export const prefix = v => `@countie:${v}`;
+
 const storage = {
   /**
   * Get a one or more value for a key or array of keys from AsyncStorage

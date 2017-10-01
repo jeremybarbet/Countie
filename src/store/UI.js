@@ -4,6 +4,12 @@ import { datify } from '../utils/date';
 
 export default class UIStore {
 
+  @observable
+  timeRemaining = null;
+
+  @observable
+  date = {};
+
   timeDifference(closed, opened) {
     const converted = typeof closed === 'string'
       ? new Date(Date.parse(closed))
@@ -15,13 +21,4 @@ export default class UIStore {
 
     this.date = date;
   }
-
-  @observable
-  counterActive = false;
-
-  @observable
-  timeRemaining = null;
-
-  @observable
-  date = {};
 }

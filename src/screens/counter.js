@@ -36,7 +36,6 @@ export default class Counter extends Component {
     const t = props.to - props.from;
     const get = v => datify(t)[v];
 
-    this.isOver = false;
     this.progress = new Animated.Value(t);
 
     props.ui.date = { // eslint-disable-line
@@ -49,7 +48,6 @@ export default class Counter extends Component {
   }
 
   componentWillMount() {
-    this.props.ui.counterActive = true;
     AppState.addEventListener('change', this.handleStateChange);
   }
 
@@ -85,6 +83,12 @@ export default class Counter extends Component {
     const { from, to } = this.props;
     const t = to - from;
 
+    if (t < 0) {
+      return {
+        width: 0,
+      };
+    }
+
     return {
       width: this.progress.interpolate({
         inputRange: [ONE_SECOND, t],
@@ -100,7 +104,6 @@ export default class Counter extends Component {
       this.lastClosed = new Date();
       ui.timeRemaining = ui.date.total;
       storage.set('@countie:last_closed', this.lastClosed);
-      storage.set('@countie:counter_active', ui.counterActive);
     }
 
     if (state === 'active') {
@@ -114,7 +117,6 @@ export default class Counter extends Component {
     const date = datify(sub);
 
     if (isOver(ui.date)) {
-      this.isOver = true;
       clearInterval(this.countdown);
     }
 
@@ -129,6 +131,7 @@ export default class Counter extends Component {
 
   deleteCounter = () => {
     storage.clear();
+
     this.props.navigator.pop();
   }
 
@@ -144,7 +147,7 @@ export default class Counter extends Component {
   }
 
   render() {
-    const { to, text } = this.props;
+    const { ui, to, text } = this.props;
 
     return (
       <Container>
@@ -164,7 +167,7 @@ export default class Counter extends Component {
         >
           <Text style={s.counter__title}>{text}</Text>
 
-          {this.isOver
+          {isOver(ui.date)
             ? <Text style={s.counter__countdown}>Enjoy your time!</Text>
             : this.renderCounter()
           }

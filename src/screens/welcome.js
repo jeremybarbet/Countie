@@ -8,6 +8,7 @@ import { isNil } from 'lodash';
 import Container from '../components/container';
 import Picker from '../components/picker';
 import Input from '../components/input';
+import storage from '../utils/storage';
 
 const PLACEHOLDER_DATE = 'date';
 const PLACEHOLDER_TEXT = 'my next travel';
@@ -21,13 +22,27 @@ export default class Welcome extends PureComponent {
     }).isRequired,
   }
 
-  isShowForFirstTime: false // eslint-disable-line
+  isShowForFirstTime = false // eslint-disable-line
 
   state = {
     date: new Date(),
     text: null,
     pickerIsShown: false,
     inputIsShown: false,
+  }
+
+  async componentWillMount() {
+    const lastOpened = new Date();
+
+    try {
+      const lastClosed = await storage.get('@countie:last_closed');
+
+      if (lastClosed) {
+        await this.ui.timeDifference(lastClosed, lastOpened);
+      }
+    } catch (error) {
+      console.log(error) // eslint-disable-line
+    }
   }
 
   onDateChange = (date) => {
@@ -66,6 +81,8 @@ export default class Welcome extends PureComponent {
 
   render() {
     const { pickerIsShown, inputIsShown, date, text } = this.state;
+
+    const isClickable = date && text;
     const valueDate = this.isShowForFirstTime ? moment(date).format('DD/MM/YY') : PLACEHOLDER_DATE;
     const valueText = text || PLACEHOLDER_TEXT;
     const styles = state => state ? s.welcome__value : s.welcome__placeholder; // eslint-disable-line
@@ -97,7 +114,10 @@ export default class Welcome extends PureComponent {
             activeOpacity={0.75}
             style={s.welcome__submit}
           >
-            <Image source={require('../images/submit.png')} />
+            <Image
+              style={isClickable ? s.welcome__iconActive : s.welcome__icon}
+              source={require('../images/submit.png')}
+            />
           </TouchableOpacity>
         </View>
 
@@ -139,6 +159,14 @@ const s = StyleSheet.create({
 
   welcome__submit: {
     marginTop: 60,
+  },
+
+  welcome__icon: {
+    tintColor: '#c1ccdb',
+  },
+
+  welcome__iconActive: {
+    tintColor: '#6ef09f',
   },
 
   welcome__footer: {
