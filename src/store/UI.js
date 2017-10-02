@@ -5,9 +5,6 @@ import { datify } from '../utils/date';
 export default class UIStore {
 
   @observable
-  timeRemaining = undefined;
-
-  @observable
   showDate = false;
 
   @observable
@@ -20,13 +17,13 @@ export default class UIStore {
     text: undefined,
   };
 
-  timeDifference(closed, opened) {
+  timeDifference(closed, opened, remaining) {
     const converted = typeof closed === 'string'
       ? new Date(Date.parse(closed))
       : closed;
 
     const diff = opened.getTime() - converted.getTime();
-    const newTotal = this.timeRemaining - diff;
+    const newTotal = remaining - diff;
     const date = datify(newTotal);
 
     this.date = date;

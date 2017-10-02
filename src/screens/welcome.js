@@ -36,9 +36,21 @@ export default class Welcome extends Component {
 
     try {
       const lastClosed = await storage.get(prefix('last_closed'));
+      const remaining = await storage.get(prefix('time_remaining'));
+      const from = await storage.get(prefix('from'));
+      const to = await storage.get(prefix('to'));
+      const text = await storage.get(prefix('text'));
 
-      if (lastClosed) {
-        await this.props.ui.timeDifference(lastClosed, lastOpened);
+      if (lastClosed && to && text) {
+        this.props.ui.timeDifference(lastClosed, lastOpened, remaining);
+
+        this.props.navigator.push('counter', {
+          activeCounter: true,
+          from: moment(from).toDate(),
+          to: moment(to).toDate(),
+          text,
+          remaining,
+        });
       }
     } catch (error) {
       console.log(error) // eslint-disable-line
@@ -56,15 +68,20 @@ export default class Welcome extends Component {
   submit = () => {
     const { ui, navigator } = this.props;
 
-    // const to = moment(new Date().setSeconds(new Date().getSeconds() + 50)).toDate();
     const to = moment(ui.counter.to).startOf('day').toDate();
     const from = new Date();
     const diff = to.getTime() - from.getTime();
+    const text = ui.counter.text;
 
     if (isNil(ui.counter.text) || isNil(ui.counter.to)) return;
     if (diff <= 0) return;
 
-    navigator.push('counter', { from, to, text: ui.counter.text });
+    // Store counter infos
+    storage.set(prefix('from'), from);
+    storage.set(prefix('to'), to);
+    storage.set(prefix('text'), text);
+
+    navigator.push('counter', { from, to, text });
   }
 
   togglePicker = () => {

@@ -29,23 +29,34 @@ export default class Counter extends Component {
     from: PropTypes.object.isRequired,
     to: PropTypes.object.isRequired,
     text: PropTypes.string.isRequired,
+    activeCounter: PropTypes.bool,
+    remaining: PropTypes.number,
+  }
+
+  static defaultProps = {
+    activeCounter: false,
+    remaining: undefined,
   }
 
   constructor(props) {
     super(props);
 
-    const t = props.to - props.from;
-    const get = v => datify(t)[v];
+    if (props.activeCounter) {
+      this.progress = new Animated.Value(props.remaining);
+    } else {
+      const t = props.to - props.from;
+      const get = v => datify(t)[v];
 
-    this.progress = new Animated.Value(t);
+      this.progress = new Animated.Value(t);
 
-    props.ui.date = { // eslint-disable-line
-      total: get('total'),
-      days: get('days'),
-      hours: get('hours'),
-      minutes: get('minutes'),
-      seconds: get('seconds'),
-    };
+      props.ui.date = { // eslint-disable-line
+        total: get('total'),
+        days: get('days'),
+        hours: get('hours'),
+        minutes: get('minutes'),
+        seconds: get('seconds'),
+      };
+    }
   }
 
   componentWillMount() {
@@ -103,12 +114,14 @@ export default class Counter extends Component {
 
     if (state === 'inactive') {
       this.lastClosed = new Date();
-      ui.timeRemaining = ui.date.total;
+      this.timeRemaining = ui.date.total;
+
       storage.set(prefix('last_closed'), this.lastClosed);
+      storage.set(prefix('time_remaining'), this.timeRemaining);
     }
 
     if (state === 'active') {
-      ui.timeDifference(this.lastClosed, new Date());
+      ui.timeDifference(this.lastClosed, new Date(), this.timeRemaining);
     }
   }
 
