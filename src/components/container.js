@@ -41,5 +41,6 @@ const s = StyleSheet.create({
     backgroundColor: '#fff',
     borderTopLeftRadius: 4,
     borderTopRightRadius: 4,
+    overflow: 'hidden',
   },
 });

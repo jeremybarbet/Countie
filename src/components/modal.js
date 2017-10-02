@@ -1,4 +1,3 @@
-/* eslint-disable react-native/split-platform-components */
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { View, StyleSheet, Easing, ViewPropTypes } from 'react-native';

@@ -9,6 +9,7 @@ import TimerMixin from 'react-native-timer-mixin';
 import moment from 'moment';
 
 import Container from '../components/container';
+import ImagesSwitcher from '../components/images-switcher';
 import { datify, isOver } from '../utils/date';
 import storage, { prefix } from '../utils/storage';
 
@@ -70,6 +71,8 @@ export default class Counter extends Component {
   }
 
   componentWillUnmount() {
+    clearInterval(this.countdown);
+
     AppState.removeEventListener('change', this.handleStateChange);
   }
 
@@ -145,6 +148,7 @@ export default class Counter extends Component {
 
   deleteCounter = () => {
     storage.clear();
+    clearInterval(this.countdown);
 
     this.props.ui.showDate = false;
 
@@ -181,7 +185,7 @@ export default class Counter extends Component {
           <Image source={require('../images/close.png')} />
         </TouchableOpacity>
 
-        <Image source={require('../images/bg.png')} />
+        <ImagesSwitcher />
 
         <LinearGradient
           colors={['rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 0.5)']}
