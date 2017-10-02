@@ -151,6 +151,7 @@ export default class Counter extends Component {
     clearInterval(this.countdown);
 
     this.props.ui.showDate = false;
+    this.props.ui.activeCounter = false;
 
     this.props.ui.counter = {
       from: undefined,
