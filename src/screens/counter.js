@@ -9,13 +9,15 @@ import TimerMixin from 'react-native-timer-mixin';
 import moment from 'moment';
 
 import Container from '../components/container';
+import ImagesSwitcher from '../components/images-switcher';
 import { datify, isOver } from '../utils/date';
-import storage from '../utils/storage';
+import storage, { prefix } from '../utils/storage';
 
 const { width } = Dimensions.get('window');
 const ONE_SECOND = 1000;
 
-@inject('ui') @observer
+@inject('ui')
+@observer
 @decorate(TimerMixin)
 export default class Counter extends Component {
 
@@ -28,28 +30,37 @@ export default class Counter extends Component {
     from: PropTypes.object.isRequired,
     to: PropTypes.object.isRequired,
     text: PropTypes.string.isRequired,
+    activeCounter: PropTypes.bool,
+    remaining: PropTypes.number,
+  }
+
+  static defaultProps = {
+    activeCounter: false,
+    remaining: undefined,
   }
 
   constructor(props) {
     super(props);
 
-    const t = props.to - props.from;
-    const get = v => datify(t)[v];
+    if (props.activeCounter) {
+      this.progress = new Animated.Value(props.remaining);
+    } else {
+      const t = props.to - props.from;
+      const get = v => datify(t)[v];
 
-    this.isOver = false;
-    this.progress = new Animated.Value(t);
+      this.progress = new Animated.Value(t);
 
-    props.ui.date = { // eslint-disable-line
-      total: get('total'),
-      days: get('days'),
-      hours: get('hours'),
-      minutes: get('minutes'),
-      seconds: get('seconds'),
-    };
+      props.ui.date = { // eslint-disable-line
+        total: get('total'),
+        days: get('days'),
+        hours: get('hours'),
+        minutes: get('minutes'),
+        seconds: get('seconds'),
+      };
+    }
   }
 
   componentWillMount() {
-    this.props.ui.counterActive = true;
     AppState.addEventListener('change', this.handleStateChange);
   }
 
@@ -60,6 +71,8 @@ export default class Counter extends Component {
   }
 
   componentWillUnmount() {
+    clearInterval(this.countdown);
+
     AppState.removeEventListener('change', this.handleStateChange);
   }
 
@@ -85,6 +98,12 @@ export default class Counter extends Component {
     const { from, to } = this.props;
     const t = to - from;
 
+    if (t < 0) {
+      return {
+        width: 0,
+      };
+    }
+
     return {
       width: this.progress.interpolate({
         inputRange: [ONE_SECOND, t],
@@ -98,13 +117,14 @@ export default class Counter extends Component {
 
     if (state === 'inactive') {
       this.lastClosed = new Date();
-      ui.timeRemaining = ui.date.total;
-      storage.set('@countie:last_closed', this.lastClosed);
-      storage.set('@countie:counter_active', ui.counterActive);
+      this.timeRemaining = ui.date.total;
+
+      storage.set(prefix('last_closed'), this.lastClosed);
+      storage.set(prefix('time_remaining'), this.timeRemaining);
     }
 
     if (state === 'active') {
-      ui.timeDifference(this.lastClosed, new Date());
+      ui.timeDifference(this.lastClosed, new Date(), this.timeRemaining);
     }
   }
 
@@ -114,7 +134,6 @@ export default class Counter extends Component {
     const date = datify(sub);
 
     if (isOver(ui.date)) {
-      this.isOver = true;
       clearInterval(this.countdown);
     }
 
@@ -129,6 +148,16 @@ export default class Counter extends Component {
 
   deleteCounter = () => {
     storage.clear();
+    clearInterval(this.countdown);
+
+    this.props.ui.showDate = false;
+
+    this.props.ui.counter = {
+      from: undefined,
+      to: new Date(),
+      text: undefined,
+    };
+
     this.props.navigator.pop();
   }
 
@@ -144,7 +173,7 @@ export default class Counter extends Component {
   }
 
   render() {
-    const { to, text } = this.props;
+    const { ui, to, text } = this.props;
 
     return (
       <Container>
@@ -156,7 +185,7 @@ export default class Counter extends Component {
           <Image source={require('../images/close.png')} />
         </TouchableOpacity>
 
-        <Image source={require('../images/bg.png')} />
+        <ImagesSwitcher />
 
         <LinearGradient
           colors={['rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 0.5)']}
@@ -164,7 +193,7 @@ export default class Counter extends Component {
         >
           <Text style={s.counter__title}>{text}</Text>
 
-          {this.isOver
+          {isOver(ui.date)
             ? <Text style={s.counter__countdown}>Enjoy your time!</Text>
             : this.renderCounter()
           }

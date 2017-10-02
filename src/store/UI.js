@@ -4,24 +4,28 @@ import { datify } from '../utils/date';
 
 export default class UIStore {
 
-  timeDifference(closed, opened) {
+  @observable
+  showDate = false;
+
+  @observable
+  date = {};
+
+  @observable
+  counter = {
+    from: undefined,
+    to: new Date(),
+    text: undefined,
+  };
+
+  timeDifference(closed, opened, remaining) {
     const converted = typeof closed === 'string'
       ? new Date(Date.parse(closed))
       : closed;
 
     const diff = opened.getTime() - converted.getTime();
-    const newTotal = this.timeRemaining - diff;
+    const newTotal = remaining - diff;
     const date = datify(newTotal);
 
     this.date = date;
   }
-
-  @observable
-  counterActive = false;
-
-  @observable
-  timeRemaining = null;
-
-  @observable
-  date = {};
 }

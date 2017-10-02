@@ -1,5 +1,7 @@
 import { AsyncStorage } from 'react-native';
-import merge from 'lodash/merge';
+import { merge } from 'lodash';
+
+export const prefix = v => `@countie:${v}`;
 
 const storage = {
   /**
