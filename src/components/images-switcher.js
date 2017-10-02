@@ -82,7 +82,7 @@ export default class ImagesSwitcher extends Component {
 
   render() {
     return (
-      <View style={[StyleSheet.absoluteFill, s.fader]}>
+      <View style={s.fader}>
         <Animated.Image
           style={[s.fader__image, s.fader__active, this.fading]}
           source={this.selected.current}
@@ -102,6 +102,12 @@ export default class ImagesSwitcher extends Component {
 const s = StyleSheet.create({
   fader: {
     flex: 1,
+
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
 
   fader__image: {
