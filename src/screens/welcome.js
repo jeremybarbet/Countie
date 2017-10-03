@@ -7,11 +7,12 @@ import { isNil } from 'lodash';
 import { inject, observer } from 'mobx-react/native';
 import { action } from 'mobx';
 
-import { COUNTER } from './';
 import storage, { prefix } from 'utils/storage';
 import Container from 'components/container';
 import Picker from 'components/picker';
 import Input from 'components/input';
+
+import { COUNTER } from './';
 
 const PLACEHOLDER_DATE = 'date';
 const PLACEHOLDER_TEXT = 'my next travel';
@@ -26,6 +27,10 @@ export default class Welcome extends Component {
       pop: PropTypes.func.isRequired,
     }).isRequired,
     ui: PropTypes.object.isRequired,
+  }
+
+  static navigatorStyle = {
+    navBarHidden: true,
   }
 
   state = {

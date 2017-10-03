@@ -2,7 +2,7 @@ import { observable } from 'mobx';
 
 import { datify } from 'utils/date';
 
-export default class UIStore {
+export default class UI {
 
   @observable
   activeCounter = false;

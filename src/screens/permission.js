@@ -7,7 +7,9 @@ import { inject, observer } from 'mobx-react/native';
 import Container from 'components/container';
 import storage, { prefix } from 'utils/storage';
 
-@inject('ui')
+import { WELCOME } from './';
+
+@inject('auth')
 @observer
 export default class Permission extends Component {
 
@@ -16,19 +18,27 @@ export default class Permission extends Component {
       push: PropTypes.func.isRequired,
       pop: PropTypes.func.isRequired,
     }).isRequired,
-    ui: PropTypes.object.isRequired,
+    auth: PropTypes.object.isRequired,
   }
 
   static navigatorStyle = {
     navBarHidden: true,
   }
 
-  onPressNotify = () => {
+  nextScreen = () => {
+    this.props.navigator.push({
+      screen: WELCOME,
+    });
+  }
 
+  onPressNotify = () => {
+    // await this.props.auth.askPermission()
+
+    this.nextScreen();
   }
 
   onPressNo = () => {
-
+    this.nextScreen();
   }
 
   render() {

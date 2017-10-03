@@ -6,9 +6,11 @@ import moment from 'moment';
 import storage, { prefix } from 'utils/storage';
 
 import UI from './UI';
+import Auth from './auth';
 
 export default class Store {
 
+  auth = new Auth();
   ui = new UI();
 
   async init() {
@@ -71,7 +73,10 @@ export class StoreProvider extends PureComponent {
     const { store, children } = this.props;
 
     return (
-      <Provider ui={store.ui}>
+      <Provider
+        auth={store.auth}
+        ui={store.ui}
+      >
         {children}
       </Provider>
     );
