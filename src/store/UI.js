@@ -17,6 +17,9 @@ export default class UIStore {
     text: undefined,
   };
 
+  @observable
+  reload = false;
+
   timeDifference(closed, opened, remaining) {
     const converted = typeof closed === 'string'
       ? new Date(Date.parse(closed))

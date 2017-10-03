@@ -30,7 +30,7 @@ const s = StyleSheet.create({
   host: {
     flex: 1,
 
-    backgroundColor: '#1a1a1a',
+    backgroundColor: '#000',
   },
 
   host__content: {

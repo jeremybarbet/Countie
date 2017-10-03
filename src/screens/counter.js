@@ -1,4 +1,3 @@
-/* eslint-disable no-confusing-arrow, jsx-a11y/accessible-emoji */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { decorate } from 'react-mixin';
@@ -42,6 +41,15 @@ export default class Counter extends Component {
   constructor(props) {
     super(props);
 
+    this.rotation = new Animated.Value(0);
+
+    this.hitIcon = {
+      top: 10,
+      left: 10,
+      bottom: 10,
+      right: 10,
+    };
+
     if (props.activeCounter) {
       this.progress = new Animated.Value(props.remaining);
     } else {
@@ -76,7 +84,7 @@ export default class Counter extends Component {
     AppState.removeEventListener('change', this.handleStateChange);
   }
 
-  onPress = () => {
+  onPressClose = () => {
     Alert.alert(
       'Delete counter',
       'Are you sure you want to delete this counter?',
@@ -94,6 +102,15 @@ export default class Counter extends Component {
     );
   }
 
+  onPressReload = () => {
+    this.props.ui.reload = true;
+
+    Animated.timing(this.rotation, {
+      toValue: 1,
+      duration: 500,
+    }).start(() => this.rotation.setValue(0));
+  }
+
   get width() {
     const { from, to } = this.props;
     const t = to - from;
@@ -109,6 +126,17 @@ export default class Counter extends Component {
         inputRange: [ONE_SECOND, t],
         outputRange: [0, width],
       }),
+    };
+  }
+
+  get transform() {
+    return {
+      transform: [{
+        rotate: this.rotation.interpolate({
+          inputRange: [0, 1],
+          outputRange: ['0deg', '360deg'],
+        }),
+      }],
     };
   }
 
@@ -164,7 +192,7 @@ export default class Counter extends Component {
 
   renderCounter = () => {
     const { days, hours, minutes, seconds } = this.props.ui.date;
-    const f = (v, p) => v.toString().length > 1 ? `${v}${p}` : `0${v}${p}`;
+    const f = (v, p) => v.toString().length > 1 ? `${v}${p}` : `0${v}${p}`; // eslint-disable-line
 
     return (
       <Text style={s.counter__countdown}>
@@ -179,14 +207,27 @@ export default class Counter extends Component {
     return (
       <Container>
         <TouchableOpacity
-          style={s.counter__close}
-          onPress={this.onPress}
-          activeOpacity={0.8}
+          hitSlop={this.hitIcon}
+          style={[s.counter__icon, s.counter__reload]}
+          onPress={this.onPressReload}
+          activeOpacity={0.4}
+        >
+          <Animated.Image
+            style={this.transform}
+            source={require('../images/reload.png')}
+          />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          hitSlop={this.hitIcon}
+          style={[s.counter__icon, s.counter__close]}
+          onPress={this.onPressClose}
+          activeOpacity={0.4}
         >
           <Image source={require('../images/close.png')} />
         </TouchableOpacity>
 
-        <ImagesSwitcher />
+        <ImagesSwitcher reload={ui.reload} />
 
         <LinearGradient
           colors={['rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 0.5)']}
@@ -209,11 +250,18 @@ export default class Counter extends Component {
 }
 
 const s = StyleSheet.create({
-  counter__close: {
+  counter__icon: {
     position: 'absolute',
     top: 25,
-    right: 25,
     zIndex: 10,
+  },
+
+  counter__reload: {
+    right: 75,
+  },
+
+  counter__close: {
+    right: 25,
   },
 
   counter__gradient: {

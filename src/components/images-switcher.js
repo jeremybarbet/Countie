@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { StyleSheet, View, Image, Animated } from 'react-native';
 import { decorate } from 'react-mixin';
 import { observable } from 'mobx';
-import { observer } from 'mobx-react/native';
+import { inject, observer } from 'mobx-react/native';
 import TimerMixin from 'react-native-timer-mixin';
 import { range } from 'lodash';
 
@@ -20,9 +21,15 @@ const backgrounds = [
   { key: 8, src: require('../images/backgrounds/bg-9.png') },
 ];
 
+@inject('ui')
 @observer
 @decorate(TimerMixin)
 export default class ImagesSwitcher extends Component {
+
+  static propTypes = {
+    ui: PropTypes.object.isRequired,
+    reload: PropTypes.bool.isRequired,
+  }
 
   fade = new Animated.Value(1); // eslint-disable-line
   arr = [];
@@ -37,6 +44,13 @@ export default class ImagesSwitcher extends Component {
     this.background = this.setInterval(() =>
       this.switcher(),
     TEN_MINUTES);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.reload) {
+      this.switcher();
+      this.props.ui.reload = false;
+    }
   }
 
   componentWillUnmount() {
@@ -66,7 +80,7 @@ export default class ImagesSwitcher extends Component {
 
     Animated.timing(this.fade, {
       toValue: isActive ? 0 : 1,
-      duration: 1000,
+      duration: 600,
     }).start();
   }
 
