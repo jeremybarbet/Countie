@@ -211,8 +211,8 @@ export default class Counter extends Component {
 const s = StyleSheet.create({
   counter__close: {
     position: 'absolute',
-    top: 30,
-    right: 30,
+    top: 25,
+    right: 25,
     zIndex: 10,
   },
 
@@ -224,8 +224,8 @@ const s = StyleSheet.create({
     bottom: 0,
     right: 0,
 
-    paddingHorizontal: 30,
-    paddingBottom: 40,
+    paddingHorizontal: 25,
+    paddingBottom: 30,
 
     height: 280,
   },
@@ -239,7 +239,7 @@ const s = StyleSheet.create({
   },
 
   counter__countdown: {
-    opacity: 0.8,
+    opacity: 0.85,
 
     fontFamily: 'Avenir-Medium',
     fontSize: 26,
@@ -250,7 +250,7 @@ const s = StyleSheet.create({
   },
 
   counter__date: {
-    opacity: 0.6,
+    opacity: 0.7,
 
     marginTop: 4,
 
