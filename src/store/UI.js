@@ -1,8 +1,14 @@
 import { observable } from 'mobx';
 
-import { datify } from '../utils/date';
+import { datify } from 'utils/date';
 
 export default class UIStore {
+
+  @observable
+  activeCounter = false;
+
+  @observable
+  props = {};
 
   @observable
   showDate = false;

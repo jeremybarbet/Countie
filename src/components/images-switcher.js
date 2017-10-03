@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { StyleSheet, View, Image, Animated } from 'react-native';
 import { decorate } from 'react-mixin';
-import { observable } from 'mobx';
+import { observable, action } from 'mobx';
 import { inject, observer } from 'mobx-react/native';
 import TimerMixin from 'react-native-timer-mixin';
 import { range } from 'lodash';
@@ -46,6 +46,7 @@ export default class ImagesSwitcher extends Component {
     TEN_MINUTES);
   }
 
+  @action
   componentWillReceiveProps(nextProps) {
     if (nextProps.reload) {
       this.switcher();
@@ -69,6 +70,7 @@ export default class ImagesSwitcher extends Component {
     return this.arr.splice(Math.random() * this.arr.length - 1, 1)[0]; // eslint-disable-line
   }
 
+  @action
   switcher() {
     const isActive = this.value === 1;
 

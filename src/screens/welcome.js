@@ -5,11 +5,13 @@ import { View, Text, StyleSheet, TouchableOpacity, Image, Linking } from 'react-
 import moment from 'moment';
 import { isNil } from 'lodash';
 import { inject, observer } from 'mobx-react/native';
+import { action } from 'mobx';
 
-import Container from '../components/container';
-import Picker from '../components/picker';
-import Input from '../components/input';
-import storage, { prefix } from '../utils/storage';
+import { COUNTER } from './';
+import storage, { prefix } from 'utils/storage';
+import Container from 'components/container';
+import Picker from 'components/picker';
+import Input from 'components/input';
 
 const PLACEHOLDER_DATE = 'date';
 const PLACEHOLDER_TEXT = 'my next travel';
@@ -31,6 +33,7 @@ export default class Welcome extends Component {
     inputIsShown: false,
   }
 
+  /*
   async componentWillMount() {
     const lastOpened = new Date();
 
@@ -56,11 +59,14 @@ export default class Welcome extends Component {
       console.log(error) // eslint-disable-line
     }
   }
+  */
 
+  @action
   onDateChange = (to) => {
     this.props.ui.counter.to = to;
   }
 
+  @action
   onTextChange = (text) => {
     this.props.ui.counter.text = text;
   }
@@ -81,9 +87,13 @@ export default class Welcome extends Component {
     storage.set(prefix('to'), to);
     storage.set(prefix('text'), text);
 
-    navigator.push('counter', { from, to, text });
+    navigator.push({
+      screen: COUNTER,
+      passProps: { from, to, text },
+    });
   }
 
+  @action
   togglePicker = () => {
     const { pickerIsShown } = this.state;
     this.props.ui.showDate = true;

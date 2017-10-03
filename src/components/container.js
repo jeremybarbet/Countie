@@ -38,7 +38,8 @@ const s = StyleSheet.create({
 
     height: height - STATUSBAR_HEIGHT,
 
-    backgroundColor: '#fff',
+    backgroundColor: '#8FFFB9',
+    // backgroundColor: '#fff',
     borderTopLeftRadius: 4,
     borderTopRightRadius: 4,
     overflow: 'hidden',

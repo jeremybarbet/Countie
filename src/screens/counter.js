@@ -1,16 +1,17 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { StyleSheet, Text, Image, Animated, Dimensions, Easing, AppState, TouchableOpacity, Alert } from 'react-native';
 import { decorate } from 'react-mixin';
 import { inject, observer } from 'mobx-react/native';
-import { StyleSheet, Text, Image, Animated, Dimensions, Easing, AppState, TouchableOpacity, Alert } from 'react-native';
+import { action } from 'mobx';
 import LinearGradient from 'react-native-linear-gradient';
 import TimerMixin from 'react-native-timer-mixin';
 import moment from 'moment';
 
-import Container from '../components/container';
-import ImagesSwitcher from '../components/images-switcher';
-import { datify, isOver } from '../utils/date';
-import storage, { prefix } from '../utils/storage';
+import Container from 'components/container';
+import ImagesSwitcher from 'components/images-switcher';
+import { datify, isOver } from 'utils/date';
+import storage, { prefix } from 'utils/storage';
 
 const { width } = Dimensions.get('window');
 const ONE_SECOND = 1000;
@@ -36,6 +37,10 @@ export default class Counter extends Component {
   static defaultProps = {
     activeCounter: false,
     remaining: undefined,
+  }
+
+  static navigatorStyle = {
+    navBarHidden: true,
   }
 
   constructor(props) {
@@ -102,6 +107,7 @@ export default class Counter extends Component {
     );
   }
 
+  @action
   onPressReload = () => {
     this.props.ui.reload = true;
 
@@ -140,6 +146,7 @@ export default class Counter extends Component {
     };
   }
 
+  @action
   handleStateChange = (state) => {
     const { ui } = this.props;
 
@@ -156,6 +163,7 @@ export default class Counter extends Component {
     }
   }
 
+  @action
   counter(t) {
     const { ui } = this.props;
     const sub = t - ONE_SECOND;
@@ -174,6 +182,7 @@ export default class Counter extends Component {
     ui.date = date;
   }
 
+  @action
   deleteCounter = () => {
     storage.clear();
     clearInterval(this.countdown);

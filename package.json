@@ -7,7 +7,6 @@
     "lint": "eslint src"
   },
   "dependencies": {
-    "@expo/ex-navigation": "^3.1.0",
     "lodash": "^4.17.4",
     "mobx": "3.2.1",
     "mobx-react": "4.2.2",
@@ -18,10 +17,12 @@
     "react-native": "0.47.2",
     "react-native-linear-gradient": "^2.3.0",
     "react-native-modalbox": "^1.4.2",
+    "react-native-navigation": "1.1.235",
     "react-native-timer-mixin": "^0.11.0"
   },
   "devDependencies": {
     "babel-eslint": "7.2.3",
+    "babel-plugin-module-resolver": "2.7.1",
     "babel-plugin-transform-decorators-legacy": "^1.3.4",
     "babel-preset-react-native-stage-0": "^1.0.1",
     "eslint": "^4.5.0",
