@@ -15,6 +15,8 @@ import { datify, isOver } from 'utils/date';
 import storage, { prefix } from 'utils/storage';
 import { navigatorTypes } from 'utils/types';
 
+import { WELCOME } from './';
+
 const { width } = Dimensions.get('window');
 const ONE_SECOND = 1000;
 
@@ -198,7 +200,10 @@ export default class Counter extends Component {
       text: undefined,
     };
 
-    this.props.navigator.pop();
+    this.props.navigator.resetTo({
+      screen: WELCOME,
+      animationType: 'fade',
+    });
   }
 
   @autobind
