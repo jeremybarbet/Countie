@@ -1,50 +1,49 @@
 /* eslint-disable max-len */
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { View, Text, StyleSheet, TouchableOpacity, Image, Linking } from 'react-native';
-import { inject, observer } from 'mobx-react/native';
+import { Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { autobind } from 'core-decorators';
 
 import Container from 'components/container';
 import storage, { prefix } from 'utils/storage';
+import registerNotifications from 'utils/notifications';
+import { navigatorTypes } from 'utils/types';
 
 import { WELCOME } from './';
 
-@inject('auth')
-@observer
 export default class Permission extends Component {
 
   static propTypes = {
-    navigator: PropTypes.shape({
-      push: PropTypes.func.isRequired,
-      pop: PropTypes.func.isRequired,
-    }).isRequired,
-    auth: PropTypes.object.isRequired,
+    ...navigatorTypes,
   }
 
   static navigatorStyle = {
     navBarHidden: true,
   }
 
-  nextScreen = () => {
-    this.props.navigator.push({
+  @autobind
+  async onPressNotify() {
+    await registerNotifications();
+    storage.set(prefix('permission'), 'enable');
+    this.nextScreen();
+  }
+
+  @autobind
+  onPressNo() {
+    storage.set(prefix('permission'), 'disable');
+    this.nextScreen();
+  }
+
+  @autobind
+  nextScreen() {
+    this.props.navigator.resetTo({
       screen: WELCOME,
     });
   }
 
-  onPressNotify = () => {
-    // await this.props.auth.askPermission()
-
-    this.nextScreen();
-  }
-
-  onPressNo = () => {
-    this.nextScreen();
-  }
-
   render() {
     return (
-      <Container>
-        <Text style={s.permission__title}>Don’t miss the big day!</Text>
+      <Container background="#8FFFB9">
+        <Text style={s.permission__title}>Don’t miss the big day!</Text>
         <Text style={s.permission__description}>We’ll notify you know when it’s coming, some days and hours before.</Text>
 
         <TouchableOpacity

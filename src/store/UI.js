@@ -5,6 +5,9 @@ import { datify } from 'utils/date';
 export default class UI {
 
   @observable
+  permission = 'waiting';
+
+  @observable
   activeCounter = false;
 
   @observable

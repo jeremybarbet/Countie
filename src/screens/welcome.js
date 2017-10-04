@@ -1,16 +1,18 @@
 /* eslint-disable max-len */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { View, Text, StyleSheet, TouchableOpacity, Image, Linking } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Linking, PushNotificationIOS } from 'react-native'; // eslint-disable-line
 import moment from 'moment';
 import { isNil } from 'lodash';
 import { inject, observer } from 'mobx-react/native';
 import { action } from 'mobx';
+import { autobind } from 'core-decorators';
 
-import storage, { prefix } from 'utils/storage';
 import Container from 'components/container';
 import Picker from 'components/picker';
 import Input from 'components/input';
+import storage, { prefix } from 'utils/storage';
+import { navigatorTypes } from 'utils/types';
 
 import { COUNTER } from './';
 
@@ -22,10 +24,7 @@ const PLACEHOLDER_TEXT = 'my next travel';
 export default class Welcome extends Component {
 
   static propTypes = {
-    navigator: PropTypes.shape({
-      push: PropTypes.func.isRequired,
-      pop: PropTypes.func.isRequired,
-    }).isRequired,
+    ...navigatorTypes,
     ui: PropTypes.object.isRequired,
   }
 
@@ -38,45 +37,20 @@ export default class Welcome extends Component {
     inputIsShown: false,
   }
 
-  /*
-  async componentWillMount() {
-    const lastOpened = new Date();
-
-    try {
-      const lastClosed = await storage.get(prefix('last_closed'));
-      const remaining = await storage.get(prefix('time_remaining'));
-      const from = await storage.get(prefix('from'));
-      const to = await storage.get(prefix('to'));
-      const text = await storage.get(prefix('text'));
-
-      if (lastClosed && to && text) {
-        this.props.ui.timeDifference(lastClosed, lastOpened, remaining);
-
-        this.props.navigator.push('counter', {
-          activeCounter: true,
-          from: moment(from).toDate(),
-          to: moment(to).toDate(),
-          text,
-          remaining,
-        });
-      }
-    } catch (error) {
-      console.log(error) // eslint-disable-line
-    }
-  }
-  */
-
+  @autobind
   @action
-  onDateChange = (to) => {
+  onDateChange(to) {
     this.props.ui.counter.to = to;
   }
 
+  @autobind
   @action
-  onTextChange = (text) => {
+  onTextChange(text) {
     this.props.ui.counter.text = text;
   }
 
-  submit = () => {
+  @autobind
+  submit() {
     const { ui, navigator } = this.props;
 
     const to = moment(ui.counter.to).startOf('day').toDate();
@@ -86,6 +60,12 @@ export default class Welcome extends Component {
 
     if (isNil(ui.counter.text) || isNil(ui.counter.to)) return;
     if (diff <= 0) return;
+
+    // Configure notification
+    PushNotificationIOS.scheduleLocalNotification({
+      alertBody: 'Your fresh board contains new items you may want to take a look at.',
+      fireDate: new Date(Date.now() + (8000)),
+    });
 
     // Store counter infos
     storage.set(prefix('from'), from);
@@ -98,14 +78,16 @@ export default class Welcome extends Component {
     });
   }
 
+  @autobind
   @action
-  togglePicker = () => {
+  togglePicker() {
     const { pickerIsShown } = this.state;
     this.props.ui.showDate = true;
     this.setState({ pickerIsShown: !pickerIsShown });
   }
 
-  toggleInput = () => {
+  @autobind
+  toggleInput() {
     const { inputIsShown } = this.state;
     this.setState({ inputIsShown: !inputIsShown });
   }

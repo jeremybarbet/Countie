@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { StyleSheet, Text, Image, Animated, Dimensions, Easing, AppState, TouchableOpacity, Alert } from 'react-native';
 import { decorate } from 'react-mixin';
+import { autobind } from 'core-decorators';
 import { inject, observer } from 'mobx-react/native';
 import { action } from 'mobx';
 import LinearGradient from 'react-native-linear-gradient';
@@ -12,6 +13,7 @@ import Container from 'components/container';
 import ImagesSwitcher from 'components/images-switcher';
 import { datify, isOver } from 'utils/date';
 import storage, { prefix } from 'utils/storage';
+import { navigatorTypes } from 'utils/types';
 
 const { width } = Dimensions.get('window');
 const ONE_SECOND = 1000;
@@ -22,10 +24,7 @@ const ONE_SECOND = 1000;
 export default class Counter extends Component {
 
   static propTypes = {
-    navigator: PropTypes.shape({
-      push: PropTypes.func.isRequired,
-      pop: PropTypes.func.isRequired,
-    }).isRequired,
+    ...navigatorTypes,
     ui: PropTypes.object.isRequired,
     from: PropTypes.object.isRequired,
     to: PropTypes.object.isRequired,
@@ -89,14 +88,14 @@ export default class Counter extends Component {
     AppState.removeEventListener('change', this.handleStateChange);
   }
 
-  onPressClose = () => {
+  @autobind
+  onPressClose() {
     Alert.alert(
       'Delete counter',
       'Are you sure you want to delete this counter?',
       [
         {
           text: 'Cancel',
-          style: 'cancel',
         },
         {
           text: 'Yes',
@@ -107,8 +106,9 @@ export default class Counter extends Component {
     );
   }
 
+  @autobind
   @action
-  onPressReload = () => {
+  onPressReload() {
     this.props.ui.reload = true;
 
     Animated.timing(this.rotation, {
@@ -146,8 +146,9 @@ export default class Counter extends Component {
     };
   }
 
+  @autobind
   @action
-  handleStateChange = (state) => {
+  handleStateChange(state) {
     const { ui } = this.props;
 
     if (state === 'inactive') {
@@ -182,8 +183,9 @@ export default class Counter extends Component {
     ui.date = date;
   }
 
+  @autobind
   @action
-  deleteCounter = () => {
+  deleteCounter() {
     storage.clear();
     clearInterval(this.countdown);
 
@@ -199,7 +201,8 @@ export default class Counter extends Component {
     this.props.navigator.pop();
   }
 
-  renderCounter = () => {
+  @autobind
+  renderCounter() {
     const { days, hours, minutes, seconds } = this.props.ui.date;
     const f = (v, p) => v.toString().length > 1 ? `${v}${p}` : `0${v}${p}`; // eslint-disable-line
 

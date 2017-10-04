@@ -21,16 +21,16 @@ Screens.set(COUNTER, () => Counter);
 export const startApp = (data) => {
   useStrict(true);
 
-  startPermission();
-
-  // if (data.active) {
-  //   startCounter(data.props);
-  // } else {
-  //   startWelcome();
-  // }
+  if (data.permission === 'waiting') {
+    startPermission();
+  } else if (data.active) {
+    startCounter(data.props);
+  } else {
+    startWelcome();
+  }
 };
 
-export const startPermission = (props) =>
+export const startPermission = () =>
   Navigation.startSingleScreenApp({
     screen: {
       screen: PERMISSION,
@@ -38,7 +38,7 @@ export const startPermission = (props) =>
     },
   });
 
-export const startCounter = (props) =>
+export const startCounter = props =>
   Navigation.startSingleScreenApp({
     screen: {
       screen: COUNTER,
