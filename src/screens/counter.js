@@ -1,17 +1,21 @@
-/* eslint-disable no-confusing-arrow, jsx-a11y/accessible-emoji */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { decorate } from 'react-mixin';
-import { inject, observer } from 'mobx-react/native';
 import { StyleSheet, Text, Image, Animated, Dimensions, Easing, AppState, TouchableOpacity, Alert } from 'react-native';
+import { decorate } from 'react-mixin';
+import { autobind } from 'core-decorators';
+import { inject, observer } from 'mobx-react/native';
+import { action } from 'mobx';
 import LinearGradient from 'react-native-linear-gradient';
 import TimerMixin from 'react-native-timer-mixin';
 import moment from 'moment';
 
-import Container from '../components/container';
-import ImagesSwitcher from '../components/images-switcher';
-import { datify, isOver } from '../utils/date';
-import storage, { prefix } from '../utils/storage';
+import Container from 'components/container';
+import ImagesSwitcher from 'components/images-switcher';
+import { datify, isOver } from 'utils/date';
+import storage, { prefix } from 'utils/storage';
+import { navigatorTypes } from 'utils/types';
+
+import { WELCOME } from './';
 
 const { width } = Dimensions.get('window');
 const ONE_SECOND = 1000;
@@ -22,10 +26,7 @@ const ONE_SECOND = 1000;
 export default class Counter extends Component {
 
   static propTypes = {
-    navigator: PropTypes.shape({
-      push: PropTypes.func.isRequired,
-      pop: PropTypes.func.isRequired,
-    }).isRequired,
+    ...navigatorTypes,
     ui: PropTypes.object.isRequired,
     from: PropTypes.object.isRequired,
     to: PropTypes.object.isRequired,
@@ -39,8 +40,21 @@ export default class Counter extends Component {
     remaining: undefined,
   }
 
+  static navigatorStyle = {
+    navBarHidden: true,
+  }
+
   constructor(props) {
     super(props);
+
+    this.rotation = new Animated.Value(0);
+
+    this.hitIcon = {
+      top: 10,
+      left: 10,
+      bottom: 10,
+      right: 10,
+    };
 
     if (props.activeCounter) {
       this.progress = new Animated.Value(props.remaining);
@@ -76,14 +90,14 @@ export default class Counter extends Component {
     AppState.removeEventListener('change', this.handleStateChange);
   }
 
-  onPress = () => {
+  @autobind
+  onPressClose() {
     Alert.alert(
       'Delete counter',
       'Are you sure you want to delete this counter?',
       [
         {
           text: 'Cancel',
-          style: 'cancel',
         },
         {
           text: 'Yes',
@@ -92,6 +106,17 @@ export default class Counter extends Component {
         },
       ],
     );
+  }
+
+  @autobind
+  @action
+  onPressReload() {
+    this.props.ui.reload = true;
+
+    Animated.timing(this.rotation, {
+      toValue: 1,
+      duration: 500,
+    }).start(() => this.rotation.setValue(0));
   }
 
   get width() {
@@ -112,7 +137,20 @@ export default class Counter extends Component {
     };
   }
 
-  handleStateChange = (state) => {
+  get transform() {
+    return {
+      transform: [{
+        rotate: this.rotation.interpolate({
+          inputRange: [0, 1],
+          outputRange: ['0deg', '360deg'],
+        }),
+      }],
+    };
+  }
+
+  @autobind
+  @action
+  handleStateChange(state) {
     const { ui } = this.props;
 
     if (state === 'inactive') {
@@ -128,6 +166,7 @@ export default class Counter extends Component {
     }
   }
 
+  @action
   counter(t) {
     const { ui } = this.props;
     const sub = t - ONE_SECOND;
@@ -146,7 +185,9 @@ export default class Counter extends Component {
     ui.date = date;
   }
 
-  deleteCounter = () => {
+  @autobind
+  @action
+  deleteCounter() {
     storage.clear();
     clearInterval(this.countdown);
 
@@ -159,12 +200,16 @@ export default class Counter extends Component {
       text: undefined,
     };
 
-    this.props.navigator.pop();
+    this.props.navigator.resetTo({
+      screen: WELCOME,
+      animationType: 'fade',
+    });
   }
 
-  renderCounter = () => {
+  @autobind
+  renderCounter() {
     const { days, hours, minutes, seconds } = this.props.ui.date;
-    const f = (v, p) => v.toString().length > 1 ? `${v}${p}` : `0${v}${p}`;
+    const f = (v, p) => v.toString().length > 1 ? `${v}${p}` : `0${v}${p}`; // eslint-disable-line
 
     return (
       <Text style={s.counter__countdown}>
@@ -179,14 +224,27 @@ export default class Counter extends Component {
     return (
       <Container>
         <TouchableOpacity
-          style={s.counter__close}
-          onPress={this.onPress}
-          activeOpacity={0.8}
+          hitSlop={this.hitIcon}
+          style={[s.counter__icon, s.counter__reload]}
+          onPress={this.onPressReload}
+          activeOpacity={0.4}
+        >
+          <Animated.Image
+            style={this.transform}
+            source={require('../images/reload.png')}
+          />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          hitSlop={this.hitIcon}
+          style={[s.counter__icon, s.counter__close]}
+          onPress={this.onPressClose}
+          activeOpacity={0.4}
         >
           <Image source={require('../images/close.png')} />
         </TouchableOpacity>
 
-        <ImagesSwitcher />
+        <ImagesSwitcher reload={ui.reload} />
 
         <LinearGradient
           colors={['rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 0.5)']}
@@ -209,11 +267,18 @@ export default class Counter extends Component {
 }
 
 const s = StyleSheet.create({
-  counter__close: {
+  counter__icon: {
     position: 'absolute',
     top: 25,
-    right: 25,
     zIndex: 10,
+  },
+
+  counter__reload: {
+    right: 75,
+  },
+
+  counter__close: {
+    right: 25,
   },
 
   counter__gradient: {

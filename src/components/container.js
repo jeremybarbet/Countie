@@ -9,6 +9,17 @@ export default class Welcome extends PureComponent {
 
   static propTypes = {
     children: PropTypes.node.isRequired,
+    background: PropTypes.string,
+  }
+
+  static defaultProps = {
+    background: '#FFFFFF',
+  }
+
+  get background() {
+    return {
+      backgroundColor: this.props.background,
+    };
   }
 
   render() {
@@ -18,7 +29,7 @@ export default class Welcome extends PureComponent {
       <View style={s.host}>
         <StatusBar barStyle="light-content" />
 
-        <View style={s.host__content}>
+        <View style={[s.host__content, this.background]}>
           {children}
         </View>
       </View>
@@ -30,7 +41,7 @@ const s = StyleSheet.create({
   host: {
     flex: 1,
 
-    backgroundColor: '#1a1a1a',
+    backgroundColor: '#000',
   },
 
   host__content: {
@@ -38,7 +49,6 @@ const s = StyleSheet.create({
 
     height: height - STATUSBAR_HEIGHT,
 
-    backgroundColor: '#fff',
     borderTopLeftRadius: 4,
     borderTopRightRadius: 4,
     overflow: 'hidden',

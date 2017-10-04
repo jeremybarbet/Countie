@@ -1,8 +1,17 @@
 import { observable } from 'mobx';
 
-import { datify } from '../utils/date';
+import { datify } from 'utils/date';
 
-export default class UIStore {
+export default class UI {
+
+  @observable
+  permission = 'waiting';
+
+  @observable
+  activeCounter = false;
+
+  @observable
+  props = {};
 
   @observable
   showDate = false;
@@ -16,6 +25,9 @@ export default class UIStore {
     to: new Date(),
     text: undefined,
   };
+
+  @observable
+  reload = false;
 
   timeDifference(closed, opened, remaining) {
     const converted = typeof closed === 'string'

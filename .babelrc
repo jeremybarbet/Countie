@@ -4,5 +4,17 @@
     "development": {
       "plugins": ["transform-react-jsx-source", "transform-decorators-legacy"]
     }
-  }
+  },
+  "plugins": [
+    [
+      "module-resolver", {
+        "extensions": [
+          ".js"
+        ],
+        "root": [
+          "./src"
+        ]
+      }
+    ]
+  ]
 }

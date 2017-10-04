@@ -1,29 +1,36 @@
 /* eslint-disable max-len */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { View, Text, StyleSheet, TouchableOpacity, Image, Linking } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Linking, PushNotificationIOS } from 'react-native'; // eslint-disable-line
 import moment from 'moment';
 import { isNil } from 'lodash';
 import { inject, observer } from 'mobx-react/native';
+import { action } from 'mobx';
+import { autobind } from 'core-decorators';
 
-import Container from '../components/container';
-import Picker from '../components/picker';
-import Input from '../components/input';
-import storage, { prefix } from '../utils/storage';
+import Container from 'components/container';
+import Picker from 'components/picker';
+import Input from 'components/input';
+import storage, { prefix } from 'utils/storage';
+import { navigatorTypes } from 'utils/types';
+
+import { COUNTER } from './';
 
 const PLACEHOLDER_DATE = 'date';
 const PLACEHOLDER_TEXT = 'my next travel';
+const TWENTYFOUR_HOURS = 24 * 60 * 60 * 1000;
 
 @inject('ui')
 @observer
 export default class Welcome extends Component {
 
   static propTypes = {
-    navigator: PropTypes.shape({
-      push: PropTypes.func.isRequired,
-      pop: PropTypes.func.isRequired,
-    }).isRequired,
+    ...navigatorTypes,
     ui: PropTypes.object.isRequired,
+  }
+
+  static navigatorStyle = {
+    navBarHidden: true,
   }
 
   state = {
@@ -31,66 +38,65 @@ export default class Welcome extends Component {
     inputIsShown: false,
   }
 
-  async componentWillMount() {
-    const lastOpened = new Date();
-
-    try {
-      const lastClosed = await storage.get(prefix('last_closed'));
-      const remaining = await storage.get(prefix('time_remaining'));
-      const from = await storage.get(prefix('from'));
-      const to = await storage.get(prefix('to'));
-      const text = await storage.get(prefix('text'));
-
-      if (lastClosed && to && text) {
-        this.props.ui.timeDifference(lastClosed, lastOpened, remaining);
-
-        this.props.navigator.push('counter', {
-          activeCounter: true,
-          from: moment(from).toDate(),
-          to: moment(to).toDate(),
-          text,
-          remaining,
-        });
-      }
-    } catch (error) {
-      console.log(error) // eslint-disable-line
-    }
-  }
-
-  onDateChange = (to) => {
+  @autobind
+  @action
+  onDateChange(to) {
     this.props.ui.counter.to = to;
   }
 
-  onTextChange = (text) => {
+  @autobind
+  @action
+  onTextChange(text) {
     this.props.ui.counter.text = text;
   }
 
-  submit = () => {
+  @autobind
+  submit() {
     const { ui, navigator } = this.props;
 
     const to = moment(ui.counter.to).startOf('day').toDate();
     const from = new Date();
     const diff = to.getTime() - from.getTime();
     const text = ui.counter.text;
+    const dayBefore = new Date(to).setHours(new Date(to).getHours() - 24);
 
     if (isNil(ui.counter.text) || isNil(ui.counter.to)) return;
     if (diff <= 0) return;
+
+    // Configure notifications
+    if (to >= TWENTYFOUR_HOURS) {
+      PushNotificationIOS.scheduleLocalNotification({
+        alertBody: `Your countdown for ${text} is almost done, 24 hours remaining!`,
+        fireDate: moment(dayBefore).format('YYYY-MM-DDTHH:mm:ss.sssZ'),
+      });
+    }
+
+    PushNotificationIOS.scheduleLocalNotification({
+      alertBody: `It's time! Your countdown for ${text} done. Enjoy your time!`,
+      fireDate: moment(to).format('YYYY-MM-DDTHH:mm:ss.sssZ'),
+    });
 
     // Store counter infos
     storage.set(prefix('from'), from);
     storage.set(prefix('to'), to);
     storage.set(prefix('text'), text);
 
-    navigator.push('counter', { from, to, text });
+    navigator.push({
+      screen: COUNTER,
+      passProps: { from, to, text },
+    });
   }
 
-  togglePicker = () => {
+  @autobind
+  @action
+  togglePicker() {
     const { pickerIsShown } = this.state;
     this.props.ui.showDate = true;
     this.setState({ pickerIsShown: !pickerIsShown });
   }
 
-  toggleInput = () => {
+  @autobind
+  toggleInput() {
     const { inputIsShown } = this.state;
     this.setState({ inputIsShown: !inputIsShown });
   }
@@ -108,7 +114,7 @@ export default class Welcome extends Component {
       <Container>
         <View style={s.welcome__form}>
           <Text style={s.welcome__text}>
-            Let’s count <Text style={styles(ui.showDate)} onPress={this.togglePicker}>{valueDate}</Text>{'\n'} for <Text style={styles(ui.counter.text)} onPress={this.toggleInput}>{valueText}</Text>.
+            Let’s count <Text style={styles(ui.showDate)} onPress={this.togglePicker}>{valueDate}</Text>{'\n'}for <Text style={styles(ui.counter.text)} onPress={this.toggleInput}>{valueText}</Text>.
           </Text>
 
           <Picker
@@ -148,20 +154,17 @@ export default class Welcome extends Component {
 
 const s = StyleSheet.create({
   welcome__form: {
-    justifyContent: 'center',
-    alignItems: 'center',
-
     marginTop: 200,
   },
 
   welcome__text: {
-    paddingHorizontal: 30,
+    paddingLeft: 40,
+    paddingRight: 30,
 
     fontFamily: 'Avenir-Medium',
     fontSize: 32,
     color: '#333',
     lineHeight: 46,
-    textAlign: 'center',
   },
 
   welcome__placeholder: {
@@ -175,6 +178,7 @@ const s = StyleSheet.create({
   },
 
   welcome__submit: {
+    paddingHorizontal: 40,
     marginTop: 60,
   },
 
@@ -187,13 +191,13 @@ const s = StyleSheet.create({
   },
 
   welcome__footer: {
+    paddingHorizontal: 40,
     marginTop: 'auto',
     marginBottom: 30,
 
     fontFamily: 'Avenir-Medium',
     fontSize: 15,
     color: '#c1ccdb',
-    textAlign: 'center',
   },
 
   welcome__link: {
