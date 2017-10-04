@@ -18,6 +18,7 @@ import { COUNTER } from './';
 
 const PLACEHOLDER_DATE = 'date';
 const PLACEHOLDER_TEXT = 'my next travel';
+const TWENTYFOUR_HOURS = 24 * 60 * 60 * 1000;
 
 @inject('ui')
 @observer
@@ -57,14 +58,22 @@ export default class Welcome extends Component {
     const from = new Date();
     const diff = to.getTime() - from.getTime();
     const text = ui.counter.text;
+    const dayBefore = new Date(to).setHours(new Date(to).getHours() - 24);
 
     if (isNil(ui.counter.text) || isNil(ui.counter.to)) return;
     if (diff <= 0) return;
 
-    // Configure notification
+    // Configure notifications
+    if (to >= TWENTYFOUR_HOURS) {
+      PushNotificationIOS.scheduleLocalNotification({
+        alertBody: `Your countdown for ${text} is almost done, 24 hours remaining!`,
+        fireDate: moment(dayBefore).format('YYYY-MM-DDTHH:mm:ss.sssZ'),
+      });
+    }
+
     PushNotificationIOS.scheduleLocalNotification({
-      alertBody: 'Your fresh board contains new items you may want to take a look at.',
-      fireDate: new Date(Date.now() + (8000)),
+      alertBody: `It's time! Your countdown for ${text} done. Enjoy your time!`,
+      fireDate: moment(to).format('YYYY-MM-DDTHH:mm:ss.sssZ'),
     });
 
     // Store counter infos
@@ -149,7 +158,8 @@ const s = StyleSheet.create({
   },
 
   welcome__text: {
-    paddingHorizontal: 40,
+    paddingLeft: 40,
+    paddingRight: 30,
 
     fontFamily: 'Avenir-Medium',
     fontSize: 32,

@@ -2,9 +2,7 @@ import PushNotification from 'react-native-push-notification';
 
 const registerNotifications = () =>
   PushNotification.configure({
-    onNotification(notification) {
-      console.log('---------- notification', notification);
-    },
+    // onNotification(notification) {},
     permissions: {
       alert: true,
       badge: true,
