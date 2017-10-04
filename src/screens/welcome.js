@@ -105,7 +105,7 @@ export default class Welcome extends Component {
       <Container>
         <View style={s.welcome__form}>
           <Text style={s.welcome__text}>
-            Let’s count <Text style={styles(ui.showDate)} onPress={this.togglePicker}>{valueDate}</Text>{'\n'} for <Text style={styles(ui.counter.text)} onPress={this.toggleInput}>{valueText}</Text>.
+            Let’s count <Text style={styles(ui.showDate)} onPress={this.togglePicker}>{valueDate}</Text>{'\n'}for <Text style={styles(ui.counter.text)} onPress={this.toggleInput}>{valueText}</Text>.
           </Text>
 
           <Picker
@@ -145,20 +145,16 @@ export default class Welcome extends Component {
 
 const s = StyleSheet.create({
   welcome__form: {
-    justifyContent: 'center',
-    alignItems: 'center',
-
     marginTop: 200,
   },
 
   welcome__text: {
-    paddingHorizontal: 30,
+    paddingHorizontal: 40,
 
     fontFamily: 'Avenir-Medium',
     fontSize: 32,
     color: '#333',
     lineHeight: 46,
-    textAlign: 'center',
   },
 
   welcome__placeholder: {
@@ -172,6 +168,7 @@ const s = StyleSheet.create({
   },
 
   welcome__submit: {
+    paddingHorizontal: 40,
     marginTop: 60,
   },
 
@@ -184,13 +181,13 @@ const s = StyleSheet.create({
   },
 
   welcome__footer: {
+    paddingHorizontal: 40,
     marginTop: 'auto',
     marginBottom: 30,
 
     fontFamily: 'Avenir-Medium',
     fontSize: 15,
     color: '#c1ccdb',
-    textAlign: 'center',
   },
 
   welcome__link: {
