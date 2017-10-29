@@ -79,8 +79,12 @@ export default class Counter extends Component {
   }
 
   componentDidMount() {
+    const t = this.props.ui.date.total;
+
+    if (isNan(t)) return;
+
     this.countdown = this.setInterval(() =>
-      this.counter(this.props.ui.date.total),
+      this.counter(t),
     ONE_SECOND);
   }
 
@@ -123,7 +127,7 @@ export default class Counter extends Component {
     const { from, to } = this.props;
     const t = to - from;
 
-    if (t < 0) {
+    if (t < 0 || isNan(t)) {
       return {
         width: 0,
       };
