@@ -8,6 +8,7 @@ import { action } from 'mobx';
 import LinearGradient from 'react-native-linear-gradient';
 import TimerMixin from 'react-native-timer-mixin';
 import moment from 'moment';
+import { isNaN } from 'lodash';
 
 import Container from 'components/container';
 import ImagesSwitcher from 'components/images-switcher';

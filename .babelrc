@@ -1,20 +1,11 @@
 {
-  "presets": ["babel-preset-react-native-stage-0/decorator-support"],
-  "env": {
-    "development": {
-      "plugins": ["transform-react-jsx-source", "transform-decorators-legacy"]
-    }
-  },
-  "plugins": [
-    [
-      "module-resolver", {
-        "extensions": [
-          ".js"
-        ],
-        "root": [
-          "./src"
-        ]
-      }
-    ]
-  ]
+  "presets": [
+    "react-native-stage-0/decorator-support",
+  ],
+  "plugins": [[
+    "module-resolver", {
+      "extensions": [".js", ".ios.js", ".android.js", ".json"],
+      "root": ["./src"],
+    },
+  ]],
 }

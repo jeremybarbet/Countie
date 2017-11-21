@@ -30,6 +30,7 @@ const storage = {
     }
 
     const pairs = key.map(pair => [pair[0], JSON.stringify(pair[1])]);
+
     return AsyncStorage.multiSet(pairs);
   },
 

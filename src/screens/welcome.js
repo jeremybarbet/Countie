@@ -53,11 +53,11 @@ export default class Welcome extends Component {
   @autobind
   submit() {
     const { ui, navigator } = this.props;
+    const { text } = ui.counter;
 
     const to = moment(ui.counter.to).startOf('day').toDate();
     const from = new Date();
     const diff = to.getTime() - from.getTime();
-    const text = ui.counter.text;
     const dayBefore = new Date(to).setHours(new Date(to).getHours() - 24);
 
     if (isNil(ui.counter.text) || isNil(ui.counter.to)) return;
@@ -91,6 +91,7 @@ export default class Welcome extends Component {
   @action
   togglePicker() {
     const { pickerIsShown } = this.state;
+
     this.props.ui.showDate = true;
     this.setState({ pickerIsShown: !pickerIsShown });
   }
@@ -98,6 +99,7 @@ export default class Welcome extends Component {
   @autobind
   toggleInput() {
     const { inputIsShown } = this.state;
+
     this.setState({ inputIsShown: !inputIsShown });
   }
 
