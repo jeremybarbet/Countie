@@ -1,6 +1,6 @@
-import { observable } from 'mobx';
+import { observable, action } from 'mobx';
 
-import { datify } from 'utils/date';
+import { datify, timeDiff } from 'utils/date';
 
 export default class UI {
 
@@ -29,15 +29,8 @@ export default class UI {
   @observable
   reload = false;
 
-  timeDifference(closed, opened, remaining) {
-    const converted = typeof closed === 'string'
-      ? new Date(Date.parse(closed))
-      : closed;
-
-    const diff = opened.getTime() - converted.getTime();
-    const newTotal = remaining - diff;
-    const date = datify(newTotal);
-
-    this.date = date;
+  @action
+  newDate({ ...args }) {
+    this.date = timeDiff(args);
   }
 }

@@ -15,11 +15,25 @@ export function datify(total) {
 
 export function isOver(date) {
   const isZero = v => date[v] <= 0;
-  const goingToEnd = date.seconds <= 1;
 
-  if (isZero('days') && isZero('hours') && isZero('minutes') && goingToEnd) {
+  if (isZero('days') && isZero('hours') && isZero('minutes') && isZero('seconds')) {
     return true;
   }
 
   return false;
+}
+
+export function timeDiff({ lastClosed, lastOpened, remaining }) {
+  const converted = typeof lastClosed === 'string' ? new Date(Date.parse(lastClosed)) : lastClosed;
+  const diff = lastOpened.getTime() - converted.getTime();
+  const newTotal = remaining - diff;
+  const date = datify(newTotal);
+
+  if (isOver(date)) {
+    return datify(0);
+  }
+
+  console.log('-date', date);
+
+  return date;
 }
