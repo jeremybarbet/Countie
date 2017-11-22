@@ -21,7 +21,7 @@ Screens.set(COUNTER, () => Counter);
 export const startApp = (data) => {
   useStrict(true);
 
-  if (data.permission === 'waiting') {
+  if (data.permission === null) {
     startPermission();
   } else if (data.active) {
     startCounter(data.props);

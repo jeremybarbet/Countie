@@ -4,10 +4,11 @@ import { StyleSheet, Text, Image, Animated, Dimensions, Easing, AppState, Toucha
 import { decorate } from 'react-mixin';
 import { autobind } from 'core-decorators';
 import { inject, observer } from 'mobx-react/native';
-import { action } from 'mobx';
+import { observable, action } from 'mobx';
 import LinearGradient from 'react-native-linear-gradient';
 import TimerMixin from 'react-native-timer-mixin';
 import moment from 'moment';
+import { isNaN } from 'lodash';
 
 import Container from 'components/container';
 import ImagesSwitcher from 'components/images-switcher';
@@ -18,12 +19,19 @@ import { navigatorTypes } from 'utils/types';
 import { WELCOME } from './';
 
 const { width } = Dimensions.get('window');
+const keys = ['from', 'to', 'text', 'last_closed', 'time_remaining'];
 const ONE_SECOND = 1000;
 
 @inject('ui')
 @observer
 @decorate(TimerMixin)
 export default class Counter extends Component {
+
+  @observable
+  remaining;
+
+  @observable
+  lastClosed;
 
   static propTypes = {
     ...navigatorTypes,
@@ -56,12 +64,14 @@ export default class Counter extends Component {
       right: 10,
     };
 
-    if (props.activeCounter) {
+    if (props.ui.activeCounter) {
+      this.remaining = props.ui.date.total;
       this.progress = new Animated.Value(props.remaining);
     } else {
       const t = props.to - props.from;
       const get = v => datify(t)[v];
 
+      this.remaining = t;
       this.progress = new Animated.Value(t);
 
       props.ui.date = { // eslint-disable-line
@@ -79,12 +89,10 @@ export default class Counter extends Component {
   }
 
   componentDidMount() {
-    const t = this.props.ui.date.total;
-
-    if (isNan(t)) return;
+    if (isNaN(this.remaining)) return;
 
     this.countdown = this.setInterval(() =>
-      this.counter(t),
+      this.counter(),
     ONE_SECOND);
   }
 
@@ -127,7 +135,7 @@ export default class Counter extends Component {
     const { from, to } = this.props;
     const t = to - from;
 
-    if (t < 0 || isNan(t)) {
+    if (this.remaining <= 0 || t <= 0 || isNaN(t)) {
       return {
         width: 0,
       };
@@ -159,29 +167,33 @@ export default class Counter extends Component {
 
     if (state === 'inactive') {
       this.lastClosed = new Date();
-      this.timeRemaining = ui.date.total;
 
       storage.set(prefix('last_closed'), this.lastClosed);
-      storage.set(prefix('time_remaining'), this.timeRemaining);
+      storage.set(prefix('time_remaining'), this.remaining);
     }
 
     if (state === 'active') {
-      ui.timeDifference(this.lastClosed, new Date(), this.timeRemaining);
+      const { lastClosed, remaining } = this;
+      const lastOpened = new Date();
+
+      ui.newDate({ lastClosed, lastOpened, remaining });
+      this.remaining = ui.date.total;
     }
   }
 
   @action
-  counter(t) {
+  counter() {
+    this.remaining = this.remaining - ONE_SECOND;
+
     const { ui } = this.props;
-    const sub = t - ONE_SECOND;
-    const date = datify(sub);
+    const date = datify(this.remaining);
 
     if (isOver(ui.date)) {
       clearInterval(this.countdown);
     }
 
     Animated.timing(this.progress, {
-      toValue: sub,
+      toValue: this.remaining,
       duration: ONE_SECOND,
       easing: Easing.linear,
     }).start();
@@ -192,7 +204,8 @@ export default class Counter extends Component {
   @autobind
   @action
   deleteCounter() {
-    storage.clear();
+    keys.map(k => storage.delete(prefix(k)));
+
     clearInterval(this.countdown);
 
     this.props.ui.showDate = false;
@@ -257,7 +270,7 @@ export default class Counter extends Component {
           <Text style={s.counter__title}>{text}</Text>
 
           {isOver(ui.date)
-            ? <Text style={s.counter__countdown}>Enjoy your time!</Text>
+            ? <Text style={s.counter__countdown}>Make the most of it!</Text>
             : this.renderCounter()
           }
 

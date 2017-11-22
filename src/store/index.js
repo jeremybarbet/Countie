@@ -17,7 +17,7 @@ export default class Store {
 
       this.ui.permission = permission;
 
-      if (permission !== 'waiting') {
+      if (permission !== null) {
         const lastOpened = new Date();
         const lastClosed = await storage.get(prefix('last_closed'));
         const remaining = await storage.get(prefix('time_remaining'));
@@ -26,8 +26,9 @@ export default class Store {
         const text = await storage.get(prefix('text'));
 
         if (lastClosed && to && text) {
-          this.ui.timeDifference(lastClosed, lastOpened, remaining);
           this.ui.activeCounter = true;
+
+          this.ui.newDate({ lastClosed, lastOpened, remaining });
 
           this.ui.props = {
             from: moment(from).toDate(),

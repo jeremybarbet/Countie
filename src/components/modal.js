@@ -27,8 +27,8 @@ export default class Modal extends PureComponent {
         position="bottom"
         backdropOpacity={0.9}
         backdropColor="#fff"
-        backdropPressToClose={false}
         swipeToClose={false}
+        backdropPressToClose
         coverScreen
       >
         <View style={s.modal__content}>

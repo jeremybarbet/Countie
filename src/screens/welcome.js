@@ -53,11 +53,16 @@ export default class Welcome extends Component {
   @autobind
   submit() {
     const { ui, navigator } = this.props;
+    const { text } = ui.counter;
+
+    // DEBUG
+    // const to = moment(new Date().setSeconds(new Date().getSeconds() + 25)).toDate();
+    // const text = 'new year with Sarah ❤️';
+    // DEBUG
 
     const to = moment(ui.counter.to).startOf('day').toDate();
     const from = new Date();
     const diff = to.getTime() - from.getTime();
-    const text = ui.counter.text;
     const dayBefore = new Date(to).setHours(new Date(to).getHours() - 24);
 
     if (isNil(ui.counter.text) || isNil(ui.counter.to)) return;
@@ -66,13 +71,13 @@ export default class Welcome extends Component {
     // Configure notifications
     if (to >= TWENTYFOUR_HOURS) {
       PushNotificationIOS.scheduleLocalNotification({
-        alertBody: `Your countdown for ${text} is almost done, 24 hours remaining!`,
+        alertBody: `Your countdown for "${text}"" is almost over, 24 hours remaining!`,
         fireDate: moment(dayBefore).format('YYYY-MM-DDTHH:mm:ss.sssZ'),
       });
     }
 
     PushNotificationIOS.scheduleLocalNotification({
-      alertBody: `It's time! Your countdown for ${text} done. Enjoy your time!`,
+      alertBody: `Hey! Your countdown for "${text}" is over. Make the most of your time!`,
       fireDate: moment(to).format('YYYY-MM-DDTHH:mm:ss.sssZ'),
     });
 
@@ -91,6 +96,7 @@ export default class Welcome extends Component {
   @action
   togglePicker() {
     const { pickerIsShown } = this.state;
+
     this.props.ui.showDate = true;
     this.setState({ pickerIsShown: !pickerIsShown });
   }
@@ -98,6 +104,7 @@ export default class Welcome extends Component {
   @autobind
   toggleInput() {
     const { inputIsShown } = this.state;
+
     this.setState({ inputIsShown: !inputIsShown });
   }
 
@@ -158,8 +165,8 @@ const s = StyleSheet.create({
   },
 
   welcome__text: {
-    paddingLeft: 40,
-    paddingRight: 30,
+    marginLeft: 40,
+    marginRight: 30,
 
     fontFamily: 'Avenir-Medium',
     fontSize: 32,
