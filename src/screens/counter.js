@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { StyleSheet, Text, Image, Animated, Dimensions, Easing, AppState, TouchableOpacity, Alert } from 'react-native';
+import { StyleSheet, Text, Image, Animated, Dimensions, Easing, AppState, Alert } from 'react-native';
 import { decorate } from 'react-mixin';
 import { autobind } from 'core-decorators';
 import { inject, observer } from 'mobx-react/native';
@@ -12,6 +12,7 @@ import { isNaN } from 'lodash';
 
 import Container from 'components/container';
 import ImagesSwitcher from 'components/images-switcher';
+import Icon from 'components/icon';
 import { datify, isOver } from 'utils/date';
 import storage, { prefix } from 'utils/storage';
 import { navigatorTypes } from 'utils/types';
@@ -151,12 +152,15 @@ export default class Counter extends Component {
 
   get transform() {
     return {
-      transform: [{
-        rotate: this.rotation.interpolate({
-          inputRange: [0, 1],
-          outputRange: ['0deg', '360deg'],
-        }),
-      }],
+      transform: [
+        { scale: 0.85 },
+        {
+          rotate: this.rotation.interpolate({
+            inputRange: [0, 1],
+            outputRange: ['0deg', '360deg'],
+          }),
+        },
+      ],
     };
   }
 
@@ -240,26 +244,16 @@ export default class Counter extends Component {
 
     return (
       <Container>
-        <TouchableOpacity
-          hitSlop={this.hitIcon}
-          style={[s.counter__icon, s.counter__reload]}
-          onPress={this.onPressReload}
-          activeOpacity={0.4}
-        >
+        <Icon onPress={this.onPressReload} style={s.counter__reload}>
           <Animated.Image
-            style={this.transform}
+            style={[s.counter__image, this.transform]}
             source={require('../images/reload.png')}
           />
-        </TouchableOpacity>
+        </Icon>
 
-        <TouchableOpacity
-          hitSlop={this.hitIcon}
-          style={[s.counter__icon, s.counter__close]}
-          onPress={this.onPressClose}
-          activeOpacity={0.4}
-        >
-          <Image source={require('../images/close.png')} />
-        </TouchableOpacity>
+        <Icon onPress={this.onPressClose} style={s.counter__close}>
+          <Image style={s.counter__image} source={require('../images/close.png')} />
+        </Icon>
 
         <ImagesSwitcher reload={ui.reload} />
 
@@ -290,8 +284,14 @@ const s = StyleSheet.create({
     zIndex: 10,
   },
 
+  counter__image: {
+    transform: [{ scale: 0.8 }],
+
+    tintColor: '#fff',
+  },
+
   counter__reload: {
-    right: 75,
+    right: 85,
   },
 
   counter__close: {
