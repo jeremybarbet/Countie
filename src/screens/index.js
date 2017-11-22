@@ -21,8 +21,6 @@ Screens.set(COUNTER, () => Counter);
 export const startApp = (data) => {
   useStrict(true);
 
-  // console.log('------data', data)
-
   if (data.permission === null) {
     startPermission();
   } else if (data.active) {

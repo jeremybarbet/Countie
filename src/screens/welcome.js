@@ -53,20 +53,20 @@ export default class Welcome extends Component {
   @autobind
   submit() {
     const { ui, navigator } = this.props;
-    // const { text } = ui.counter;
+    const { text } = ui.counter;
 
     // DEBUG
-    const to = moment(new Date().setSeconds(new Date().getSeconds() + 60)).toDate();
-    const text = 'new year with Sarah ❤️';
+    // const to = moment(new Date().setSeconds(new Date().getSeconds() + 10)).toDate();
+    // const text = 'new year with Sarah ❤️';
     // DEBUG
 
-    // const to = moment(ui.counter.to).startOf('day').toDate();
+    const to = moment(ui.counter.to).startOf('day').toDate();
     const from = new Date();
     const diff = to.getTime() - from.getTime();
     const dayBefore = new Date(to).setHours(new Date(to).getHours() - 24);
 
-    // if (isNil(ui.counter.text) || isNil(ui.counter.to)) return;
-    // if (diff <= 0) return;
+    if (isNil(ui.counter.text) || isNil(ui.counter.to)) return;
+    if (diff <= 0) return;
 
     // Configure notifications
     if (to >= TWENTYFOUR_HOURS) {
@@ -160,7 +160,6 @@ export default class Welcome extends Component {
 }
 
 const s = StyleSheet.create({
-  /*
   welcome__form: {
     marginTop: 200,
   },
@@ -211,5 +210,4 @@ const s = StyleSheet.create({
   welcome__link: {
     color: '#a2abb8',
   },
-  */
 });

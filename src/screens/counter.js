@@ -89,8 +89,6 @@ export default class Counter extends Component {
   }
 
   componentDidMount() {
-    // const t = this.props.ui.date.total;
-
     if (isNaN(this.remaining)) return;
 
     this.countdown = this.setInterval(() =>
@@ -137,7 +135,7 @@ export default class Counter extends Component {
     const { from, to } = this.props;
     const t = to - from;
 
-    if (t < 0 || isNaN(t)) {
+    if (this.remaining <= 0 || t <= 0 || isNaN(t)) {
       return {
         width: 0,
       };
@@ -206,7 +204,7 @@ export default class Counter extends Component {
   @autobind
   @action
   deleteCounter() {
-    keys.map((k) => storage.delete(prefix(k)));
+    keys.map(k => storage.delete(prefix(k)));
 
     clearInterval(this.countdown);
 
@@ -263,9 +261,7 @@ export default class Counter extends Component {
           <Image source={require('../images/close.png')} />
         </TouchableOpacity>
 
-        {/*
         <ImagesSwitcher reload={ui.reload} />
-        */}
 
         <LinearGradient
           colors={['rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 0.5)']}
@@ -288,7 +284,6 @@ export default class Counter extends Component {
 }
 
 const s = StyleSheet.create({
-  /*
   counter__icon: {
     position: 'absolute',
     top: 25,
@@ -358,5 +353,4 @@ const s = StyleSheet.create({
 
     backgroundColor: '#6ef09f',
   },
-  */
 });

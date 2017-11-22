@@ -33,7 +33,5 @@ export function timeDiff({ lastClosed, lastOpened, remaining }) {
     return datify(0);
   }
 
-  console.log('-date', date);
-
   return date;
 }

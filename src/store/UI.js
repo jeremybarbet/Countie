@@ -1,6 +1,6 @@
 import { observable, action } from 'mobx';
 
-import { datify, timeDiff } from 'utils/date';
+import { timeDiff } from 'utils/date';
 
 export default class UI {
 
