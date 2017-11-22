@@ -165,8 +165,8 @@ const s = StyleSheet.create({
   },
 
   welcome__text: {
-    paddingLeft: 40,
-    paddingRight: 30,
+    marginLeft: 40,
+    marginRight: 30,
 
     fontFamily: 'Avenir-Medium',
     fontSize: 32,
