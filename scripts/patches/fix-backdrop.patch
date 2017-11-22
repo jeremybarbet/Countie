@@ -1,0 +1,24 @@
+From 9fc0ad395a44c6aaadea870fb182318698fa0610 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?J=C3=A9r=C3=A9my=20Barbet?= <jeremgraph@gmail.com>
+Date: Wed, 22 Nov 2017 08:25:54 +0000
+Subject: [PATCH] Fix backdrop
+
+---
+ index.js | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/index.js b/index.js
+index 2c17bf2..e7ac16b 100644
+--- a/index.js
++++ b/index.js
+@@ -425,6 +425,7 @@ var ModalBox = createReactClass({
+         onLayout={this.onViewLayout}
+         style={[styles.wrapper, size, this.props.style, {transform: [{translateY: this.state.position}, {translateX: offsetX}]} ]}
+         {...this.state.pan.panHandlers}>
++        {Platform.OS === 'ios' && this.props.backdropPressToClose && <TouchableWithoutFeedback onPress={this.close}><View style={[styles.absolute]} /></TouchableWithoutFeedback>}
+         {this.props.children}
+       </Animated.View>
+     )
+-- 
+2.15.0
+

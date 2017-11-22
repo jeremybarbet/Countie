@@ -270,7 +270,7 @@ export default class Counter extends Component {
           <Text style={s.counter__title}>{text}</Text>
 
           {isOver(ui.date)
-            ? <Text style={s.counter__countdown}>Enjoy your time!</Text>
+            ? <Text style={s.counter__countdown}>Make the most of it!</Text>
             : this.renderCounter()
           }
 

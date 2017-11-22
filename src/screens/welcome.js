@@ -56,7 +56,7 @@ export default class Welcome extends Component {
     const { text } = ui.counter;
 
     // DEBUG
-    // const to = moment(new Date().setSeconds(new Date().getSeconds() + 10)).toDate();
+    // const to = moment(new Date().setSeconds(new Date().getSeconds() + 25)).toDate();
     // const text = 'new year with Sarah ❤️';
     // DEBUG
 
