@@ -58,13 +58,6 @@ export default class Counter extends Component {
 
     this.rotation = new Animated.Value(0);
 
-    this.hitIcon = {
-      top: 10,
-      left: 10,
-      bottom: 10,
-      right: 10,
-    };
-
     if (props.ui.activeCounter) {
       this.remaining = props.ui.date.total;
       this.progress = new Animated.Value(props.remaining);
