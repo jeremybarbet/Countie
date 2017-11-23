@@ -54,10 +54,6 @@ export default class ImagesSwitcher extends Component {
     }
   }
 
-  componentWillUnmount() {
-    clearInterval(this.background);
-  }
-
   refill() {
     this.arr = range(backgrounds.length);
   }

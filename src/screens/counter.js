@@ -91,8 +91,6 @@ export default class Counter extends Component {
   }
 
   componentWillUnmount() {
-    clearInterval(this.countdown);
-
     AppState.removeEventListener('change', this.handleStateChange);
   }
 
