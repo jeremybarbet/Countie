@@ -1,10 +1,5 @@
 #!/usr/bin/env bash -e
 
-echo "Which bump do you want to do major, minor or patch ?"
-read value
-
-npm version $value
-
 APP_NAME=$(cat package.json | grep name | head -1 | awk -F: '{ print $2 }' | sed 's/[\",]//g' | tr -d '[[:space:]]')
 
 PROJECT_DIR="ios/${APP_NAME}"
