@@ -5,7 +5,8 @@
   "scripts": {
     "postinstall": "sh scripts/postinstall.sh",
     "start": "node node_modules/react-native/local-cli/cli.js start",
-    "lint": "eslint src"
+    "lint": "eslint src",
+    "bump": "sh scripts/bump-ios.sh"
   },
   "dependencies": {
     "@ueno/eslint-config": "^1.2.5",
