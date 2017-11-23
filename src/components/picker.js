@@ -25,7 +25,7 @@ export default class Picker extends PureComponent {
     const { open, toggle, onChange, date } = this.props;
 
     return (
-      <Modal isOpen={open}>
+      <Modal isOpen={open} onPress={toggle}>
         <Button onPress={toggle}>Validate</Button>
 
         <DatePickerIOS

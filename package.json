@@ -3,7 +3,6 @@
   "version": "1.2.2",
   "private": true,
   "scripts": {
-    "postinstall": "sh scripts/postinstall.sh",
     "start": "node node_modules/react-native/local-cli/cli.js start",
     "lint": "eslint src",
     "bump": "sh scripts/bump-ios.sh"
@@ -20,7 +19,7 @@
     "react-mixin": "^3.1.0",
     "react-native": "0.47.2",
     "react-native-linear-gradient": "^2.3.0",
-    "react-native-modalbox": "^1.4.2",
+    "react-native-modal": "^4.1.1",
     "react-native-navigation": "1.1.235",
     "react-native-push-notification": "^3.0.1",
     "react-native-timer-mixin": "^0.11.0"

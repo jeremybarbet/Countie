@@ -34,7 +34,7 @@ export default class Input extends PureComponent {
 
     return (
       <KeyboardAvoidingView behavior="position">
-        <Modal isOpen={open} style={s.input__modal}>
+        <Modal isOpen={open} onPress={toggle} style={s.input__modal}>
           <Button onPress={toggle}>Validate</Button>
 
           <TextInput

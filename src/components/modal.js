@@ -1,40 +1,33 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { View, StyleSheet, Easing, ViewPropTypes } from 'react-native';
-import ModalBox from 'react-native-modalbox';
+import Modal from 'react-native-modal';
 
-export default class Modal extends PureComponent {
+export default class ModalContainer extends PureComponent {
 
   static propTypes = {
-    children: PropTypes.node.isRequired,
-    isOpen: PropTypes.bool.isRequired,
+    children: PropTypes.node,
+    isOpen: PropTypes.bool,
     style: ViewPropTypes.style,
-  }
-
-  static defaultProps = {
-    style: '',
+    onPress: PropTypes.func,
   }
 
   render() {
-    const { children, isOpen, style } = this.props;
+    const { children, isOpen, style, onPress } = this.props;
 
     return (
-      <ModalBox
-        animationDuration={300}
-        easing={Easing.ease}
-        isOpen={isOpen}
+      <Modal
+        isVisible={isOpen}
         style={[s.modal, style]}
-        position="bottom"
         backdropOpacity={0.9}
         backdropColor="#fff"
-        swipeToClose={false}
-        backdropPressToClose
-        coverScreen
+        onBackdropPress={onPress}
+        avoidKeyboard
       >
         <View style={s.modal__content}>
           {children}
         </View>
-      </ModalBox>
+      </Modal>
     );
   }
 }
@@ -43,7 +36,7 @@ const s = StyleSheet.create({
   modal: {
     justifyContent: 'flex-end',
 
-    backgroundColor: 'transparent',
+    margin: 0,
   },
 
   modal__content: {
