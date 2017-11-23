@@ -27,8 +27,8 @@ const backgrounds = [
 export default class ImagesSwitcher extends Component {
 
   static propTypes = {
-    ui: PropTypes.object.isRequired,
-    reload: PropTypes.bool.isRequired,
+    ui: PropTypes.object,
+    reload: PropTypes.bool,
   }
 
   fade = new Animated.Value(1); // eslint-disable-line

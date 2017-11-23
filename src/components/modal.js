@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { View, StyleSheet, Easing, ViewPropTypes } from 'react-native';
+import { View, StyleSheet, ViewPropTypes } from 'react-native';
 import Modal from 'react-native-modal';
 
 export default class ModalContainer extends PureComponent {

@@ -5,12 +5,8 @@ import { Text, StyleSheet, TouchableOpacity } from 'react-native';
 export default class Button extends PureComponent {
 
   static propTypes = {
-    children: PropTypes.node.isRequired,
+    children: PropTypes.node,
     onPress: PropTypes.func,
-  }
-
-  static defaultProps = {
-    onPress: () => {},
   }
 
   render() {

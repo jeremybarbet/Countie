@@ -1,4 +1,3 @@
-/* eslint-disable react-native/split-platform-components */
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { StyleSheet, DatePickerIOS } from 'react-native';
@@ -11,13 +10,12 @@ export default class Picker extends PureComponent {
   static propTypes = {
     open: PropTypes.bool,
     toggle: PropTypes.func,
-    onChange: PropTypes.func.isRequired,
+    onChange: PropTypes.func,
     date: PropTypes.object,
   }
 
   static defaultProps = {
     open: false,
-    toggle: () => {},
     date: null,
   }
 

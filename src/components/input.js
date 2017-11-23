@@ -12,14 +12,13 @@ export default class Input extends PureComponent {
   static propTypes = {
     open: PropTypes.bool,
     toggle: PropTypes.func,
-    onChange: PropTypes.func.isRequired,
+    onChange: PropTypes.func,
     text: PropTypes.string,
-    placeholder: PropTypes.string.isRequired,
+    placeholder: PropTypes.string,
   }
 
   static defaultProps = {
     open: false,
-    toggle: () => {},
     text: null,
   }
 

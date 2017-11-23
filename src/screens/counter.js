@@ -46,7 +46,6 @@ export default class Counter extends Component {
 
   static defaultProps = {
     activeCounter: false,
-    remaining: undefined,
   }
 
   static navigatorStyle = {

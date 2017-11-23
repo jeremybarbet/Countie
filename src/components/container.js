@@ -8,7 +8,7 @@ const STATUSBAR_HEIGHT = 20;
 export default class Welcome extends PureComponent {
 
   static propTypes = {
-    children: PropTypes.node.isRequired,
+    children: PropTypes.node,
     background: PropTypes.string,
   }
 
