@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { View, Text, StyleSheet, TouchableOpacity, Image, Linking, PushNotificationIOS } from 'react-native'; // eslint-disable-line
+import { View, Text, StyleSheet, TouchableOpacity, Image, Linking, PushNotificationIOS } from 'react-native';
 import moment from 'moment';
 import { isNil } from 'lodash';
 import { inject, observer } from 'mobx-react/native';
@@ -38,9 +38,12 @@ export default class Welcome extends Component {
     inputIsShown: false,
   }
 
+  firstPick = false
+
   @autobind
   @action
   onDateChange(to) {
+    this.firstPick = true;
     this.props.ui.counter.to = to;
   }
 
@@ -54,11 +57,6 @@ export default class Welcome extends Component {
   submit() {
     const { ui, navigator } = this.props;
     const { text } = ui.counter;
-
-    // DEBUG
-    // const to = moment(new Date().setSeconds(new Date().getSeconds() + 25)).toDate();
-    // const text = 'new year with Sarah ❤️';
-    // DEBUG
 
     const to = moment(ui.counter.to).startOf('day').toDate();
     const from = new Date();
@@ -112,13 +110,18 @@ export default class Welcome extends Component {
     const { ui } = this.props;
     const { pickerIsShown, inputIsShown } = this.state;
 
-    const isClickable = ui.counter.to && ui.counter.text;
+    const isValid = moment(ui.counter.to).isAfter(new Date());
+    const isClickable = isValid && ui.counter.text;
     const valueDate = ui.showDate ? moment(ui.counter.to).format('DD/MM/YY') : PLACEHOLDER_DATE;
     const valueText = ui.counter.text || PLACEHOLDER_TEXT;
-    const styles = state => state ? s.welcome__value : s.welcome__placeholder; // eslint-disable-line
+    const styles = state => state ? s.welcome__value : s.welcome__placeholder;
 
     return (
       <Container>
+        {this.firstPick && !isValid && (
+          <Text style={s.welcome__error}>You have to select a date in the future to start the countdown.</Text>
+        )}
+
         <View style={s.welcome__form}>
           <Text style={s.welcome__text}>
             Let’s count <Text style={styles(ui.showDate)} onPress={this.togglePicker}>{valueDate}</Text>{'\n'}for <Text style={styles(ui.counter.text)} onPress={this.toggleInput}>{valueText}</Text>.
@@ -195,6 +198,18 @@ const s = StyleSheet.create({
 
   welcome__iconActive: {
     tintColor: '#6ef09f',
+  },
+
+  welcome__error: {
+    position: 'absolute',
+    top: 40,
+    left: 40,
+
+    paddingRight: 80,
+
+    fontFamily: 'Avenir-Medium',
+    fontSize: 15,
+    color: '#a2abb8',
   },
 
   welcome__footer: {
