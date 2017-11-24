@@ -1,12 +1,12 @@
 {
   "images" : [
     {
-      "extent" : "full-screen",
-      "idiom" : "iphone",
-      "subtype" : "2436h",
-      "filename" : "750x1334@3x.png",
-      "minimum-system-version" : "11.0",
       "orientation" : "portrait",
+      "idiom" : "iphone",
+      "extent" : "full-screen",
+      "minimum-system-version" : "11.0",
+      "filename" : "1125x2436.png",
+      "subtype" : "2436h",
       "scale" : "3x"
     },
     {

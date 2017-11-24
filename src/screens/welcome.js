@@ -69,13 +69,13 @@ export default class Welcome extends Component {
     // Configure notifications
     if (to >= TWENTYFOUR_HOURS) {
       PushNotificationIOS.scheduleLocalNotification({
-        alertBody: `Your countdown for "${text}"" is almost over, 24 hours remaining!`,
+        alertBody: `Your countdown for « ${text} » is almost over, 24 hours remaining!`,
         fireDate: moment(dayBefore).format('YYYY-MM-DDTHH:mm:ss.sssZ'),
       });
     }
 
     PushNotificationIOS.scheduleLocalNotification({
-      alertBody: `Hey! Your countdown for "${text}" is over. Make the most of your time!`,
+      alertBody: `Hey! Your countdown for « ${text} » is over. Make the most of your time!`,
       fireDate: moment(to).format('YYYY-MM-DDTHH:mm:ss.sssZ'),
     });
 
