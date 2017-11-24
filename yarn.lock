@@ -2,7 +2,7 @@
 # yarn lockfile v1
 
 
-"@ueno/eslint-config@^1.2.5":
+"@ueno/eslint-config@1.2.5":
   version "1.2.5"
   resolved "https://registry.yarnpkg.com/@ueno/eslint-config/-/eslint-config-1.2.5.tgz#bae3c240a5a16a006f6b4087430a02568874a357"
   dependencies:
@@ -850,7 +850,7 @@ babel-preset-fbjs@^2.1.2, babel-preset-fbjs@^2.1.4:
     babel-plugin-transform-react-display-name "^6.8.0"
     babel-plugin-transform-react-jsx "^6.8.0"
 
-babel-preset-react-native-stage-0@^1.0.1:
+babel-preset-react-native-stage-0@1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/babel-preset-react-native-stage-0/-/babel-preset-react-native-stage-0-1.0.1.tgz#d5f5f685575471ef756a49f191b193269f74306e"
   dependencies:
@@ -3043,7 +3043,7 @@ lodash.templatesettings@^3.0.0:
     lodash._reinterpolate "^3.0.0"
     lodash.escape "^3.0.0"
 
-lodash@4.x.x, lodash@^4.0.0, lodash@^4.14.0, lodash@^4.15.0, lodash@^4.16.6, lodash@^4.17.4, lodash@^4.2.0, lodash@^4.3.0, lodash@^4.6.1:
+lodash@4.17.4, lodash@4.x.x, lodash@^4.0.0, lodash@^4.14.0, lodash@^4.15.0, lodash@^4.16.6, lodash@^4.17.4, lodash@^4.2.0, lodash@^4.3.0, lodash@^4.6.1:
   version "4.17.4"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.4.tgz#78203a4d1c328ae1d86dca6460e369b57f4055ae"
 
@@ -3260,9 +3260,9 @@ mobx@3.2.1:
   version "3.2.1"
   resolved "https://registry.yarnpkg.com/mobx/-/mobx-3.2.1.tgz#6aeade0120cc3f78baa57195031630a0ae8f13cf"
 
-moment@^2.18.1:
-  version "2.18.1"
-  resolved "https://registry.yarnpkg.com/moment/-/moment-2.18.1.tgz#c36193dd3ce1c2eed2adb7c802dbbc77a81b1c0f"
+moment@2.19.2:
+  version "2.19.2"
+  resolved "https://registry.yarnpkg.com/moment/-/moment-2.19.2.tgz#8a7f774c95a64550b4c7ebd496683908f9419dbe"
 
 morgan@~1.6.1:
   version "1.6.1"
@@ -3732,7 +3732,7 @@ prop-types@15.5.10, prop-types@^15.5.10, prop-types@^15.5.8:
     fbjs "^0.8.9"
     loose-envify "^1.3.1"
 
-prop-types@^15.6.0:
+prop-types@15.6.0, prop-types@^15.6.0:
   version "15.6.0"
   resolved "https://registry.yarnpkg.com/prop-types/-/prop-types-15.6.0.tgz#ceaf083022fc46b4a35f69e13ef75aed0d639856"
   dependencies:
@@ -3842,9 +3842,9 @@ react-devtools-core@^2.5.0:
     shell-quote "^1.6.1"
     ws "^2.0.3"
 
-react-mixin@^3.1.0:
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/react-mixin/-/react-mixin-3.1.0.tgz#0c5dea2ee90d01455dabfbebe44db03a37497e53"
+react-mixin@3.1.1:
+  version "3.1.1"
+  resolved "https://registry.yarnpkg.com/react-mixin/-/react-mixin-3.1.1.tgz#68749756bfe32699e561372a4aeecb926db72b7f"
   dependencies:
     object-assign "^4.0.1"
     smart-mixin "^2.0.0"
@@ -3855,30 +3855,30 @@ react-native-animatable@^1.2.3:
   dependencies:
     prop-types "^15.5.10"
 
-react-native-linear-gradient@^2.3.0:
+react-native-linear-gradient@2.3.0:
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/react-native-linear-gradient/-/react-native-linear-gradient-2.3.0.tgz#757997197e35edf52e290891a11566e462845da1"
   dependencies:
     prop-types "^15.5.10"
 
-react-native-modal@^4.1.1:
+react-native-modal@4.1.1:
   version "4.1.1"
   resolved "https://registry.yarnpkg.com/react-native-modal/-/react-native-modal-4.1.1.tgz#4c1055dc045106542a8e3bb3fd656a6d3bc319d9"
   dependencies:
     prop-types "15.5.10"
     react-native-animatable "^1.2.3"
 
-react-native-navigation@1.1.235:
-  version "1.1.235"
-  resolved "https://registry.yarnpkg.com/react-native-navigation/-/react-native-navigation-1.1.235.tgz#53e3dc0eeb2b41b3f8890329550b15d1d5de9ac5"
+react-native-navigation@1.1.295:
+  version "1.1.295"
+  resolved "https://registry.yarnpkg.com/react-native-navigation/-/react-native-navigation-1.1.295.tgz#3ee6b2fc4f94671246498ed285f3592355c063d3"
   dependencies:
     lodash "4.x.x"
 
-react-native-push-notification@^3.0.1:
+react-native-push-notification@3.0.1:
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/react-native-push-notification/-/react-native-push-notification-3.0.1.tgz#0e23db302d03bb4a3f28dc072dcaf2a9a1178ed8"
 
-react-native-timer-mixin@^0.11.0:
+react-native-timer-mixin@0.11.0:
   version "0.11.0"
   resolved "https://registry.yarnpkg.com/react-native-timer-mixin/-/react-native-timer-mixin-0.11.0.tgz#acd7e267ac6666970c2ed2186f6a4484cc7833d8"
 
@@ -3946,12 +3946,12 @@ react-proxy@^1.1.7:
     lodash "^4.6.1"
     react-deep-force-update "^1.0.0"
 
-react-test-renderer@16.0.0-alpha.12:
-  version "16.0.0-alpha.12"
-  resolved "https://registry.yarnpkg.com/react-test-renderer/-/react-test-renderer-16.0.0-alpha.12.tgz#9e4cc5d8ce8bfca72778340de3e1454b9d6c0cc5"
+react-test-renderer@16.0.0:
+  version "16.0.0"
+  resolved "https://registry.yarnpkg.com/react-test-renderer/-/react-test-renderer-16.0.0.tgz#9fe7b8308f2f71f29fc356d4102086f131c9cb15"
   dependencies:
-    fbjs "^0.8.9"
-    object-assign "^4.1.0"
+    fbjs "^0.8.16"
+    object-assign "^4.1.1"
 
 react-timer-mixin@^0.13.2:
   version "0.13.3"
