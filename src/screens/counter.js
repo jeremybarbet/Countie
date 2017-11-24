@@ -16,6 +16,7 @@ import Icon from 'components/icon';
 import { datify, isOver } from 'utils/date';
 import storage, { prefix } from 'utils/storage';
 import { navigatorTypes } from 'utils/types';
+import { isIphoneX } from 'utils/utils';
 
 import { WELCOME } from './';
 
@@ -267,6 +268,18 @@ export default class Counter extends Component {
   }
 }
 
+function positions() {
+  if (isIphoneX()) {
+    return {
+      top: 0,
+    };
+  }
+
+  return {
+    bottom: 0,
+  };
+}
+
 const s = StyleSheet.create({
   counter__icon: {
     position: 'absolute',
@@ -335,7 +348,7 @@ const s = StyleSheet.create({
 
   counter__progress: {
     position: 'absolute',
-    bottom: 0,
+    ...positions(),
     left: 0,
 
     width,
