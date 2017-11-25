@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { View, Text, StyleSheet, TouchableOpacity, Image, Linking, PushNotificationIOS } from 'react-native';
 import moment from 'moment';
-import { isNil } from 'lodash';
+import { isNil, isEmpty } from 'lodash';
 import { inject, observer } from 'mobx-react/native';
 import { action } from 'mobx';
 import { autobind } from 'core-decorators';
@@ -19,6 +19,7 @@ import { COUNTER } from './';
 const PLACEHOLDER_DATE = 'date';
 const PLACEHOLDER_TEXT = 'my next travel';
 const TWENTYFOUR_HOURS = 24 * 60 * 60 * 1000;
+const ONE_HOUR = 60 * 60 * 1000;
 
 @inject('ui')
 @observer
@@ -38,18 +39,20 @@ export default class Welcome extends Component {
     inputIsShown: false,
   }
 
-  firstPick = false
+  firstPickDate = false
+  firstPickText = false
 
   @autobind
   @action
   onDateChange(to) {
-    this.firstPick = true;
+    this.firstPickDate = true;
     this.props.ui.counter.to = to;
   }
 
   @autobind
   @action
   onTextChange(text) {
+    this.firstPickText = true;
     this.props.ui.counter.text = text;
   }
 
@@ -61,21 +64,29 @@ export default class Welcome extends Component {
     const to = moment(ui.counter.to).startOf('day').toDate();
     const from = new Date();
     const diff = to.getTime() - from.getTime();
-    const dayBefore = new Date(to).setHours(new Date(to).getHours() - 24);
+    const twentyFourHours = new Date(to).setHours(new Date(to).getHours() - 24);
+    const oneHour = new Date(to).setHours(new Date(to).getHours() - 1);
 
-    if (isNil(ui.counter.text) || isNil(ui.counter.to)) return;
+    if (isEmpty(ui.counter.text) || isNil(ui.counter.to)) return;
     if (diff <= 0) return;
 
     // Configure notifications
     if (to >= TWENTYFOUR_HOURS) {
       PushNotificationIOS.scheduleLocalNotification({
         alertBody: `Your countdown for « ${text} » is almost over, 24 hours remaining!`,
-        fireDate: moment(dayBefore).format('YYYY-MM-DDTHH:mm:ss.sssZ'),
+        fireDate: moment(twentyFourHours).format('YYYY-MM-DDTHH:mm:ss.sssZ'),
+      });
+    }
+
+    if (to >= ONE_HOUR) {
+      PushNotificationIOS.scheduleLocalNotification({
+        alertBody: `Your countdown for « ${text} » is so close to be over, 1 hour remaining!`,
+        fireDate: moment(oneHour).format('YYYY-MM-DDTHH:mm:ss.sssZ'),
       });
     }
 
     PushNotificationIOS.scheduleLocalNotification({
-      alertBody: `Hey! Your countdown for « ${text} » is over. Make the most of your time!`,
+      alertBody: `Hey! This is it, your countdown for « ${text} » is over. Make the most of your time!`,
       fireDate: moment(to).format('YYYY-MM-DDTHH:mm:ss.sssZ'),
     });
 
@@ -95,13 +106,22 @@ export default class Welcome extends Component {
   togglePicker() {
     const { pickerIsShown } = this.state;
 
+    if (pickerIsShown) {
+      this.firstPickDate = true;
+    }
+
     this.props.ui.showDate = true;
     this.setState({ pickerIsShown: !pickerIsShown });
   }
 
   @autobind
+  @action
   toggleInput() {
     const { inputIsShown } = this.state;
+
+    if (inputIsShown) {
+      this.firstPickText = true;
+    }
 
     this.setState({ inputIsShown: !inputIsShown });
   }
@@ -110,16 +130,22 @@ export default class Welcome extends Component {
     const { ui } = this.props;
     const { pickerIsShown, inputIsShown } = this.state;
 
-    const isValid = moment(ui.counter.to).isAfter(new Date());
-    const isClickable = isValid && ui.counter.text;
+    const validDate = moment(ui.counter.to).isAfter(new Date());
+    const validText = !isEmpty(ui.counter.text);
+    const isClickable = validDate && validText;
+
     const valueDate = ui.showDate ? moment(ui.counter.to).format('DD/MM/YY') : PLACEHOLDER_DATE;
     const valueText = ui.counter.text || PLACEHOLDER_TEXT;
     const styles = state => state ? s.welcome__value : s.welcome__placeholder;
 
     return (
       <Container>
-        {this.firstPick && !isValid && (
+        {this.firstPickDate && !validDate && (
           <Text style={s.welcome__error}>You have to select a date in the future to start the countdown.</Text>
+        )}
+
+        {this.firstPickText && !validText && (
+          <Text style={s.welcome__error}>You have to choose a name to your countdown.</Text>
         )}
 
         <View style={s.welcome__form}>

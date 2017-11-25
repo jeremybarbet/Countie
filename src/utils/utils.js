@@ -1,13 +1,12 @@
 import { Dimensions, Platform } from 'react-native';
 
-// See https://mydevice.io/devices/ for device dimensions
 const X_WIDTH = 375;
 const X_HEIGHT = 812;
 
-export function isIphoneX() {
-  const { height: D_HEIGHT, width: D_WIDTH } = Dimensions.get('window');
+function isIphoneX() {
+  const { height, width } = Dimensions.get('window');
 
-  return Platform.OS === 'ios' &&
-    ((D_HEIGHT === X_HEIGHT && D_WIDTH === X_WIDTH) ||
-      (D_HEIGHT === X_WIDTH && D_WIDTH === X_HEIGHT));
+  return Platform.OS === 'ios' && ((height === X_HEIGHT && width === X_WIDTH) || (height === X_WIDTH && width === X_HEIGHT));
 }
+
+export default isIphoneX;

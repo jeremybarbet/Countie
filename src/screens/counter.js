@@ -16,7 +16,7 @@ import Icon from 'components/icon';
 import { datify, isOver } from 'utils/date';
 import storage, { prefix } from 'utils/storage';
 import { navigatorTypes } from 'utils/types';
-import { isIphoneX } from 'utils/utils';
+import isIphoneX from 'utils/utils';
 
 import { WELCOME } from './';
 
