@@ -42,7 +42,7 @@ export default class Permission extends Component {
 
   render() {
     return (
-      <Container background="#8FFFB9">
+      <Container background="#73f2a3">
         <Text style={s.permission__title}>Don’t miss the big day!</Text>
         <Text style={s.permission__description}>We’ll notify you know when it’s coming, some days and hours before.</Text>
 
