@@ -96,9 +96,11 @@ export default class Counter extends Component {
 
   @autobind
   onPressClose() {
+    const { text } = this.props;
+
     Alert.alert(
-      'Delete counter',
-      'Are you sure you want to delete this counter?',
+      'Delete this counter',
+      `Are you sure you want to delete « ${text} »?`,
       [
         {
           text: 'Cancel',
