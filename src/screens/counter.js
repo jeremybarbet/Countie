@@ -51,6 +51,8 @@ export default class Counter extends Component {
   constructor(props) {
     super(props);
 
+    console.log('-props.ui.counters', props.ui.counters);
+
     this.rotation = new Animated.Value(0);
 
     if (props.ui.activeCounter) {
@@ -59,21 +61,19 @@ export default class Counter extends Component {
     } else {
       const { counters, currentCounter } = props.ui;
 
-      console.log('-props.ui', props.ui);
-
       const t = counters[currentCounter].to - counters[currentCounter].from;
-      const date = v => datify(t)[v];
+      // const date = v => datify(t)[v];
 
       this.remaining[currentCounter] = t;
-      this.progress = new Animated.Value(t);
+      // this.progress = new Animated.Value(t);
 
-      counters[currentCounter].status = { // eslint-disable-line
-        total: date('total'),
-        days: date('days'),
-        hours: date('hours'),
-        minutes: date('minutes'),
-        seconds: date('seconds'),
-      };
+      // counters[currentCounter].status = { // eslint-disable-line
+      //   total: date('total'),
+      //   days: date('days'),
+      //   hours: date('hours'),
+      //   minutes: date('minutes'),
+      //   seconds: date('seconds'),
+      // };
     }
   }
 
@@ -84,9 +84,9 @@ export default class Counter extends Component {
   componentDidMount() {
     // if (isNaN(this.remaining)) return;
 
-    // this.countdown = this.setInterval(() =>
-    //   this.counter(),
-    // ONE_SECOND);
+    this.countdown = this.setInterval(() =>
+      this.counter(),
+    ONE_SECOND);
   }
 
   componentWillUnmount() {
@@ -202,24 +202,32 @@ export default class Counter extends Component {
 
   @action
   counter() {
-    this.remaining = this.remaining - ONE_SECOND;
-
     const { ui } = this.props;
     const { counters, currentCounter } = ui;
 
-    const date = datify(this.remaining[currentCounter].status);
+    console.log('----------------')
 
-    if (isOver(counters[currentCounter].status)) {
-      clearInterval(this.countdown);
-    }
+    console.log('-this.remaining', this.remaining[currentCounter]);
+    console.log('-counters', counters[currentCounter].status.total);
 
-    Animated.timing(this.progress, {
-      toValue: this.remaining[currentCounter],
-      duration: ONE_SECOND,
-      easing: Easing.linear,
-    }).start();
+    Object.keys(counters).forEach((c) => {
+      this.remaining[c] = this.remaining[c] - ONE_SECOND;
+      counters[c].status = datify(this.remaining[c]);
+    });
 
-    counters[currentCounter].status = date;
+    // const date = datify(this.remaining[currentCounter].status);
+
+    // if (isOver(counters[currentCounter].status)) {
+    //   clearInterval(this.countdown);
+    // }
+
+    // Animated.timing(this.progress, {
+    //   toValue: this.remaining[currentCounter],
+    //   duration: ONE_SECOND,
+    //   easing: Easing.linear,
+    // }).start();
+
+    // counters[currentCounter].status = date;
   }
 
   @autobind
@@ -241,8 +249,8 @@ export default class Counter extends Component {
 
   @autobind
   renderCounter(c) {
+    console.log('-----renderCounter', this.props.ui.counters[c]);
     const { counters, currentCounter } = this.props.ui;
-    // console.log('-----renderCounter', counters[c]);
 
     // if (!get(counters[c], 'status')) {
     //   return;
@@ -258,11 +266,14 @@ export default class Counter extends Component {
     );
   }
 
+  @autobind
   handleChange(index) {
     // console.log('-index', index)
   }
 
-  get counters() {
+  @autobind
+  counters() {
+    console.log('-counters')
     const { counters } = this.props.ui;
 
     return (
@@ -291,6 +302,8 @@ export default class Counter extends Component {
   }
 
   render() {
+    console.log('-render')
+
     const { ui } = this.props;
 
     return (
@@ -316,7 +329,7 @@ export default class Counter extends Component {
           colors={['rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 0.5)']}
           style={s.counter__gradient}
         >
-          {this.counters}
+          {this.counters()}
 
           <Animated.View style={[s.counter__progress, this.width]} />
         </LinearGradient>

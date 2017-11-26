@@ -23,15 +23,13 @@ export default class Store {
         const remaining = await storage.get(prefix('time_remaining')); // should be for each counter
         const counters = await storage.get(prefix('counters'));
 
-        if (counters) {
+        if (lastClosed && counters) {
           Object.keys(counters).map((c) => { // eslint-disable-line
             const props = {
               from: moment(counters[c].from).toDate(),
               to: moment(counters[c].to).toDate(),
               text: counters[c].text,
-              status: lastClosed
-                ? this.ui.updateDate(c, { lastClosed, lastOpened, remaining })
-                : undefined,
+              status: this.ui.updateDate(c, { lastClosed, lastOpened, remaining }),
             };
 
             this.ui.counters[c] = props;

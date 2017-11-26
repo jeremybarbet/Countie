@@ -12,6 +12,7 @@ import Container from 'components/container';
 import Picker from 'components/picker';
 import Input from 'components/input';
 import storage, { prefix } from 'utils/storage';
+import { datify } from 'utils/date';
 import { navigatorTypes } from 'utils/types';
 
 import { COUNTER } from './';
@@ -110,9 +111,10 @@ export default class Welcome extends Component {
     });
 
     const name = moment(from).format('DD-MM-YY/HH:mm:ss');
-    const counter = { [name]: { from, to, text } };
+    const obj = { from, to, text, status: datify(diff) };
+    const counter = { [name]: obj };
 
-    ui.counters[name] = { from, to, text };
+    ui.counters[name] = obj;
     ui.currentCounter = name;
     storage.update(prefix('counters'), counter);
 
