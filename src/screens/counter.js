@@ -7,8 +7,9 @@ import { inject, observer } from 'mobx-react/native';
 import { observable, action } from 'mobx';
 import LinearGradient from 'react-native-linear-gradient';
 import TimerMixin from 'react-native-timer-mixin';
+import Swiper from 'react-native-swiper';
 import moment from 'moment';
-import { isNaN } from 'lodash';
+import { isNaN, get } from 'lodash';
 
 import Container from 'components/container';
 import ImagesSwitcher from 'components/images-switcher';
@@ -30,23 +31,17 @@ const ONE_SECOND = 1000;
 export default class Counter extends Component {
 
   @observable
-  remaining;
+  remaining = {};
 
   @observable
   lastClosed;
 
+  @observable
+  currentCouter = 0;
+
   static propTypes = {
     ...navigatorTypes,
     ui: PropTypes.object.isRequired,
-    from: PropTypes.object.isRequired,
-    to: PropTypes.object.isRequired,
-    text: PropTypes.string.isRequired,
-    activeCounter: PropTypes.bool,
-    remaining: PropTypes.number,
-  }
-
-  static defaultProps = {
-    activeCounter: false,
   }
 
   static navigatorStyle = {
@@ -59,21 +54,25 @@ export default class Counter extends Component {
     this.rotation = new Animated.Value(0);
 
     if (props.ui.activeCounter) {
-      this.remaining = props.ui.date.total;
-      this.progress = new Animated.Value(props.remaining);
+      // this.remaining[props.name] = props.ui.date[props.name].total;
+      // this.progress = new Animated.Value(props.remaining);
     } else {
-      const t = props.to - props.from;
-      const get = v => datify(t)[v];
+      const { counters, currentCounter } = props.ui;
 
-      this.remaining = t;
+      console.log('-props.ui', props.ui);
+
+      const t = counters[currentCounter].to - counters[currentCounter].from;
+      const date = v => datify(t)[v];
+
+      this.remaining[currentCounter] = t;
       this.progress = new Animated.Value(t);
 
-      props.ui.date = { // eslint-disable-line
-        total: get('total'),
-        days: get('days'),
-        hours: get('hours'),
-        minutes: get('minutes'),
-        seconds: get('seconds'),
+      counters[currentCounter].status = { // eslint-disable-line
+        total: date('total'),
+        days: date('days'),
+        hours: date('hours'),
+        minutes: date('minutes'),
+        seconds: date('seconds'),
       };
     }
   }
@@ -83,11 +82,11 @@ export default class Counter extends Component {
   }
 
   componentDidMount() {
-    if (isNaN(this.remaining)) return;
+    // if (isNaN(this.remaining)) return;
 
-    this.countdown = this.setInterval(() =>
-      this.counter(),
-    ONE_SECOND);
+    // this.countdown = this.setInterval(() =>
+    //   this.counter(),
+    // ONE_SECOND);
   }
 
   componentWillUnmount() {
@@ -134,18 +133,22 @@ export default class Counter extends Component {
     const { from, to } = this.props;
     const t = to - from;
 
-    if (this.remaining <= 0 || t <= 0 || isNaN(t)) {
-      return {
-        width: 0,
-      };
-    }
-
     return {
-      width: this.progress.interpolate({
-        inputRange: [ONE_SECOND, t],
-        outputRange: [0, width],
-      }),
+      width: 200,
     };
+
+    // if (this.remaining <= 0 || t <= 0 || isNaN(t)) {
+    //   return {
+    //     width: 0,
+    //   };
+    // }
+
+    // return {
+    //   width: this.progress.interpolate({
+    //     inputRange: [ONE_SECOND, t],
+    //     outputRange: [0, width],
+    //   }),
+    // };
   }
 
   get transform() {
@@ -178,8 +181,22 @@ export default class Counter extends Component {
       const { lastClosed, remaining } = this;
       const lastOpened = new Date();
 
-      ui.newDate({ lastClosed, lastOpened, remaining });
-      this.remaining = ui.date.total;
+      Object.keys(ui.counters).map((c) => {
+        // ui.counters[c] = {
+        //   ...ui.counters[c],
+        //   status: ui.updateDate(c, { lastClosed, lastOpened, remaining }),
+        // }
+
+      //   ui.counters[c] = {
+      //     ...ui.counters[c],
+      //     status: ui.updateDate(c, { lastClosed, lastOpened, remaining })
+      //   }
+
+      //   this.remaining[c] = ui.counters[c].status.total;
+      });
+
+      // ui.updateDate({ lastClosed, lastOpened, remaining });
+      // this.remaining = ui.date.total;
     }
   }
 
@@ -188,19 +205,21 @@ export default class Counter extends Component {
     this.remaining = this.remaining - ONE_SECOND;
 
     const { ui } = this.props;
-    const date = datify(this.remaining);
+    const { counters, currentCounter } = ui;
 
-    if (isOver(ui.date)) {
+    const date = datify(this.remaining[currentCounter].status);
+
+    if (isOver(counters[currentCounter].status)) {
       clearInterval(this.countdown);
     }
 
     Animated.timing(this.progress, {
-      toValue: this.remaining,
+      toValue: this.remaining[currentCounter],
       duration: ONE_SECOND,
       easing: Easing.linear,
     }).start();
 
-    ui.date = date;
+    counters[currentCounter].status = date;
   }
 
   @autobind
@@ -213,12 +232,7 @@ export default class Counter extends Component {
     this.props.ui.showDate = false;
     this.props.ui.activeCounter = false;
 
-    this.props.ui.counter = {
-      from: undefined,
-      to: new Date(),
-      text: undefined,
-    };
-
+    // Close popup if last counter otherwise, just move currentCounter slide
     this.props.navigator.resetTo({
       screen: WELCOME,
       animationType: 'fade',
@@ -226,8 +240,15 @@ export default class Counter extends Component {
   }
 
   @autobind
-  renderCounter() {
-    const { days, hours, minutes, seconds } = this.props.ui.date;
+  renderCounter(c) {
+    const { counters, currentCounter } = this.props.ui;
+    // console.log('-----renderCounter', counters[c]);
+
+    // if (!get(counters[c], 'status')) {
+    //   return;
+    // }
+
+    const { days, hours, minutes, seconds } = counters[c].status;
     const f = (v, p) => v.toString().length > 1 ? `${v}${p}` : `0${v}${p}`; // eslint-disable-line
 
     return (
@@ -237,8 +258,40 @@ export default class Counter extends Component {
     );
   }
 
+  handleChange(index) {
+    // console.log('-index', index)
+  }
+
+  get counters() {
+    const { counters } = this.props.ui;
+
+    return (
+      <Swiper
+        style={s.counter__swiper}
+        showsButtons={false}
+        paginationStyle={s.counter__pagination}
+        dotStyle={s.counter__dot}
+        activeDotStyle={s.counter__dotActive}
+        onIndexChanged={this.handleChange}
+      >
+        {Object.keys(counters).map((c) => (
+          <View key={c} style={s.counter__slide}>
+            <Text style={s.counter__title}>{counters[c].text}</Text>
+
+            {isOver(counters[c].status)
+              ? <Text style={s.counter__countdown}>Make the most of it!</Text>
+              : this.renderCounter(c)
+            }
+
+            <Text style={s.counter__date}>{moment(counters[c].to).format('MMMM Do, YYYY')}</Text>
+          </View>
+        ))}
+      </Swiper>
+    );
+  }
+
   render() {
-    const { ui, to, text } = this.props;
+    const { ui } = this.props;
 
     return (
       <Container>
@@ -263,24 +316,10 @@ export default class Counter extends Component {
           colors={['rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 0.5)']}
           style={s.counter__gradient}
         >
-          <View style={s.counter__pagination}>
-            <View style={s.counter__dot} />
-            <View style={[s.counter__dot, s.counter__dotActive]} />
-            <View style={s.counter__dot} />
-            <View style={s.counter__dot} />
-          </View>
+          {this.counters}
 
-          <Text style={s.counter__title}>{text}</Text>
-
-          {isOver(ui.date)
-            ? <Text style={s.counter__countdown}>Make the most of it!</Text>
-            : this.renderCounter()
-          }
-
-          <Text style={s.counter__date}>{moment(to).format('MMMM Do, YYYY')}</Text>
+          <Animated.View style={[s.counter__progress, this.width]} />
         </LinearGradient>
-
-        <Animated.View style={[s.counter__progress, this.width]} />
       </Container>
     );
   }
@@ -288,14 +327,10 @@ export default class Counter extends Component {
 
 function positions() {
   if (isIphoneX()) {
-    return {
-      top: 0,
-    };
+    return { top: 0 };
   }
 
-  return {
-    bottom: 0,
-  };
+  return { bottom: 0 };
 }
 
 const s = StyleSheet.create({
@@ -324,23 +359,30 @@ const s = StyleSheet.create({
   },
 
   counter__gradient: {
-    justifyContent: 'flex-end',
-
     position: 'absolute',
     left: 0,
     bottom: 0,
     right: 0,
 
-    paddingHorizontal: 25,
-    paddingBottom: 30,
-
     height: 300,
   },
 
-  counter__pagination: {
-    flexDirection: 'row',
+  counter__swiper: {
+    paddingHorizontal: 25,
+    paddingBottom: 30,
+  },
 
-    marginBottom: 15,
+  counter__slide: {
+    flex: 1,
+    justifyContent: 'flex-end',
+
+    paddingBottom: 55,
+  },
+
+  counter__pagination: {
+    justifyContent: 'flex-start',
+
+    marginLeft: 25,
   },
 
   counter__dot: {
@@ -354,7 +396,13 @@ const s = StyleSheet.create({
   },
 
   counter__dotActive: {
+    marginRight: 6,
+
+    width: 6,
+    height: 6,
+
     backgroundColor: '#fff',
+    borderRadius: 3,
   },
 
   counter__title: {

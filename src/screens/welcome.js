@@ -5,7 +5,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Image, Linking, PushNotificat
 import moment from 'moment';
 import { isNil, isEmpty } from 'lodash';
 import { inject, observer } from 'mobx-react/native';
-import { action, toJS } from 'mobx';
+import { action, toJS, observable } from 'mobx';
 import { autobind } from 'core-decorators';
 
 import Container from 'components/container';
@@ -25,6 +25,18 @@ const ONE_HOUR = 60 * 60 * 1000;
 @observer
 export default class Welcome extends Component {
 
+  @observable
+  showDate = false;
+
+  @observable
+  counterFrom = undefined;
+
+  @observable
+  counterTo = new Date();
+
+  @observable
+  counterText = undefined;
+
   static propTypes = {
     ...navigatorTypes,
     ui: PropTypes.object.isRequired,
@@ -43,7 +55,7 @@ export default class Welcome extends Component {
   firstPickText = false
 
   componentDidMount() {
-    console.log('-this.props.ui.props', toJS(this.props.ui.props))
+    console.log('-this.props.ui.counters', toJS(this.props.ui.counters));
 
     // storage.clear();
   }
@@ -52,28 +64,29 @@ export default class Welcome extends Component {
   @action
   onDateChange(to) {
     this.firstPickDate = true;
-    this.props.ui.counter.to = to;
+    this.counterTo = to;
   }
 
   @autobind
   @action
   onTextChange(text) {
     this.firstPickText = true;
-    this.props.ui.counter.text = text;
+    this.counterText = text;
   }
 
   @autobind
   submit() {
     const { ui, navigator } = this.props;
-    const { text } = ui.counter;
+    const text = this.counterText;
 
-    const to = moment(ui.counter.to).startOf('day').toDate();
+    const to = moment(this.counterTo).startOf('day').toDate();
     const from = new Date();
     const diff = to.getTime() - from.getTime();
     const twentyFourHours = new Date(to).setHours(new Date(to).getHours() - 24);
     const oneHour = new Date(to).setHours(new Date(to).getHours() - 1);
 
-    if (isEmpty(ui.counter.text) || isNil(ui.counter.to)) return;
+    // Check if counter is valid
+    if (isEmpty(text) || isNil(this.counterTo)) return;
     if (diff <= 0) return;
 
     // Configure notifications
@@ -96,33 +109,15 @@ export default class Welcome extends Component {
       fireDate: moment(to).format('YYYY-MM-DDTHH:mm:ss.sssZ'),
     });
 
-    // Store counter infos
-    // storage.set(prefix('from'), from);
-    // storage.set(prefix('to'), to);
-    // storage.set(prefix('text'), text);
+    const name = moment(from).format('DD-MM-YY/HH:mm:ss');
+    const counter = { [name]: { from, to, text } };
 
-    const counter = {
-      [moment(from).format('DD-MM-YY/HH:mm:ss')]: {
-        from,
-        to,
-        text,
-      }
-    };
-
-    console.log('-counter', counter)
-
+    ui.counters[name] = { from, to, text };
+    ui.currentCounter = name;
     storage.update(prefix('counters'), counter);
-
-    // console.log(storage.get('@countie:counters'));
-
-    // navigator.push({
-    //   screen: COUNTER,
-    //   passProps: { from, to, text },
-    // });
 
     navigator.showModal({
       screen: COUNTER,
-      passProps: { from, to, text },
       animationType: 'slide-up',
     });
   }
@@ -136,7 +131,7 @@ export default class Welcome extends Component {
       this.firstPickDate = true;
     }
 
-    this.props.ui.showDate = true;
+    this.showDate = true;
     this.setState({ pickerIsShown: !pickerIsShown });
   }
 
@@ -153,15 +148,14 @@ export default class Welcome extends Component {
   }
 
   render() {
-    const { ui } = this.props;
     const { pickerIsShown, inputIsShown } = this.state;
 
-    const validDate = moment(ui.counter.to).isAfter(new Date());
-    const validText = !isEmpty(ui.counter.text);
+    const validDate = moment(this.counterTo).isAfter(new Date());
+    const validText = !isEmpty(this.counterText);
     const isClickable = validDate && validText;
 
-    const valueDate = ui.showDate ? moment(ui.counter.to).format('DD/MM/YY') : PLACEHOLDER_DATE;
-    const valueText = ui.counter.text || PLACEHOLDER_TEXT;
+    const valueDate = this.showDate ? moment(this.counterTo).format('DD/MM/YY') : PLACEHOLDER_DATE;
+    const valueText = this.counterText || PLACEHOLDER_TEXT;
     const styles = state => state ? s.welcome__value : s.welcome__placeholder;
 
     return (
@@ -176,20 +170,20 @@ export default class Welcome extends Component {
 
         <View style={s.welcome__form}>
           <Text style={s.welcome__text}>
-            Let’s count <Text style={styles(ui.showDate)} onPress={this.togglePicker}>{valueDate}</Text>{'\n'}for <Text style={styles(ui.counter.text)} onPress={this.toggleInput}>{valueText}</Text>.
+            Let’s count <Text style={styles(this.showDate)} onPress={this.togglePicker}>{valueDate}</Text>{'\n'}for <Text style={styles(this.counterText)} onPress={this.toggleInput}>{valueText}</Text>.
           </Text>
 
           <Picker
             open={pickerIsShown}
             toggle={this.togglePicker}
-            date={ui.counter.to}
+            date={this.counterTo}
             onChange={this.onDateChange}
           />
 
           <Input
             open={inputIsShown}
             toggle={this.toggleInput}
-            text={ui.counter.text}
+            text={this.counterText}
             placeholder={PLACEHOLDER_TEXT}
             onChange={this.onTextChange}
           />

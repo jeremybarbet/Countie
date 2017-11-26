@@ -20,26 +20,21 @@ export default class Store {
       if (permission !== null) {
         const lastOpened = new Date();
         const lastClosed = await storage.get(prefix('last_closed'));
-        const remaining = await storage.get(prefix('time_remaining'));
-
-        // const from = await storage.get(prefix('from'));
-        // const to = await storage.get(prefix('to'));
-        // const text = await storage.get(prefix('text'));
-
+        const remaining = await storage.get(prefix('time_remaining')); // should be for each counter
         const counters = await storage.get(prefix('counters'));
 
-        if (lastClosed && counters) {
-          this.ui.activeCounter = true;
-
-          Object.keys(counters).map(c => {
+        if (counters) {
+          Object.keys(counters).map((c) => { // eslint-disable-line
             const props = {
               from: moment(counters[c].from).toDate(),
               to: moment(counters[c].to).toDate(),
               text: counters[c].text,
-              status: this.ui.newDate(c, { lastClosed, lastOpened, remaining }),
+              status: lastClosed
+                ? this.ui.updateDate(c, { lastClosed, lastOpened, remaining })
+                : undefined,
             };
 
-            this.ui.props[c] = props;
+            this.ui.counters[c] = props;
           });
         } else {
           this.ui.activeCounter = false;
@@ -52,7 +47,7 @@ export default class Store {
     return {
       permission: this.ui.permission,
       active: this.ui.activeCounter,
-      props: this.ui.props,
+      counters: this.ui.counters,
     };
   }
 }
