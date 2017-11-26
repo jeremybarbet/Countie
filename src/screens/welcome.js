@@ -5,7 +5,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Image, Linking, PushNotificat
 import moment from 'moment';
 import { isNil, isEmpty } from 'lodash';
 import { inject, observer } from 'mobx-react/native';
-import { action } from 'mobx';
+import { action, toJS } from 'mobx';
 import { autobind } from 'core-decorators';
 
 import Container from 'components/container';
@@ -41,6 +41,12 @@ export default class Welcome extends Component {
 
   firstPickDate = false
   firstPickText = false
+
+  componentDidMount() {
+    console.log('-this.props.ui.props', toJS(this.props.ui.props))
+
+    // storage.clear();
+  }
 
   @autobind
   @action
@@ -91,13 +97,33 @@ export default class Welcome extends Component {
     });
 
     // Store counter infos
-    storage.set(prefix('from'), from);
-    storage.set(prefix('to'), to);
-    storage.set(prefix('text'), text);
+    // storage.set(prefix('from'), from);
+    // storage.set(prefix('to'), to);
+    // storage.set(prefix('text'), text);
 
-    navigator.push({
+    const counter = {
+      [moment(from).format('DD-MM-YY/HH:mm:ss')]: {
+        from,
+        to,
+        text,
+      }
+    };
+
+    console.log('-counter', counter)
+
+    storage.update(prefix('counters'), counter);
+
+    // console.log(storage.get('@countie:counters'));
+
+    // navigator.push({
+    //   screen: COUNTER,
+    //   passProps: { from, to, text },
+    // });
+
+    navigator.showModal({
       screen: COUNTER,
       passProps: { from, to, text },
+      animationType: 'slide-up',
     });
   }
 

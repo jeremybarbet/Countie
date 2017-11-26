@@ -24,7 +24,8 @@ export const startApp = (data) => {
   if (data.permission === null) {
     startPermission();
   } else if (data.active) {
-    startCounter(data.props);
+    // startCounter(data.props);
+    startWelcome();
   } else {
     startWelcome();
   }

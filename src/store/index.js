@@ -21,21 +21,26 @@ export default class Store {
         const lastOpened = new Date();
         const lastClosed = await storage.get(prefix('last_closed'));
         const remaining = await storage.get(prefix('time_remaining'));
-        const from = await storage.get(prefix('from'));
-        const to = await storage.get(prefix('to'));
-        const text = await storage.get(prefix('text'));
 
-        if (lastClosed && to && text) {
+        // const from = await storage.get(prefix('from'));
+        // const to = await storage.get(prefix('to'));
+        // const text = await storage.get(prefix('text'));
+
+        const counters = await storage.get(prefix('counters'));
+
+        if (lastClosed && counters) {
           this.ui.activeCounter = true;
 
-          this.ui.newDate({ lastClosed, lastOpened, remaining });
+          Object.keys(counters).map(c => {
+            const props = {
+              from: moment(counters[c].from).toDate(),
+              to: moment(counters[c].to).toDate(),
+              text: counters[c].text,
+              status: this.ui.newDate(c, { lastClosed, lastOpened, remaining }),
+            };
 
-          this.ui.props = {
-            from: moment(from).toDate(),
-            to: moment(to).toDate(),
-            text,
-            remaining,
-          };
+            this.ui.props[c] = props;
+          });
         } else {
           this.ui.activeCounter = false;
         }

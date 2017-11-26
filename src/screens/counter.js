@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { StyleSheet, Text, Image, Animated, Dimensions, Easing, AppState, Alert } from 'react-native';
+import { StyleSheet, View, Text, Image, Animated, Dimensions, Easing, AppState, Alert } from 'react-native';
 import { decorate } from 'react-mixin';
 import { autobind } from 'core-decorators';
 import { inject, observer } from 'mobx-react/native';
@@ -92,6 +92,11 @@ export default class Counter extends Component {
 
   componentWillUnmount() {
     AppState.removeEventListener('change', this.handleStateChange);
+  }
+
+  @autobind
+  onPressAdd() {
+    this.props.navigator.dismissModal();
   }
 
   @autobind
@@ -244,6 +249,10 @@ export default class Counter extends Component {
           />
         </Icon>
 
+        <Icon onPress={this.onPressAdd} style={s.counter__add}>
+          <Image style={s.counter__image} source={require('../images/add.png')} />
+        </Icon>
+
         <Icon onPress={this.onPressClose} style={s.counter__close}>
           <Image style={s.counter__image} source={require('../images/close.png')} />
         </Icon>
@@ -254,6 +263,13 @@ export default class Counter extends Component {
           colors={['rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 0.5)']}
           style={s.counter__gradient}
         >
+          <View style={s.counter__pagination}>
+            <View style={s.counter__dot} />
+            <View style={[s.counter__dot, s.counter__dotActive]} />
+            <View style={s.counter__dot} />
+            <View style={s.counter__dot} />
+          </View>
+
           <Text style={s.counter__title}>{text}</Text>
 
           {isOver(ui.date)
@@ -296,6 +312,10 @@ const s = StyleSheet.create({
   },
 
   counter__reload: {
+    right: 145,
+  },
+
+  counter__add: {
     right: 85,
   },
 
@@ -314,7 +334,27 @@ const s = StyleSheet.create({
     paddingHorizontal: 25,
     paddingBottom: 30,
 
-    height: 280,
+    height: 300,
+  },
+
+  counter__pagination: {
+    flexDirection: 'row',
+
+    marginBottom: 15,
+  },
+
+  counter__dot: {
+    marginRight: 6,
+
+    width: 6,
+    height: 6,
+
+    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+    borderRadius: 3,
+  },
+
+  counter__dotActive: {
+    backgroundColor: '#fff',
   },
 
   counter__title: {

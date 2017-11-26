@@ -1,4 +1,4 @@
-import { observable, action } from 'mobx';
+import { ObservableMap, observable, action } from 'mobx';
 
 import { timeDiff } from 'utils/date';
 
@@ -30,7 +30,9 @@ export default class UI {
   reload = false;
 
   @action
-  newDate({ ...args }) {
-    this.date = timeDiff(args);
+  newDate(c, { ...args }) {
+    this.date[c] = timeDiff(args);
+
+    return timeDiff(args);
   }
 }
