@@ -3,6 +3,7 @@
   "version": "1.4.1",
   "private": true,
   "scripts": {
+    "postinstall": "sh scripts/postinstall.sh",
     "start": "node node_modules/react-native/local-cli/cli.js start",
     "lint": "eslint src",
     "version": "sh scripts/bump-ios.sh"
