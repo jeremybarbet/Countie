@@ -214,7 +214,9 @@ const s = StyleSheet.create({
   },
 
   welcome__submit: {
-    paddingHorizontal: 40,
+    alignSelf: 'flex-start',
+
+    marginLeft: 40,
     marginTop: 60,
   },
 
