@@ -25,7 +25,7 @@ export const startApp = (data) => {
     startPermission();
   } else if (data.active) {
     // startCounter(data.props);
-    startWelcome();
+    startWelcome({ showModal: true });
   } else {
     startWelcome();
   }
@@ -48,10 +48,11 @@ export const startCounter = props =>
     passProps: props,
   });
 
-export const startWelcome = () =>
+export const startWelcome = props =>
   Navigation.startSingleScreenApp({
     screen: {
       screen: WELCOME,
       navigatorStyle: { navBarHidden: true },
     },
+    passProps: props,
   });

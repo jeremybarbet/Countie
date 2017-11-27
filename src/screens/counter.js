@@ -22,7 +22,7 @@ import isIphoneX from 'utils/utils';
 import { WELCOME } from './';
 
 const { width } = Dimensions.get('window');
-const keys = ['from', 'to', 'text', 'last_closed', 'time_remaining'];
+const keys = ['from', 'to', 'text', 'last_closed', 'time_remaining']; // to update
 const ONE_SECOND = 1000;
 
 @inject('ui')
@@ -36,9 +36,6 @@ export default class Counter extends Component {
   @observable
   lastClosed;
 
-  @observable
-  currentCouter = 0;
-
   static propTypes = {
     ...navigatorTypes,
     ui: PropTypes.object.isRequired,
@@ -51,8 +48,6 @@ export default class Counter extends Component {
   constructor(props) {
     super(props);
 
-    console.log('-props.ui.counters', props.ui.counters);
-
     this.rotation = new Animated.Value(0);
 
     if (props.ui.activeCounter) {
@@ -60,20 +55,10 @@ export default class Counter extends Component {
       // this.progress = new Animated.Value(props.remaining);
     } else {
       const { counters, currentCounter } = props.ui;
-
       const t = counters[currentCounter].to - counters[currentCounter].from;
-      // const date = v => datify(t)[v];
 
       this.remaining[currentCounter] = t;
-      // this.progress = new Animated.Value(t);
-
-      // counters[currentCounter].status = { // eslint-disable-line
-      //   total: date('total'),
-      //   days: date('days'),
-      //   hours: date('hours'),
-      //   minutes: date('minutes'),
-      //   seconds: date('seconds'),
-      // };
+      this.progress = new Animated.Value(t);
     }
   }
 
@@ -82,8 +67,6 @@ export default class Counter extends Component {
   }
 
   componentDidMount() {
-    // if (isNaN(this.remaining)) return;
-
     this.countdown = this.setInterval(() =>
       this.counter(),
     ONE_SECOND);
@@ -130,25 +113,19 @@ export default class Counter extends Component {
   }
 
   get width() {
-    const { from, to } = this.props;
-    const t = to - from;
+    const { counters, currentCounter } = this.props.ui;
+    const t = counters[currentCounter].to - counters[currentCounter].from;
+
+    if (this.remaining[currentCounter] <= 0 || t <= 0 || isNaN(t)) {
+      return { width: 0 };
+    }
 
     return {
-      width: 200,
+      width: this.progress.interpolate({
+        inputRange: [ONE_SECOND, t],
+        outputRange: [0, width],
+      }),
     };
-
-    // if (this.remaining <= 0 || t <= 0 || isNaN(t)) {
-    //   return {
-    //     width: 0,
-    //   };
-    // }
-
-    // return {
-    //   width: this.progress.interpolate({
-    //     inputRange: [ONE_SECOND, t],
-    //     outputRange: [0, width],
-    //   }),
-    // };
   }
 
   get transform() {
@@ -200,42 +177,41 @@ export default class Counter extends Component {
     }
   }
 
+  @autobind
   @action
   counter() {
-    const { ui } = this.props;
-    const { counters, currentCounter } = ui;
+    const { counters, currentCounter } = this.props.ui;
 
     console.log('----------------')
+    console.log('-this.remaining', this.remaining);
+    // console.log('-counters', counters);
 
-    console.log('-this.remaining', this.remaining[currentCounter]);
-    console.log('-counters', counters[currentCounter].status.total);
+    /*
+    * this.remaining is not an object, only one occurence inside :/
+    */
 
     Object.keys(counters).forEach((c) => {
-      this.remaining[c] = this.remaining[c] - ONE_SECOND;
-      counters[c].status = datify(this.remaining[c]);
+      // const val = this.remaining[c] - ONE_SECOND;
+      // this.remaining[c] = val;
+      // counters[c].status = datify(val);
+      this.setState({ val: 1 }); // Worst trick ever to make re-render again
     });
 
-    // const date = datify(this.remaining[currentCounter].status);
+    if (isOver(counters[currentCounter].status)) {
+      clearInterval(this.countdown);
+    }
 
-    // if (isOver(counters[currentCounter].status)) {
-    //   clearInterval(this.countdown);
-    // }
-
-    // Animated.timing(this.progress, {
-    //   toValue: this.remaining[currentCounter],
-    //   duration: ONE_SECOND,
-    //   easing: Easing.linear,
-    // }).start();
-
-    // counters[currentCounter].status = date;
+    Animated.timing(this.progress, {
+      toValue: this.remaining[currentCounter],
+      duration: ONE_SECOND,
+      easing: Easing.linear,
+    }).start();
   }
 
   @autobind
   @action
   deleteCounter() {
     keys.map(k => storage.delete(prefix(k)));
-
-    clearInterval(this.countdown);
 
     this.props.ui.showDate = false;
     this.props.ui.activeCounter = false;
@@ -251,10 +227,6 @@ export default class Counter extends Component {
   renderCounter(c) {
     console.log('-----renderCounter', this.props.ui.counters[c]);
     const { counters, currentCounter } = this.props.ui;
-
-    // if (!get(counters[c], 'status')) {
-    //   return;
-    // }
 
     const { days, hours, minutes, seconds } = counters[c].status;
     const f = (v, p) => v.toString().length > 1 ? `${v}${p}` : `0${v}${p}`; // eslint-disable-line
@@ -273,7 +245,6 @@ export default class Counter extends Component {
 
   @autobind
   counters() {
-    console.log('-counters')
     const { counters } = this.props.ui;
 
     return (
@@ -284,6 +255,7 @@ export default class Counter extends Component {
         dotStyle={s.counter__dot}
         activeDotStyle={s.counter__dotActive}
         onIndexChanged={this.handleChange}
+        bounces
       >
         {Object.keys(counters).map((c) => (
           <View key={c} style={s.counter__slide}>
@@ -302,8 +274,6 @@ export default class Counter extends Component {
   }
 
   render() {
-    console.log('-render')
-
     const { ui } = this.props;
 
     return (
@@ -422,6 +392,8 @@ const s = StyleSheet.create({
     fontFamily: 'Avenir-Medium',
     fontSize: 32,
     color: '#fff',
+
+    paddingRight: 50,
 
     backgroundColor: 'transparent',
   },

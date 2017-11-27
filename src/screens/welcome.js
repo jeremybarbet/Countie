@@ -55,6 +55,17 @@ export default class Welcome extends Component {
   firstPickDate = false
   firstPickText = false
 
+  constructor(props) {
+    super(props);
+
+    // if (props.showModal) {
+    //   props.navigator.showModal({
+    //     screen: COUNTER,
+    //     animationType: 'slide-up',
+    //   });
+    // }
+  }
+
   componentDidMount() {
     console.log('-this.props.ui.counters', toJS(this.props.ui.counters));
 
@@ -78,8 +89,13 @@ export default class Welcome extends Component {
   @autobind
   submit() {
     const { ui, navigator } = this.props;
-    const text = this.counterText;
 
+    // DEBUG
+    // const to = moment(new Date().setSeconds(new Date().getSeconds() + 60)).toDate();
+    // const text = 'Birthday in Iceland with Sarah ❤️';
+    // DEBUG
+
+    const text = this.counterText;
     const to = moment(this.counterTo).startOf('day').toDate();
     const from = new Date();
     const diff = to.getTime() - from.getTime();

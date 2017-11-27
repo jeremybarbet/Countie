@@ -21,8 +21,14 @@ export default class UI {
 
   @action
   updateDate(c, { ...args }) {
-    this.counters[c].status = timeDiff(args);
+    console.log('-c', c)
+    console.log('-args', args)
+    // console.log('-this.counters', this.counters[c])
 
-    return timeDiff(args);
+    const diff = timeDiff(args);
+
+    this.counters[c].status = diff;
+
+    return diff;
   }
 }

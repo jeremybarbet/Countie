@@ -24,15 +24,16 @@ export default class Store {
         const counters = await storage.get(prefix('counters'));
 
         if (lastClosed && counters) {
-          Object.keys(counters).map((c) => { // eslint-disable-line
-            const props = {
-              from: moment(counters[c].from).toDate(),
-              to: moment(counters[c].to).toDate(),
-              text: counters[c].text,
-              status: this.ui.updateDate(c, { lastClosed, lastOpened, remaining }),
-            };
+          console.log('-inside')
 
-            this.ui.counters[c] = props;
+          this.ui.activeCounter = true;
+
+          Object.keys(counters).forEach((c) => { // eslint-disable-line
+            this.ui.counters[c] = {};
+            this.ui.counters[c].from = moment(counters[c].from).toDate();
+            this.ui.counters[c].to = moment(counters[c].to).toDate();
+            this.ui.counters[c].text = counters[c].text;
+            this.ui.counters[c].status = this.ui.updateDate(c, { lastClosed, lastOpened, remaining: remaining[c] });
           });
         } else {
           this.ui.activeCounter = false;
