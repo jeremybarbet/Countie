@@ -16,6 +16,10 @@ export default class UI {
   @observable
   counters = {};
 
+  // move to counters obj OF course
+  @observable
+  remaining = {};
+
   @observable
   reload = false;
 

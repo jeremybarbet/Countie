@@ -31,9 +31,6 @@ const ONE_SECOND = 1000;
 export default class Counter extends Component {
 
   @observable
-  remaining = {};
-
-  @observable
   lastClosed;
 
   static propTypes = {
@@ -48,8 +45,13 @@ export default class Counter extends Component {
   constructor(props) {
     super(props);
 
-    this.rotation = new Animated.Value(0);
+    const { counters, currentCounter } = props.ui;
+    // const t = counters[currentCounter].to - counters[currentCounter].from;
 
+    this.rotation = new Animated.Value(0);
+    this.progress = new Animated.Value(counters[currentCounter].status.total);
+
+    /*
     if (props.ui.activeCounter) {
       // this.remaining[props.name] = props.ui.date[props.name].total;
       // this.progress = new Animated.Value(props.remaining);
@@ -60,6 +62,7 @@ export default class Counter extends Component {
       this.remaining[currentCounter] = t;
       this.progress = new Animated.Value(t);
     }
+    */
   }
 
   componentWillMount() {
@@ -116,7 +119,7 @@ export default class Counter extends Component {
     const { counters, currentCounter } = this.props.ui;
     const t = counters[currentCounter].to - counters[currentCounter].from;
 
-    if (this.remaining[currentCounter] <= 0 || t <= 0 || isNaN(t)) {
+    if (counters[currentCounter].status.total <= 0 || t <= 0 || isNaN(t)) {
       return { width: 0 };
     }
 
@@ -145,24 +148,26 @@ export default class Counter extends Component {
   @autobind
   @action
   handleStateChange(state) {
-    const { ui } = this.props;
+    const { counters, currentCounter } = this.props.ui;
 
     if (state === 'inactive') {
       this.lastClosed = new Date();
 
       storage.set(prefix('last_closed'), this.lastClosed);
-      storage.set(prefix('time_remaining'), this.remaining);
+      storage.set(prefix('time_remaining'), counters[currentCounter].status.total);
     }
 
     if (state === 'active') {
-      const { lastClosed, remaining } = this;
+      const { lastClosed, props } = this;
+      const { counters, updateDate } = props.ui;
       const lastOpened = new Date();
 
-      Object.keys(ui.counters).map((c) => {
-        // ui.counters[c] = {
-        //   ...ui.counters[c],
-        //   status: ui.updateDate(c, { lastClosed, lastOpened, remaining }),
-        // }
+      console.log('-counters', counters);
+
+      Object.keys(counters).map((c) => {
+        // const remaining = counters[c].status.total;
+
+        // counters[c].status = updateDate(c, { lastClosed, lastOpened, remaining });
 
       //   ui.counters[c] = {
       //     ...ui.counters[c],
@@ -182,19 +187,14 @@ export default class Counter extends Component {
   counter() {
     const { counters, currentCounter } = this.props.ui;
 
-    console.log('----------------')
-    console.log('-this.remaining', this.remaining);
+    // console.log('----------------')
     // console.log('-counters', counters);
 
-    /*
-    * this.remaining is not an object, only one occurence inside :/
-    */
-
     Object.keys(counters).forEach((c) => {
-      // const val = this.remaining[c] - ONE_SECOND;
-      // this.remaining[c] = val;
-      // counters[c].status = datify(val);
-      this.setState({ val: 1 }); // Worst trick ever to make re-render again
+      const val = counters[c].status.total - ONE_SECOND;
+
+      counters[c].status = datify(val);
+      this.setState({ val }); // Worst trick ever to make re-render again
     });
 
     if (isOver(counters[currentCounter].status)) {
@@ -202,7 +202,7 @@ export default class Counter extends Component {
     }
 
     Animated.timing(this.progress, {
-      toValue: this.remaining[currentCounter],
+      toValue: counters[currentCounter].status.total,
       duration: ONE_SECOND,
       easing: Easing.linear,
     }).start();
@@ -225,7 +225,7 @@ export default class Counter extends Component {
 
   @autobind
   renderCounter(c) {
-    console.log('-----renderCounter', this.props.ui.counters[c]);
+    // console.log('-----renderCounter', this.props.ui.counters[c]);
     const { counters, currentCounter } = this.props.ui;
 
     const { days, hours, minutes, seconds } = counters[c].status;
