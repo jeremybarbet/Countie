@@ -14,6 +14,7 @@ import Input from 'components/input';
 import storage, { prefix } from 'utils/storage';
 import { datify } from 'utils/date';
 import { navigatorTypes } from 'utils/types';
+import { isIpad } from 'utils/utils';
 
 import { COUNTER } from './';
 
@@ -176,6 +177,8 @@ export default class Welcome extends Component {
     const valueText = this.counterText || PLACEHOLDER_TEXT;
     const styles = state => state ? s.welcome__value : s.welcome__placeholder;
 
+    const breakLine = isIpad() ? ' ' : '\n';
+
     return (
       <Container>
         {this.firstPickDate && !validDate && (
@@ -188,7 +191,7 @@ export default class Welcome extends Component {
 
         <View style={s.welcome__form}>
           <Text style={s.welcome__text}>
-            Let’s count <Text style={styles(this.showDate)} onPress={this.togglePicker}>{valueDate}</Text>{'\n'}for <Text style={styles(this.counterText)} onPress={this.toggleInput}>{valueText}</Text>.
+            Let’s count <Text style={styles(this.showDate)} onPress={this.togglePicker}>{valueDate}</Text>{breakLine}for <Text style={styles(this.counterText)} onPress={this.toggleInput}>{valueText}</Text>.
           </Text>
 
           <Picker
@@ -212,7 +215,7 @@ export default class Welcome extends Component {
             style={s.welcome__submit}
           >
             <Image
-              style={isClickable ? s.welcome__iconActive : s.welcome__icon}
+              style={isClickable ? [s.welcome__image, s.welcome__iconActive] : [s.welcome__image, s.welcome__icon]}
               source={require('../images/submit.png')}
             />
           </TouchableOpacity>
@@ -232,13 +235,14 @@ const s = StyleSheet.create({
   },
 
   welcome__text: {
-    marginLeft: 40,
+    paddingVertical: isIpad() ? 20 : 0,
+    marginLeft: 30,
     marginRight: 30,
 
     fontFamily: 'Avenir-Medium',
-    fontSize: 32,
+    fontSize: isIpad() ? 48 : 32,
     color: '#333',
-    lineHeight: 46,
+    lineHeight: isIpad() ? 56 : 46,
   },
 
   welcome__placeholder: {
@@ -252,8 +256,15 @@ const s = StyleSheet.create({
   },
 
   welcome__submit: {
-    paddingHorizontal: 40,
+    alignSelf: 'flex-start',
+
+    marginLeft: 30,
     marginTop: 60,
+  },
+
+  welcome__image: {
+    width: isIpad() ? 62 : 52,
+    height: isIpad() ? 62 : 52,
   },
 
   welcome__icon: {
@@ -277,12 +288,12 @@ const s = StyleSheet.create({
   },
 
   welcome__footer: {
-    paddingHorizontal: 40,
+    paddingHorizontal: 30,
     marginTop: 'auto',
     marginBottom: 30,
 
     fontFamily: 'Avenir-Medium',
-    fontSize: 15,
+    fontSize: isIpad() ? 18 : 15,
     color: '#c1ccdb',
   },
 

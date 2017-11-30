@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { View, StyleSheet, StatusBar, Dimensions, SafeAreaView } from 'react-native';
 
-import isIphoneX from 'utils/utils';
+import { isIphoneX } from 'utils/utils';
 
 const { height } = Dimensions.get('window');
 const STATUSBAR_HEIGHT = 20;
