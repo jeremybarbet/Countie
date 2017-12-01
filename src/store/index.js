@@ -20,12 +20,12 @@ export default class Store {
       if (permission !== null) {
         const lastOpened = new Date();
         const lastClosed = await storage.get(prefix('last_closed'));
-        const remaining = await storage.get(prefix('time_remaining')); // should be for each counter
+        const remaining = await storage.get(prefix('time_remaining'));
         const counters = await storage.get(prefix('counters'));
 
-        if (lastClosed && counters) {
-          console.log('-inside')
+        console.log('-remaining', remaining)
 
+        if (lastClosed && counters) {
           this.ui.activeCounter = true;
 
           Object.keys(counters).forEach((c) => { // eslint-disable-line

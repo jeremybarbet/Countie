@@ -75,6 +75,11 @@ export default class Counter extends Component {
     ONE_SECOND);
   }
 
+  componentWillReceiveProps(nextProps) {
+    console.log('componentWillReceiveProps');
+
+  }
+
   componentWillUnmount() {
     AppState.removeEventListener('change', this.handleStateChange);
   }
@@ -148,18 +153,22 @@ export default class Counter extends Component {
   @autobind
   @action
   handleStateChange(state) {
-    const { counters, currentCounter } = this.props.ui;
+    const { counters, currentCounter, updateDate } = this.props.ui;
 
     if (state === 'inactive') {
       this.lastClosed = new Date();
 
       storage.set(prefix('last_closed'), this.lastClosed);
-      storage.set(prefix('time_remaining'), counters[currentCounter].status.total);
+
+      Object.keys(counters).map((c) => {
+        const remaining = { [c]: counters[c].status.total };
+
+        storage.set(prefix('time_remaining'), remaining);
+      });
     }
 
     if (state === 'active') {
-      const { lastClosed, props } = this;
-      const { counters, updateDate } = props.ui;
+      const { lastClosed } = this;
       const lastOpened = new Date();
 
       console.log('-counters', counters);
@@ -225,7 +234,6 @@ export default class Counter extends Component {
 
   @autobind
   renderCounter(c) {
-    // console.log('-----renderCounter', this.props.ui.counters[c]);
     const { counters, currentCounter } = this.props.ui;
 
     const { days, hours, minutes, seconds } = counters[c].status;
@@ -239,8 +247,13 @@ export default class Counter extends Component {
   }
 
   @autobind
+  @action
   handleChange(index) {
-    // console.log('-index', index)
+    const { counters } = this.props.ui;
+    const newCurrent = Object.keys(counters)[index];
+
+    this.props.ui.currentCounter = newCurrent;
+    this.progress = new Animated.Value(counters[newCurrent].status.total);
   }
 
   @autobind

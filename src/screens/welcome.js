@@ -23,6 +23,11 @@ const PLACEHOLDER_TEXT = 'my next travel';
 const TWENTYFOUR_HOURS = 24 * 60 * 60 * 1000;
 const ONE_HOUR = 60 * 60 * 1000;
 
+/*
+ * Check if counter already exists
+ * Same name
+ * Same final date
+ */
 @inject('ui')
 @observer
 export default class Welcome extends Component {
@@ -68,7 +73,7 @@ export default class Welcome extends Component {
   }
 
   componentDidMount() {
-    console.log('-this.props.ui.counters', toJS(this.props.ui.counters));
+    // console.log('-this.props.ui.counters', toJS(this.props.ui.counters));
 
     // storage.clear();
   }
@@ -92,20 +97,20 @@ export default class Welcome extends Component {
     const { ui, navigator } = this.props;
 
     // DEBUG
-    // const to = moment(new Date().setSeconds(new Date().getSeconds() + 60)).toDate();
-    // const text = 'Birthday in Iceland with Sarah ❤️';
+    const to = moment(new Date().setSeconds(new Date().getSeconds() + 60)).toDate();
+    const text = 'Birthday in Iceland with Sarah ❤️';
     // DEBUG
 
-    const text = this.counterText;
-    const to = moment(this.counterTo).startOf('day').toDate();
+    // const text = this.counterText;
+    // const to = moment(this.counterTo).startOf('day').toDate();
     const from = new Date();
     const diff = to.getTime() - from.getTime();
     const twentyFourHours = new Date(to).setHours(new Date(to).getHours() - 24);
     const oneHour = new Date(to).setHours(new Date(to).getHours() - 1);
 
     // Check if counter is valid
-    if (isEmpty(text) || isNil(this.counterTo)) return;
-    if (diff <= 0) return;
+    // if (isEmpty(text) || isNil(this.counterTo)) return;
+    // if (diff <= 0) return;
 
     // Configure notifications
     if (to >= TWENTYFOUR_HOURS) {

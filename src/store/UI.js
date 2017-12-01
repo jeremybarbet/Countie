@@ -16,10 +16,6 @@ export default class UI {
   @observable
   counters = {};
 
-  // move to counters obj OF course
-  @observable
-  remaining = {};
-
   @observable
   reload = false;
 
@@ -27,7 +23,6 @@ export default class UI {
   updateDate(c, { ...args }) {
     console.log('-c', c)
     console.log('-args', args)
-    // console.log('-this.counters', this.counters[c])
 
     const diff = timeDiff(args);
 
