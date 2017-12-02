@@ -23,11 +23,6 @@ const PLACEHOLDER_TEXT = 'my next travel';
 const TWENTYFOUR_HOURS = 24 * 60 * 60 * 1000;
 const ONE_HOUR = 60 * 60 * 1000;
 
-/*
- * Check if counter already exists
- * Same name
- * Same final date
- */
 @inject('ui')
 @observer
 export default class Welcome extends Component {
@@ -49,12 +44,12 @@ export default class Welcome extends Component {
   constructor(props) {
     super(props);
 
-    // if (props.showModal) {
-    //   props.navigator.showModal({
-    //     screen: COUNTER,
-    //     animationType: 'slide-up',
-    //   });
-    // }
+    if (props.showModal) {
+      props.navigator.showModal({
+        screen: COUNTER,
+        animationType: 'slide-up',
+      });
+    }
   }
 
   componentDidMount() {

@@ -25,6 +25,7 @@ export default class Store {
 
         if (lastClosed && counters) {
           this.ui.activeCounter = true;
+          this.ui.currentCounter = Object.keys(counters)[0]; // eslint-disable-line
 
           Object.keys(counters).forEach((c) => { // eslint-disable-line
             this.ui.counters[c] = {};

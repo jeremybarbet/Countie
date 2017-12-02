@@ -50,19 +50,6 @@ export default class Counter extends Component {
 
     this.rotation = new Animated.Value(0);
     this.progress = new Animated.Value(counters[currentCounter].status.total);
-
-    /*
-    if (props.ui.activeCounter) {
-      // this.remaining[props.name] = props.ui.date[props.name].total;
-      // this.progress = new Animated.Value(props.remaining);
-    } else {
-      const { counters, currentCounter } = props.ui;
-      const t = counters[currentCounter].to - counters[currentCounter].from;
-
-      this.remaining[currentCounter] = t;
-      this.progress = new Animated.Value(t);
-    }
-    */
   }
 
   @action
@@ -260,6 +247,7 @@ export default class Counter extends Component {
         dotStyle={s.counter__dot}
         activeDotStyle={s.counter__dotActive}
         onIndexChanged={this.handleChange}
+        index={0}
         bounces
       >
         {Object.keys(counters).map(c => (
