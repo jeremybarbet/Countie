@@ -23,8 +23,6 @@ export default class Store {
         const remaining = await storage.get(prefix('time_remaining'));
         const counters = await storage.get(prefix('counters'));
 
-        console.log('-remaining', remaining)
-
         if (lastClosed && counters) {
           this.ui.activeCounter = true;
 
@@ -33,14 +31,19 @@ export default class Store {
             this.ui.counters[c].from = moment(counters[c].from).toDate();
             this.ui.counters[c].to = moment(counters[c].to).toDate();
             this.ui.counters[c].text = counters[c].text;
-            this.ui.counters[c].status = this.ui.updateDate(c, { lastClosed, lastOpened, remaining: remaining[c] });
+
+            this.ui.counters[c].status = this.ui.updateDate(c, {
+              lastClosed,
+              lastOpened,
+              remaining: remaining[c],
+            });
           });
         } else {
           this.ui.activeCounter = false;
         }
       }
     } catch (error) {
-      console.log(error) // eslint-disable-line
+      console.error(error);
     }
 
     return {

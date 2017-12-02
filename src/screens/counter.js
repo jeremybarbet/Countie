@@ -9,7 +9,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import TimerMixin from 'react-native-timer-mixin';
 import Swiper from 'react-native-swiper';
 import moment from 'moment';
-import { isNaN, get } from 'lodash';
+import { isNaN } from 'lodash';
 
 import Container from 'components/container';
 import ImagesSwitcher from 'components/images-switcher';
@@ -40,13 +40,13 @@ export default class Counter extends Component {
 
   static navigatorStyle = {
     navBarHidden: true,
+    screenBackgroundColor: 'transparent',
   }
 
   constructor(props) {
     super(props);
 
     const { counters, currentCounter } = props.ui;
-    // const t = counters[currentCounter].to - counters[currentCounter].from;
 
     this.rotation = new Animated.Value(0);
     this.progress = new Animated.Value(counters[currentCounter].status.total);
@@ -65,19 +65,22 @@ export default class Counter extends Component {
     */
   }
 
+  @action
   componentWillMount() {
     AppState.addEventListener('change', this.handleStateChange);
+
+    // Reset inputs
+    this.props.ui.showDate = false;
+    this.props.ui.counterTo = new Date();
+    this.props.ui.counterText = undefined;
+    this.props.ui.firstPickDate = false;
+    this.props.ui.firstPickText = false;
   }
 
   componentDidMount() {
     this.countdown = this.setInterval(() =>
       this.counter(),
     ONE_SECOND);
-  }
-
-  componentWillReceiveProps(nextProps) {
-    console.log('componentWillReceiveProps');
-
   }
 
   componentWillUnmount() {
@@ -152,42 +155,34 @@ export default class Counter extends Component {
 
   @autobind
   @action
-  handleStateChange(state) {
-    const { counters, currentCounter, updateDate } = this.props.ui;
+  async handleStateChange(state) {
+    const { counters, updateDate } = this.props.ui;
 
     if (state === 'inactive') {
-      this.lastClosed = new Date();
+      const obj = {};
 
+      this.lastClosed = new Date();
       storage.set(prefix('last_closed'), this.lastClosed);
 
-      Object.keys(counters).map((c) => {
-        const remaining = { [c]: counters[c].status.total };
-
-        storage.set(prefix('time_remaining'), remaining);
-      });
+      Object.keys(counters).map(c => obj[c] = counters[c].status.total); // eslint-disable-line
+      storage.update(prefix('time_remaining'), obj);
     }
 
     if (state === 'active') {
       const { lastClosed } = this;
       const lastOpened = new Date();
 
-      console.log('-counters', counters);
+      try {
+        const remaining = await storage.get(prefix('time_remaining'));
 
-      Object.keys(counters).map((c) => {
-        // const remaining = counters[c].status.total;
+        // eslint-disable-next-line
+        Object.keys(counters).map(c =>
+          counters[c].status = updateDate(c, { lastClosed, lastOpened, remaining: remaining[c] }),
+        );
 
-        // counters[c].status = updateDate(c, { lastClosed, lastOpened, remaining });
-
-      //   ui.counters[c] = {
-      //     ...ui.counters[c],
-      //     status: ui.updateDate(c, { lastClosed, lastOpened, remaining })
-      //   }
-
-      //   this.remaining[c] = ui.counters[c].status.total;
-      });
-
-      // ui.updateDate({ lastClosed, lastOpened, remaining });
-      // this.remaining = ui.date.total;
+      } catch (error) {
+        console.error(error);
+      }
     }
   }
 
@@ -195,9 +190,6 @@ export default class Counter extends Component {
   @action
   counter() {
     const { counters, currentCounter } = this.props.ui;
-
-    // console.log('----------------')
-    // console.log('-counters', counters);
 
     Object.keys(counters).forEach((c) => {
       const val = counters[c].status.total - ONE_SECOND;
@@ -234,7 +226,7 @@ export default class Counter extends Component {
 
   @autobind
   renderCounter(c) {
-    const { counters, currentCounter } = this.props.ui;
+    const { counters } = this.props.ui;
 
     const { days, hours, minutes, seconds } = counters[c].status;
     const f = (v, p) => v.toString().length > 1 ? `${v}${p}` : `0${v}${p}`; // eslint-disable-line
@@ -270,7 +262,7 @@ export default class Counter extends Component {
         onIndexChanged={this.handleChange}
         bounces
       >
-        {Object.keys(counters).map((c) => (
+        {Object.keys(counters).map(c => (
           <View key={c} style={s.counter__slide}>
             <Text style={s.counter__title}>{counters[c].text}</Text>
 

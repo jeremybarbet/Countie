@@ -4,8 +4,15 @@ import { timeDiff } from 'utils/date';
 
 export default class UI {
 
+  // Global
+
   @observable
   permission = 'waiting';
+
+  @observable
+  reload = false;
+
+  // Counters
 
   @observable
   activeCounter = false;
@@ -16,18 +23,27 @@ export default class UI {
   @observable
   counters = {};
 
+  // Inputs
+
   @observable
-  reload = false;
+  showDate = false;
+
+  @observable
+  counterTo = new Date();
+
+  @observable
+  counterText = undefined;
+
+  @observable
+  firstPickDate = false;
+
+  @observable
+  firstPickText = false;
+
+  // Actions
 
   @action
   updateDate(c, { ...args }) {
-    console.log('-c', c)
-    console.log('-args', args)
-
-    const diff = timeDiff(args);
-
-    this.counters[c].status = diff;
-
-    return diff;
+    return timeDiff(args);
   }
 }

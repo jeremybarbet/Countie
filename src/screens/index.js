@@ -24,7 +24,6 @@ export const startApp = (data) => {
   if (data.permission === null) {
     startPermission();
   } else if (data.active) {
-    // startCounter(data.props);
     startWelcome({ showModal: true });
   } else {
     startWelcome();
@@ -37,15 +36,6 @@ export const startPermission = () =>
       screen: PERMISSION,
       navigatorStyle: { navBarHidden: true },
     },
-  });
-
-export const startCounter = props =>
-  Navigation.startSingleScreenApp({
-    screen: {
-      screen: COUNTER,
-      navigatorStyle: { navBarHidden: true },
-    },
-    passProps: props,
   });
 
 export const startWelcome = props =>

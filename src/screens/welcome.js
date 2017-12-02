@@ -5,7 +5,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Image, Linking, PushNotificat
 import moment from 'moment';
 import { isNil, isEmpty } from 'lodash';
 import { inject, observer } from 'mobx-react/native';
-import { action, toJS, observable } from 'mobx';
+import { action } from 'mobx';
 import { autobind } from 'core-decorators';
 
 import Container from 'components/container';
@@ -32,18 +32,6 @@ const ONE_HOUR = 60 * 60 * 1000;
 @observer
 export default class Welcome extends Component {
 
-  @observable
-  showDate = false;
-
-  @observable
-  counterFrom = undefined;
-
-  @observable
-  counterTo = new Date();
-
-  @observable
-  counterText = undefined;
-
   static propTypes = {
     ...navigatorTypes,
     ui: PropTypes.object.isRequired,
@@ -58,9 +46,6 @@ export default class Welcome extends Component {
     inputIsShown: false,
   }
 
-  firstPickDate = false
-  firstPickText = false
-
   constructor(props) {
     super(props);
 
@@ -73,44 +58,43 @@ export default class Welcome extends Component {
   }
 
   componentDidMount() {
-    // console.log('-this.props.ui.counters', toJS(this.props.ui.counters));
-
     // storage.clear();
   }
 
   @autobind
   @action
   onDateChange(to) {
-    this.firstPickDate = true;
-    this.counterTo = to;
+    this.props.ui.firstPickDate = true;
+    this.props.ui.counterTo = to;
   }
 
   @autobind
   @action
   onTextChange(text) {
-    this.firstPickText = true;
-    this.counterText = text;
+    this.props.ui.firstPickText = true;
+    this.props.ui.counterText = text;
   }
 
   @autobind
+  @action
   submit() {
     const { ui, navigator } = this.props;
+    const { counterText: text, counterTo } = ui;
 
     // DEBUG
-    const to = moment(new Date().setSeconds(new Date().getSeconds() + 60)).toDate();
-    const text = 'Birthday in Iceland with Sarah ❤️';
+    // const to = moment(new Date().setSeconds(new Date().getSeconds() + 60)).toDate();
+    // const text = 'Birthday in Iceland with Sarah ❤️';
     // DEBUG
 
-    // const text = this.counterText;
-    // const to = moment(this.counterTo).startOf('day').toDate();
+    const to = moment(counterTo).startOf('day').toDate();
     const from = new Date();
     const diff = to.getTime() - from.getTime();
     const twentyFourHours = new Date(to).setHours(new Date(to).getHours() - 24);
     const oneHour = new Date(to).setHours(new Date(to).getHours() - 1);
 
     // Check if counter is valid
-    // if (isEmpty(text) || isNil(this.counterTo)) return;
-    // if (diff <= 0) return;
+    if (isEmpty(text) || isNil(counterTo)) return;
+    if (diff <= 0) return;
 
     // Configure notifications
     if (to >= TWENTYFOUR_HOURS) {
@@ -152,10 +136,10 @@ export default class Welcome extends Component {
     const { pickerIsShown } = this.state;
 
     if (pickerIsShown) {
-      this.firstPickDate = true;
+      this.props.ui.firstPickDate = true;
     }
 
-    this.showDate = true;
+    this.props.ui.showDate = true;
     this.setState({ pickerIsShown: !pickerIsShown });
   }
 
@@ -165,51 +149,52 @@ export default class Welcome extends Component {
     const { inputIsShown } = this.state;
 
     if (inputIsShown) {
-      this.firstPickText = true;
+      this.props.ui.firstPickText = true;
     }
 
     this.setState({ inputIsShown: !inputIsShown });
   }
 
   render() {
+    const { showDate, firstPickDate, firstPickText, counterText, counterTo } = this.props.ui;
     const { pickerIsShown, inputIsShown } = this.state;
 
-    const validDate = moment(this.counterTo).isAfter(new Date());
-    const validText = !isEmpty(this.counterText);
+    const validDate = moment(counterTo).isAfter(new Date());
+    const validText = !isEmpty(counterText);
     const isClickable = validDate && validText;
 
-    const valueDate = this.showDate ? moment(this.counterTo).format('DD/MM/YY') : PLACEHOLDER_DATE;
-    const valueText = this.counterText || PLACEHOLDER_TEXT;
+    const valueDate = showDate ? moment(counterTo).format('DD/MM/YY') : PLACEHOLDER_DATE;
+    const valueText = counterText || PLACEHOLDER_TEXT;
     const styles = state => state ? s.welcome__value : s.welcome__placeholder;
 
     const breakLine = isIpad() ? ' ' : '\n';
 
     return (
       <Container>
-        {this.firstPickDate && !validDate && (
+        {firstPickDate && !validDate && (
           <Text style={s.welcome__error}>You have to select a date in the future to start the countdown.</Text>
         )}
 
-        {this.firstPickText && !validText && (
+        {firstPickText && !validText && (
           <Text style={s.welcome__error}>You have to choose a name to your countdown.</Text>
         )}
 
         <View style={s.welcome__form}>
           <Text style={s.welcome__text}>
-            Let’s count <Text style={styles(this.showDate)} onPress={this.togglePicker}>{valueDate}</Text>{breakLine}for <Text style={styles(this.counterText)} onPress={this.toggleInput}>{valueText}</Text>.
+            Let’s count <Text style={styles(showDate)} onPress={this.togglePicker}>{valueDate}</Text>{breakLine}for <Text style={styles(counterText)} onPress={this.toggleInput}>{valueText}</Text>.
           </Text>
 
           <Picker
             open={pickerIsShown}
             toggle={this.togglePicker}
-            date={this.counterTo}
+            date={counterTo}
             onChange={this.onDateChange}
           />
 
           <Input
             open={inputIsShown}
             toggle={this.toggleInput}
-            text={this.counterText}
+            text={counterText}
             placeholder={PLACEHOLDER_TEXT}
             onChange={this.onTextChange}
           />
