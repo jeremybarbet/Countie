@@ -5,7 +5,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Image, Linking, PushNotificat
 import moment from 'moment';
 import { isNil, isEmpty } from 'lodash';
 import { inject, observer } from 'mobx-react/native';
-import { action } from 'mobx';
+import { action, observable } from 'mobx';
 import { autobind } from 'core-decorators';
 
 import Container from 'components/container';
@@ -14,7 +14,7 @@ import Input from 'components/input';
 import storage, { prefix } from 'utils/storage';
 import { datify } from 'utils/date';
 import { navigatorTypes } from 'utils/types';
-import { isIpad } from 'utils/utils';
+import { isIpad, hasValues } from 'utils/utils';
 
 import { COUNTER } from './';
 
@@ -37,13 +37,16 @@ export default class Welcome extends Component {
     navBarHidden: true,
   }
 
-  state = {
-    pickerIsShown: false,
-    inputIsShown: false,
-  }
+  @observable
+  showBackButton = false;
 
   constructor(props) {
     super(props);
+
+    this.state = {
+      pickerIsShown: false,
+      inputIsShown: false,
+    };
 
     if (props.showModal) {
       props.navigator.showModal({
@@ -54,10 +57,22 @@ export default class Welcome extends Component {
   }
 
   componentDidMount() {
+    this.props.navigator.setOnNavigatorEvent(this.onNavigatorEvent);
+
     // Remove old storage keys from old versions of the app
     storage.multiRemove(BATCH);
 
     // storage.clear();
+  }
+
+  @autobind
+  @action
+  onNavigatorEvent(e) {
+    const { counters } = this.props.ui;
+
+    if (e.id === 'willAppear') {
+      this.showBackButton = hasValues(counters);
+    }
   }
 
   @autobind
@@ -85,8 +100,8 @@ export default class Welcome extends Component {
     // const text = 'Birthday in Iceland with Sarah ❤️';
     // DEBUG
 
-    const to = moment(counterTo).startOf('day').toDate();
     const from = new Date();
+    const to = moment(counterTo).startOf('day').toDate();
     const diff = to.getTime() - from.getTime();
     const twentyFourHours = new Date(to).setHours(new Date(to).getHours() - 24);
     const oneHour = new Date(to).setHours(new Date(to).getHours() - 1);
@@ -154,6 +169,14 @@ export default class Welcome extends Component {
     this.setState({ inputIsShown: !inputIsShown });
   }
 
+  @autobind
+  backToModal() {
+    this.props.navigator.showModal({
+      screen: COUNTER,
+      animationType: 'slide-up',
+    });
+  }
+
   render() {
     const { showDate, firstPickDate, firstPickText, counterText, counterTo } = this.props.ui;
     const { pickerIsShown, inputIsShown } = this.state;
@@ -170,6 +193,17 @@ export default class Welcome extends Component {
 
     return (
       <Container>
+        {this.showBackButton && (
+          <Text style={s.welcome__error} onPress={this.backToModal}>
+            Back to the counters
+
+            <Image
+              style={s.welcome__arrow}
+              source={require('../images/arrow.png')}
+            />
+          </Text>
+        )}
+
         {firstPickDate && !validDate && (
           <Text style={s.welcome__error}>You have to select a date in the future to start the countdown.</Text>
         )}
@@ -204,7 +238,7 @@ export default class Welcome extends Component {
             style={s.welcome__submit}
           >
             <Image
-              style={isClickable ? [s.welcome__image, s.welcome__iconActive] : [s.welcome__image, s.welcome__icon]}
+              style={isClickable ? [s.welcome__arrow, s.welcome__iconActive] : [s.welcome__arrow, s.welcome__icon]}
               source={require('../images/submit.png')}
             />
           </TouchableOpacity>
@@ -267,13 +301,19 @@ const s = StyleSheet.create({
   welcome__error: {
     position: 'absolute',
     top: 40,
-    left: 40,
+    left: 30,
 
     paddingRight: 80,
 
     fontFamily: 'Avenir-Medium',
     fontSize: 15,
     color: '#a2abb8',
+  },
+
+  welcome__arrow: {
+    marginLeft: 6,
+
+    tintColor: '#a2abb8',
   },
 
   welcome__footer: {

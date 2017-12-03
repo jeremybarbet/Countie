@@ -17,7 +17,7 @@ import Icon from 'components/icon';
 import { datify, isOver } from 'utils/date';
 import storage, { prefix } from 'utils/storage';
 import { navigatorTypes } from 'utils/types';
-import { isIphoneX, isIpad } from 'utils/utils';
+import { isIphoneX, isIpad, hasValues } from 'utils/utils';
 
 const { width } = Dimensions.get('window');
 const KEYS = ['counters', 'last_closed', 'time_remaining'];
@@ -111,7 +111,7 @@ export default class Counter extends Component {
   get width() {
     const { counters, currentCounter } = this.props.ui;
 
-    if (Object.keys(counters).length === 0) {
+    if (!hasValues(counters)) {
       return { width: 0 };
     }
 
@@ -205,7 +205,7 @@ export default class Counter extends Component {
     const { currentCounter, counters } = this.props.ui;
     const newObj = omit(counters, currentCounter);
 
-    if (Object.keys(counters).length === 1) {
+    if (hasValues(counters)) {
       this.props.ui.counters = newObj;
       this.props.ui.currentCounter = undefined;
       this.props.ui.activeCounter = false;

@@ -13,3 +13,7 @@ export function isIphoneX() {
 export function isIpad() {
   return aspectRatio < 1.6;
 }
+
+export function hasValues(obj) {
+  return Object.keys(obj).length > 0;
+}
