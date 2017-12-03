@@ -53,6 +53,13 @@ const storage = {
   },
 
   /**
+  * Remove multiple keys
+  */
+  multiRemove(keys) {
+    return AsyncStorage.multiRemove(keys);
+  },
+
+  /**
   * Get all keys in AsyncStorage.
   */
   keys() {

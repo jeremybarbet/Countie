@@ -9,7 +9,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import TimerMixin from 'react-native-timer-mixin';
 import Swiper from 'react-native-swiper';
 import moment from 'moment';
-import { isNaN } from 'lodash';
+import { isNaN, omit } from 'lodash';
 
 import Container from 'components/container';
 import ImagesSwitcher from 'components/images-switcher';
@@ -19,10 +19,8 @@ import storage, { prefix } from 'utils/storage';
 import { navigatorTypes } from 'utils/types';
 import { isIphoneX, isIpad } from 'utils/utils';
 
-import { WELCOME } from './';
-
 const { width } = Dimensions.get('window');
-const keys = ['from', 'to', 'text', 'last_closed', 'time_remaining']; // to update
+const KEYS = ['counters', 'last_closed', 'time_remaining'];
 const ONE_SECOND = 1000;
 
 @inject('ui')
@@ -112,6 +110,11 @@ export default class Counter extends Component {
 
   get width() {
     const { counters, currentCounter } = this.props.ui;
+
+    if (Object.keys(counters).length === 0) {
+      return { width: 0 };
+    }
+
     const t = counters[currentCounter].to - counters[currentCounter].from;
 
     if (counters[currentCounter].status.total <= 0 || t <= 0 || isNaN(t)) {
@@ -199,24 +202,37 @@ export default class Counter extends Component {
   @autobind
   @action
   deleteCounter() {
-    keys.map(k => storage.delete(prefix(k)));
+    const { currentCounter, counters } = this.props.ui;
+    const newObj = omit(counters, currentCounter);
 
-    this.props.ui.showDate = false;
-    this.props.ui.activeCounter = false;
+    if (Object.keys(counters).length === 1) {
+      this.props.ui.counters = newObj;
+      this.props.ui.currentCounter = undefined;
+      this.props.ui.activeCounter = false;
+      this.props.navigator.dismissModal();
 
-    // Close popup if last counter otherwise, just move currentCounter slide
-    this.props.navigator.resetTo({
-      screen: WELCOME,
-      animationType: 'fade',
-    });
+      storage.multiRemove(KEYS);
+    } else {
+      this.props.ui.currentCounter = Object.keys(newObj)[0]; // eslint-disable-line
+      this.props.ui.counters = newObj;
+
+      storage.update(prefix('counters'), newObj);
+    }
   }
 
   @autobind
   renderCounter(c) {
     const { counters } = this.props.ui;
-
     const { days, hours, minutes, seconds } = counters[c].status;
     const f = (v, p) => v.toString().length > 1 ? `${v}${p}` : `0${v}${p}`; // eslint-disable-line
+
+    if (isNaN(counters[c].status.total)) {
+      return (
+        <Text style={s.counter__countdown}>
+          Loading...
+        </Text>
+      );
+    }
 
     return (
       <Text style={s.counter__countdown}>
