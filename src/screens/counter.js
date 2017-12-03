@@ -16,7 +16,7 @@ import Icon from 'components/icon';
 import { datify, isOver } from 'utils/date';
 import storage, { prefix } from 'utils/storage';
 import { navigatorTypes } from 'utils/types';
-import { isIphoneX, isIpad, hasValues } from 'utils/utils';
+import { isIphoneX, isIpad } from 'utils/utils';
 
 const { width } = Dimensions.get('window');
 const KEYS = ['counters', 'last_closed', 'time_remaining'];
@@ -76,11 +76,11 @@ export default class Counter extends Component {
   }
 
   onPressClose = () => {
-    const { text } = this.props;
+    const { counters, currentCounter } = this.props.ui;
 
     Alert.alert(
       'Delete this counter',
-      `Are you sure you want to delete « ${text} »?`,
+      `Are you sure you want to delete « ${counters[currentCounter].text} »?`,
       [
         {
           text: 'Cancel',
@@ -107,7 +107,7 @@ export default class Counter extends Component {
   get width() {
     const { counters, currentCounter } = this.props.ui;
 
-    if (!hasValues(counters)) {
+    if (Object.keys(counters).length === 0) {
       return { width: 0 };
     }
 
@@ -175,6 +175,10 @@ export default class Counter extends Component {
   counter = () => {
     const { counters, currentCounter } = this.props.ui;
 
+    if (Object.keys(counters).length === 0) {
+      return;
+    }
+
     Object.keys(counters).forEach((c) => {
       const val = counters[c].status.total - ONE_SECOND;
 
@@ -198,7 +202,7 @@ export default class Counter extends Component {
     const { currentCounter, counters } = this.props.ui;
     const newObj = omit(counters, currentCounter);
 
-    if (hasValues(counters)) {
+    if (Object.keys(counters).length === 1) {
       this.props.ui.counters = newObj;
       this.props.ui.currentCounter = undefined;
       this.props.ui.activeCounter = false;

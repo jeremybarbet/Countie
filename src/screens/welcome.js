@@ -13,7 +13,7 @@ import Input from 'components/input';
 import storage, { prefix } from 'utils/storage';
 import { datify } from 'utils/date';
 import { navigatorTypes } from 'utils/types';
-import { isIpad, hasValues } from 'utils/utils';
+import { isIpad } from 'utils/utils';
 
 import { COUNTER } from './';
 
@@ -69,7 +69,7 @@ export default class Welcome extends Component {
     const { counters } = this.props.ui;
 
     if (e.id === 'willAppear') {
-      this.showBackButton = hasValues(counters);
+      this.showBackButton = Object.keys(counters).length > 0;
     }
   }
 
