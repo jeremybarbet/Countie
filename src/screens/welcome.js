@@ -6,7 +6,6 @@ import moment from 'moment';
 import { isNil, isEmpty } from 'lodash';
 import { inject, observer } from 'mobx-react/native';
 import { action, observable } from 'mobx';
-import { autobind } from 'core-decorators';
 
 import Container from 'components/container';
 import Picker from 'components/picker';
@@ -65,9 +64,8 @@ export default class Welcome extends Component {
     // storage.clear();
   }
 
-  @autobind
   @action
-  onNavigatorEvent(e) {
+  onNavigatorEvent = (e) => {
     const { counters } = this.props.ui;
 
     if (e.id === 'willAppear') {
@@ -75,23 +73,20 @@ export default class Welcome extends Component {
     }
   }
 
-  @autobind
   @action
-  onDateChange(to) {
+  onDateChange = (to) => {
     this.props.ui.firstPickDate = true;
     this.props.ui.counterTo = to;
   }
 
-  @autobind
   @action
-  onTextChange(text) {
+  onTextChange = (text) => {
     this.props.ui.firstPickText = true;
     this.props.ui.counterText = text;
   }
 
-  @autobind
   @action
-  submit() {
+  submit =() => {
     const { ui, navigator } = this.props;
     const { counterText: text, counterTo } = ui;
 
@@ -144,9 +139,8 @@ export default class Welcome extends Component {
     });
   }
 
-  @autobind
   @action
-  togglePicker() {
+  togglePicker = () => {
     const { pickerIsShown } = this.state;
 
     if (pickerIsShown) {
@@ -157,9 +151,8 @@ export default class Welcome extends Component {
     this.setState({ pickerIsShown: !pickerIsShown });
   }
 
-  @autobind
   @action
-  toggleInput() {
+  toggleInput = () => {
     const { inputIsShown } = this.state;
 
     if (inputIsShown) {
@@ -169,8 +162,7 @@ export default class Welcome extends Component {
     this.setState({ inputIsShown: !inputIsShown });
   }
 
-  @autobind
-  backToModal() {
+  backToModal = () => {
     this.props.navigator.showModal({
       screen: COUNTER,
       animationType: 'slide-up',

@@ -1,7 +1,6 @@
 /* eslint-disable max-len */
 import React, { Component } from 'react';
 import { Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
-import { autobind } from 'core-decorators';
 
 import Container from 'components/container';
 import storage, { prefix } from 'utils/storage';
@@ -21,21 +20,18 @@ export default class Permission extends Component {
     navBarHidden: true,
   }
 
-  @autobind
-  async onPressNotify() {
+  onPressNotify = async () => {
     await registerNotifications();
     storage.set(prefix('permission'), 'enable');
     this.nextScreen();
   }
 
-  @autobind
-  onPressNo() {
+  onPressNo = () => {
     storage.set(prefix('permission'), 'disable');
     this.nextScreen();
   }
 
-  @autobind
-  nextScreen() {
+  nextScreen = () => {
     this.props.navigator.resetTo({
       screen: WELCOME,
     });

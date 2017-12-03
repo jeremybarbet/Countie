@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { StyleSheet, View, Text, Image, Animated, Dimensions, Easing, AppState, Alert } from 'react-native';
 import { decorate } from 'react-mixin';
-import { autobind } from 'core-decorators';
 import { inject, observer } from 'mobx-react/native';
 import { observable, action } from 'mobx';
 import LinearGradient from 'react-native-linear-gradient';
@@ -72,13 +71,11 @@ export default class Counter extends Component {
     AppState.removeEventListener('change', this.handleStateChange);
   }
 
-  @autobind
-  onPressAdd() {
+  onPressAdd = () => {
     this.props.navigator.dismissModal();
   }
 
-  @autobind
-  onPressClose() {
+  onPressClose = () => {
     const { text } = this.props;
 
     Alert.alert(
@@ -97,9 +94,8 @@ export default class Counter extends Component {
     );
   }
 
-  @autobind
   @action
-  onPressReload() {
+  onPressReload = () => {
     this.props.ui.reload = true;
 
     Animated.timing(this.rotation, {
@@ -143,9 +139,8 @@ export default class Counter extends Component {
     };
   }
 
-  @autobind
   @action
-  async handleStateChange(state) {
+  handleStateChange = async (state) => {
     const { counters, updateDate } = this.props.ui;
 
     if (state === 'inactive') {
@@ -176,9 +171,8 @@ export default class Counter extends Component {
     }
   }
 
-  @autobind
   @action
-  counter() {
+  counter = () => {
     const { counters, currentCounter } = this.props.ui;
 
     Object.keys(counters).forEach((c) => {
@@ -199,9 +193,8 @@ export default class Counter extends Component {
     }).start();
   }
 
-  @autobind
   @action
-  deleteCounter() {
+  deleteCounter = () => {
     const { currentCounter, counters } = this.props.ui;
     const newObj = omit(counters, currentCounter);
 
@@ -220,8 +213,7 @@ export default class Counter extends Component {
     }
   }
 
-  @autobind
-  renderCounter(c) {
+  renderCounter = (c) => {
     const { counters } = this.props.ui;
     const { days, hours, minutes, seconds } = counters[c].status;
     const f = (v, p) => v.toString().length > 1 ? `${v}${p}` : `0${v}${p}`; // eslint-disable-line
@@ -241,9 +233,8 @@ export default class Counter extends Component {
     );
   }
 
-  @autobind
   @action
-  handleChange(index) {
+  handleChange = (index) => {
     const { counters } = this.props.ui;
     const newCurrent = Object.keys(counters)[index];
 
@@ -251,8 +242,7 @@ export default class Counter extends Component {
     this.progress = new Animated.Value(counters[newCurrent].status.total);
   }
 
-  @autobind
-  counters() {
+  counters = () => {
     const { counters } = this.props.ui;
 
     return (
