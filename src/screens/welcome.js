@@ -17,7 +17,6 @@ import { isIpad } from 'utils/utils';
 
 import { COUNTER } from './';
 
-const BATCH = ['from', 'to', 'text'];
 const PLACEHOLDER_DATE = 'date';
 const PLACEHOLDER_TEXT = 'my next travel';
 const TWENTYFOUR_HOURS = 24 * 60 * 60 * 1000;
@@ -57,11 +56,6 @@ export default class Welcome extends Component {
 
   componentDidMount() {
     this.props.navigator.setOnNavigatorEvent(this.onNavigatorEvent);
-
-    // Remove old storage keys from old versions of the app
-    storage.multiRemove(BATCH);
-
-    // storage.clear();
   }
 
   @action

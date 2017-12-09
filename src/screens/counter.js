@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { StyleSheet, View, Text, Image, Animated, Dimensions, Easing, AppState, Alert } from 'react-native';
 import { decorate } from 'react-mixin';
 import { inject, observer } from 'mobx-react/native';
-import { observable, action } from 'mobx';
+import { observable, action, toJS } from 'mobx';
 import LinearGradient from 'react-native-linear-gradient';
 import TimerMixin from 'react-native-timer-mixin';
 import Swiper from 'react-native-swiper';
@@ -19,7 +19,6 @@ import { navigatorTypes } from 'utils/types';
 import { isIphoneX, isIpad } from 'utils/utils';
 
 const { width } = Dimensions.get('window');
-// const KEYS = ['counters', 'last_closed', 'time_remaining'];
 const ONE_SECOND = 1000;
 
 @inject('ui')
@@ -87,7 +86,7 @@ export default class Counter extends Component {
         },
         {
           text: 'Yes',
-          onPress: this.deleteCounter,
+          onPress: () => this.deleteCounter(currentCounter),
           style: 'destructive',
         },
       ],
@@ -191,27 +190,24 @@ export default class Counter extends Component {
   }
 
   @action
-  deleteCounter = () => {
-    // LAST THINGS TO UPDATE
-    /*
-    const { counters, currentCounter, all } = this.props.ui;
+  deleteCounter = (id) => {
+    const { counters } = this.props.ui;
 
-    if (counters.size === 1) {
+    if (counters.size > 1) {
+      counters.delete(id);
+      this.props.ui.currentCounter = counters.keys()[0]; // eslint-disable-line
+
+      storage.set(prefix('counters'), toJS(counters));
+    } else {
       this.props.ui.counters.clear();
       this.props.ui.currentCounter = undefined;
       this.props.ui.activeCounter = false;
       this.props.navigator.dismissModal();
 
-      storage.multiRemove(KEYS);
-    } else {
-      const newObj = omit(counters, currentCounter);
-
-      this.props.ui.currentCounter = counters.keys()[0];
-      this.props.ui.counters.delete(currentCounter);
-
-      storage.update(prefix('counters'), newObj);
+      storage.delete(prefix('counters'));
+      storage.delete(prefix('last_closed'));
+      storage.delete(prefix('time_remaining'));
     }
-    */
   }
 
   renderCounter = ({ total, days, hours, minutes, seconds }) => {
