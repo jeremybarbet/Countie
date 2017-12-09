@@ -27,17 +27,19 @@ export default class Store {
           this.ui.activeCounter = true;
           this.ui.currentCounter = Object.keys(counters)[0]; // eslint-disable-line
 
-          Object.keys(counters).forEach((c) => { // eslint-disable-line
-            this.ui.counters[c] = {};
-            this.ui.counters[c].from = moment(counters[c].from).toDate();
-            this.ui.counters[c].to = moment(counters[c].to).toDate();
-            this.ui.counters[c].text = counters[c].text;
+          Object.keys(counters).forEach((c) => {
+            const obj = {
+              from: moment(counters[c].from).toDate(),
+              to: moment(counters[c].to).toDate(),
+              text: counters[c].text,
+              status: this.ui.updateDate({
+                lastClosed,
+                lastOpened,
+                remaining: remaining[c],
+              }),
+            };
 
-            this.ui.counters[c].status = this.ui.updateDate(c, {
-              lastClosed,
-              lastOpened,
-              remaining: remaining[c],
-            });
+            this.ui.counters.set(c, obj);
           });
         } else {
           this.ui.activeCounter = false;

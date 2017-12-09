@@ -8,7 +8,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import TimerMixin from 'react-native-timer-mixin';
 import Swiper from 'react-native-swiper';
 import moment from 'moment';
-import { isNaN, omit } from 'lodash';
+import { isNaN } from 'lodash';
 
 import Container from 'components/container';
 import ImagesSwitcher from 'components/images-switcher';
@@ -19,7 +19,7 @@ import { navigatorTypes } from 'utils/types';
 import { isIphoneX, isIpad } from 'utils/utils';
 
 const { width } = Dimensions.get('window');
-const KEYS = ['counters', 'last_closed', 'time_remaining'];
+// const KEYS = ['counters', 'last_closed', 'time_remaining'];
 const ONE_SECOND = 1000;
 
 @inject('ui')
@@ -43,10 +43,10 @@ export default class Counter extends Component {
   constructor(props) {
     super(props);
 
-    const { counters, currentCounter } = props.ui;
+    const { getCounter, currentCounter } = props.ui;
 
     this.rotation = new Animated.Value(0);
-    this.progress = new Animated.Value(counters[currentCounter].status.total);
+    this.progress = new Animated.Value(getCounter(currentCounter).status.total);
   }
 
   @action
@@ -76,11 +76,11 @@ export default class Counter extends Component {
   }
 
   onPressClose = () => {
-    const { counters, currentCounter } = this.props.ui;
+    const { getCounter, currentCounter } = this.props.ui;
 
     Alert.alert(
       'Delete this counter',
-      `Are you sure you want to delete « ${counters[currentCounter].text} »?`,
+      `Are you sure you want to delete « ${getCounter(currentCounter).text} »?`,
       [
         {
           text: 'Cancel',
@@ -105,15 +105,15 @@ export default class Counter extends Component {
   }
 
   get width() {
-    const { counters, currentCounter } = this.props.ui;
+    const { counters, getCounter, currentCounter } = this.props.ui;
 
-    if (Object.keys(counters).length === 0) {
+    if (counters.size === 0) {
       return { width: 0 };
     }
 
-    const t = counters[currentCounter].to - counters[currentCounter].from;
+    const t = getCounter(currentCounter).to - getCounter(currentCounter).from;
 
-    if (counters[currentCounter].status.total <= 0 || t <= 0 || isNaN(t)) {
+    if (getCounter(currentCounter).status.total <= 0 || t <= 0 || isNaN(t)) {
       return { width: 0 };
     }
 
@@ -141,15 +141,15 @@ export default class Counter extends Component {
 
   @action
   handleStateChange = async (state) => {
-    const { counters, updateDate } = this.props.ui;
+    const { counters } = this.props.ui;
 
     if (state === 'inactive') {
       const obj = {};
 
       this.lastClosed = new Date();
-      storage.set(prefix('last_closed'), this.lastClosed);
 
-      Object.keys(counters).map(c => obj[c] = counters[c].status.total); // eslint-disable-line
+      storage.set(prefix('last_closed'), this.lastClosed);
+      counters.forEach((c, k) => obj[k] = c.status.total); // eslint-disable-line
       storage.update(prefix('time_remaining'), obj);
     }
 
@@ -160,11 +160,9 @@ export default class Counter extends Component {
       try {
         const remaining = await storage.get(prefix('time_remaining'));
 
-        // eslint-disable-next-line
-        Object.keys(counters).map(c =>
-          counters[c].status = updateDate(c, { lastClosed, lastOpened, remaining: remaining[c] }),
+        counters.forEach((_, k) =>
+          this.props.ui.updateStatus(k, { lastClosed, lastOpened, remaining: remaining[k] }),
         );
-
       } catch (error) {
         console.error(error);
       }
@@ -173,25 +171,20 @@ export default class Counter extends Component {
 
   @action
   counter = () => {
-    const { counters, currentCounter } = this.props.ui;
+    const { counters, getCounter, currentCounter } = this.props.ui;
 
-    if (Object.keys(counters).length === 0) {
+    if (counters.size === 0) {
       return;
     }
 
-    Object.keys(counters).forEach((c) => {
-      const val = counters[c].status.total - ONE_SECOND;
+    counters.forEach(c => c.status = datify(c.status.total - ONE_SECOND)); // eslint-disable-line
 
-      counters[c].status = datify(val);
-      this.setState({ val }); // Worst trick ever to make re-render again
-    });
-
-    if (isOver(counters[currentCounter].status)) {
+    if (isOver(getCounter(currentCounter).status)) {
       clearInterval(this.countdown);
     }
 
     Animated.timing(this.progress, {
-      toValue: counters[currentCounter].status.total,
+      toValue: getCounter(currentCounter).status.total,
       duration: ONE_SECOND,
       easing: Easing.linear,
     }).start();
@@ -199,30 +192,32 @@ export default class Counter extends Component {
 
   @action
   deleteCounter = () => {
-    const { currentCounter, counters } = this.props.ui;
-    const newObj = omit(counters, currentCounter);
+    // LAST THINGS TO UPDATE
+    /*
+    const { counters, currentCounter, all } = this.props.ui;
 
-    if (Object.keys(counters).length === 1) {
-      this.props.ui.counters = newObj;
+    if (counters.size === 1) {
+      this.props.ui.counters.clear();
       this.props.ui.currentCounter = undefined;
       this.props.ui.activeCounter = false;
       this.props.navigator.dismissModal();
 
       storage.multiRemove(KEYS);
     } else {
-      this.props.ui.currentCounter = Object.keys(newObj)[0]; // eslint-disable-line
-      this.props.ui.counters = newObj;
+      const newObj = omit(counters, currentCounter);
+
+      this.props.ui.currentCounter = counters.keys()[0];
+      this.props.ui.counters.delete(currentCounter);
 
       storage.update(prefix('counters'), newObj);
     }
+    */
   }
 
-  renderCounter = (c) => {
-    const { counters } = this.props.ui;
-    const { days, hours, minutes, seconds } = counters[c].status;
+  renderCounter = ({ total, days, hours, minutes, seconds }) => {
     const f = (v, p) => v.toString().length > 1 ? `${v}${p}` : `0${v}${p}`; // eslint-disable-line
 
-    if (isNaN(counters[c].status.total)) {
+    if (isNaN(total)) {
       return (
         <Text style={s.counter__countdown}>
           Loading...
@@ -239,15 +234,15 @@ export default class Counter extends Component {
 
   @action
   handleChange = (index) => {
-    const { counters } = this.props.ui;
-    const newCurrent = Object.keys(counters)[index];
+    const { counters, getCounter } = this.props.ui;
+    const newCurrent = counters.keys()[index];
 
     this.props.ui.currentCounter = newCurrent;
-    this.progress = new Animated.Value(counters[newCurrent].status.total);
+    this.progress = new Animated.Value(getCounter(newCurrent).status.total);
   }
 
   counters = () => {
-    const { counters } = this.props.ui;
+    const { all } = this.props.ui;
 
     return (
       <Swiper
@@ -257,19 +252,19 @@ export default class Counter extends Component {
         dotStyle={s.counter__dot}
         activeDotStyle={s.counter__dotActive}
         onIndexChanged={this.handleChange}
-        index={0}
+        loop={false}
         bounces
       >
-        {Object.keys(counters).map(c => (
-          <View key={c} style={s.counter__slide}>
-            <Text style={s.counter__title}>{counters[c].text}</Text>
+        {all.map(c => (
+          <View key={c.from} style={s.counter__slide}>
+            <Text style={s.counter__title}>{c.text}</Text>
 
-            {isOver(counters[c].status)
+            {isOver(c.status)
               ? <Text style={s.counter__countdown}>Make the most of it!</Text>
-              : this.renderCounter(c)
+              : this.renderCounter(c.status)
             }
 
-            <Text style={s.counter__date}>{moment(counters[c].to).format('MMMM Do, YYYY')}</Text>
+            <Text style={s.counter__date}>{moment(c.to).format('MMMM Do, YYYY')}</Text>
           </View>
         ))}
       </Swiper>

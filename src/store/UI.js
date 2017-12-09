@@ -1,4 +1,4 @@
-import { observable, action } from 'mobx';
+import { observable, action, ObservableMap, computed } from 'mobx';
 
 import { timeDiff } from 'utils/date';
 
@@ -21,7 +21,7 @@ export default class UI {
   currentCounter = undefined;
 
   @observable
-  counters = {};
+  counters = new ObservableMap();
 
   // Inputs
 
@@ -42,8 +42,21 @@ export default class UI {
 
   // Actions
 
-  @action
-  updateDate(c, { ...args }) {
-    return timeDiff(args);
+  @computed
+  get all() {
+    return this.counters.values().sort((a, b) => a.from - b.from);
   }
+
+  getCounter = (id) => {
+    if (this.counters.has(id)) {
+      return this.counters.get(id);
+    }
+  }
+
+  @action
+  updateStatus = (id, { lastClosed, lastOpened, remaining }) => // eslint-disable-line
+    this.getCounter(id).status = this.updateDate({ lastClosed, lastOpened, remaining });
+
+  @action
+  updateDate = ({ ...args }) => timeDiff(args);
 }

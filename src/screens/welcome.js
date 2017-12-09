@@ -69,7 +69,7 @@ export default class Welcome extends Component {
     const { counters } = this.props.ui;
 
     if (e.id === 'willAppear') {
-      this.showBackButton = Object.keys(counters).length > 0;
+      this.showBackButton = counters.size > 0;
     }
   }
 
@@ -86,7 +86,7 @@ export default class Welcome extends Component {
   }
 
   @action
-  submit =() => {
+  submit = () => {
     const { ui, navigator } = this.props;
     const { counterText: text, counterTo } = ui;
 
@@ -129,7 +129,8 @@ export default class Welcome extends Component {
     const obj = { from, to, text, status: datify(diff) };
     const counter = { [name]: obj };
 
-    ui.counters[name] = obj;
+    ui.counters.set(name, obj);
+    // ui.counters[name] = obj;
     ui.currentCounter = name;
     storage.update(prefix('counters'), counter);
 
