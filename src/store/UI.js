@@ -4,15 +4,11 @@ import { timeDiff } from 'utils/date';
 
 export default class UI {
 
-  // Global
-
   @observable
   permission = 'waiting';
 
   @observable
   reload = false;
-
-  // Counters
 
   @observable
   activeCounter = false;
@@ -22,8 +18,6 @@ export default class UI {
 
   @observable
   counters = new ObservableMap();
-
-  // Inputs
 
   @observable
   showDate = false;
@@ -39,8 +33,6 @@ export default class UI {
 
   @observable
   firstPickText = false;
-
-  // Actions
 
   @computed
   get all() {
