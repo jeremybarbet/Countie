@@ -84,11 +84,6 @@ export default class Welcome extends Component {
     const { ui, navigator } = this.props;
     const { counterText: text, counterTo } = ui;
 
-    // DEBUG
-    // const to = moment(new Date().setSeconds(new Date().getSeconds() + 60)).toDate();
-    // const text = 'Birthday in Iceland with Sarah ❤️';
-    // DEBUG
-
     const from = new Date();
     const to = moment(counterTo).startOf('day').toDate();
     const diff = to.getTime() - from.getTime();
@@ -124,7 +119,6 @@ export default class Welcome extends Component {
     const counter = { [name]: obj };
 
     ui.counters.set(name, obj);
-    // ui.counters[name] = obj;
     ui.currentCounter = name;
     storage.update(prefix('counters'), counter);
 
