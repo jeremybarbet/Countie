@@ -345,7 +345,7 @@ const s = StyleSheet.create({
   },
 
   counter__swiper: {
-    paddingHorizontal: 25,
+    marginHorizontal: 25,
     paddingBottom: 30,
   },
 
