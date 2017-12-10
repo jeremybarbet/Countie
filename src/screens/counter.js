@@ -275,16 +275,16 @@ export default class Counter extends Component {
         <Icon onPress={this.onPressReload} style={s.counter__reload}>
           <Animated.Image
             style={[s.counter__image, this.transform]}
-            source={require('../images/reload.png')}
+            source={require('../assets/images/reload.png')}
           />
         </Icon>
 
         <Icon onPress={this.onPressAdd} style={s.counter__add}>
-          <Image style={s.counter__image} source={require('../images/add.png')} />
+          <Image style={s.counter__image} source={require('../assets/images/add.png')} />
         </Icon>
 
         <Icon onPress={this.onPressClose} style={s.counter__close}>
-          <Image style={s.counter__image} source={require('../images/close.png')} />
+          <Image style={s.counter__image} source={require('../assets/images/close.png')} />
         </Icon>
 
         <ImagesSwitcher reload={ui.reload} />

@@ -42,7 +42,7 @@ buck-out/
 *.keystore
 
 # Fonts
-src/fonts
+src/assets/fonts
 
 # fastlane
 #

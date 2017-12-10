@@ -10,21 +10,21 @@ import { range } from 'lodash';
 const TEN_MINUTES = 600000;
 
 const backgrounds = [
-  { key: 0, src: require('../images/backgrounds/bg-1.jpg') },
-  { key: 1, src: require('../images/backgrounds/bg-2.jpg') },
-  { key: 2, src: require('../images/backgrounds/bg-3.jpg') },
-  { key: 3, src: require('../images/backgrounds/bg-4.jpg') },
-  { key: 4, src: require('../images/backgrounds/bg-5.jpg') },
-  { key: 5, src: require('../images/backgrounds/bg-6.jpg') },
-  { key: 6, src: require('../images/backgrounds/bg-7.jpg') },
-  { key: 7, src: require('../images/backgrounds/bg-8.jpg') },
-  { key: 8, src: require('../images/backgrounds/bg-9.jpg') },
-  { key: 9, src: require('../images/backgrounds/bg-10.jpg') },
-  { key: 10, src: require('../images/backgrounds/bg-11.jpg') },
-  { key: 11, src: require('../images/backgrounds/bg-12.jpg') },
-  { key: 12, src: require('../images/backgrounds/bg-13.jpg') },
-  { key: 13, src: require('../images/backgrounds/bg-14.jpg') },
-  { key: 14, src: require('../images/backgrounds/bg-15.jpg') },
+  { key: 0, src: require('../assets/images/backgrounds/bg-1.jpg') },
+  { key: 1, src: require('../assets/images/backgrounds/bg-2.jpg') },
+  { key: 2, src: require('../assets/images/backgrounds/bg-3.jpg') },
+  { key: 3, src: require('../assets/images/backgrounds/bg-4.jpg') },
+  { key: 4, src: require('../assets/images/backgrounds/bg-5.jpg') },
+  { key: 5, src: require('../assets/images/backgrounds/bg-6.jpg') },
+  { key: 6, src: require('../assets/images/backgrounds/bg-7.jpg') },
+  { key: 7, src: require('../assets/images/backgrounds/bg-8.jpg') },
+  { key: 8, src: require('../assets/images/backgrounds/bg-9.jpg') },
+  { key: 9, src: require('../assets/images/backgrounds/bg-10.jpg') },
+  { key: 10, src: require('../assets/images/backgrounds/bg-11.jpg') },
+  { key: 11, src: require('../assets/images/backgrounds/bg-12.jpg') },
+  { key: 12, src: require('../assets/images/backgrounds/bg-13.jpg') },
+  { key: 13, src: require('../assets/images/backgrounds/bg-14.jpg') },
+  { key: 14, src: require('../assets/images/backgrounds/bg-15.jpg') },
 ];
 
 @inject('ui')

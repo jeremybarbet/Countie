@@ -50,7 +50,7 @@ export default class Permission extends Component {
         >
           <Image
             style={s.permission__icon}
-            source={require('../images/submit.png')}
+            source={require('../assets/images/submit.png')}
           />
         </TouchableOpacity>
 

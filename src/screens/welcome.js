@@ -186,7 +186,7 @@ export default class Welcome extends Component {
 
             <Image
               style={s.welcome__arrow}
-              source={require('../images/arrow.png')}
+              source={require('../assets/images/arrow.png')}
             />
           </Text>
         )}
@@ -226,7 +226,7 @@ export default class Welcome extends Component {
           >
             <Image
               style={isClickable ? [s.welcome__arrow, s.welcome__iconActive] : [s.welcome__arrow, s.welcome__icon]}
-              source={require('../images/submit.png')}
+              source={require('../assets/images/submit.png')}
             />
           </TouchableOpacity>
         </View>
