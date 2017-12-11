@@ -1,11 +1,11 @@
 /* eslint-disable max-len */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { View, Text, StyleSheet, TouchableOpacity, Image, Linking, PushNotificationIOS } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Linking, PushNotificationIOS, Platform, DatePickerAndroid } from 'react-native';
 import moment from 'moment';
 import { isNil, isEmpty } from 'lodash';
 import { inject, observer } from 'mobx-react/native';
-import { action, observable } from 'mobx';
+import { action, observable, useStrict } from 'mobx';
 
 import Container from 'components/container';
 import Picker from 'components/picker';
@@ -95,24 +95,26 @@ export default class Welcome extends Component {
     if (diff <= 0) return;
 
     // Configure notifications
-    if (to >= TWENTYFOUR_HOURS) {
+    if (Platform.OS === 'ios') {
+      if (to >= TWENTYFOUR_HOURS) {
+        PushNotificationIOS.scheduleLocalNotification({
+          alertBody: `Your countdown for « ${text} » is almost over, 24 hours remaining!`,
+          fireDate: moment(twentyFourHours).format('YYYY-MM-DDTHH:mm:ss.sssZ'),
+        });
+      }
+
+      if (to >= ONE_HOUR) {
+        PushNotificationIOS.scheduleLocalNotification({
+          alertBody: `Your countdown for « ${text} » is so close to be over, 1 hour remaining!`,
+          fireDate: moment(oneHour).format('YYYY-MM-DDTHH:mm:ss.sssZ'),
+        });
+      }
+
       PushNotificationIOS.scheduleLocalNotification({
-        alertBody: `Your countdown for « ${text} » is almost over, 24 hours remaining!`,
-        fireDate: moment(twentyFourHours).format('YYYY-MM-DDTHH:mm:ss.sssZ'),
+        alertBody: `Hey! This is it, your countdown for « ${text} » is over. Make the most of your time!`,
+        fireDate: moment(to).format('YYYY-MM-DDTHH:mm:ss.sssZ'),
       });
     }
-
-    if (to >= ONE_HOUR) {
-      PushNotificationIOS.scheduleLocalNotification({
-        alertBody: `Your countdown for « ${text} » is so close to be over, 1 hour remaining!`,
-        fireDate: moment(oneHour).format('YYYY-MM-DDTHH:mm:ss.sssZ'),
-      });
-    }
-
-    PushNotificationIOS.scheduleLocalNotification({
-      alertBody: `Hey! This is it, your countdown for « ${text} » is over. Make the most of your time!`,
-      fireDate: moment(to).format('YYYY-MM-DDTHH:mm:ss.sssZ'),
-    });
 
     const name = moment(from).format('DD-MM-YY/HH:mm:ss');
     const obj = { from, to, text, status: datify(diff) };
@@ -128,8 +130,41 @@ export default class Welcome extends Component {
     });
   }
 
+  // @action
+  // androidDate = (year, month, day) => {
+  //   this.props.ui.counterTo = moment().year(year).month(month).date(day).format();
+  // }
+
+  @action
+  togglePickerAndroid = async () => {
+    useStrict(false);
+
+    try {
+      const opts = { date: this.props.ui.counterTo };
+      const { action, year, month, day } = await DatePickerAndroid.open(opts);
+
+      if (action === DatePickerAndroid.dismissedAction) {
+        return;
+      }
+
+      // console.log('-hello');
+
+      // this.setState({ test: true });
+
+      // this.props.ui.counterTo = moment().year(year).month(month).date(day).format();
+      // this.props.ui.firstPickDate = true;
+      // this.props.ui.showDate = true;
+    } catch ({ code, message }) {
+      console.error(`Cannot open date picker ${code} ${message}`);
+    }
+  }
+
   @action
   togglePicker = () => {
+    if (Platform.OS === 'android') {
+      return this.togglePickerAndroid();
+    }
+
     const { pickerIsShown } = this.state;
 
     if (pickerIsShown) {
@@ -161,6 +196,10 @@ export default class Welcome extends Component {
   render() {
     const { showDate, firstPickDate, firstPickText, counterText, counterTo } = this.props.ui;
     const { pickerIsShown, inputIsShown } = this.state;
+
+    // console.log('-showDate', showDate)
+    // console.log('-firstPickDate', firstPickDate)
+    // console.log('this.test', this.state.test)
 
     const validDate = moment(counterTo).isAfter(new Date());
     const validText = !isEmpty(counterText);
@@ -198,12 +237,14 @@ export default class Welcome extends Component {
             Let’s count <Text style={styles(showDate)} onPress={this.togglePicker}>{valueDate}</Text>{breakLine}for <Text style={styles(counterText)} onPress={this.toggleInput}>{valueText}</Text>.
           </Text>
 
-          <Picker
-            open={pickerIsShown}
-            toggle={this.togglePicker}
-            date={counterTo}
-            onChange={this.onDateChange}
-          />
+          {(Platform.OS === 'ios') && (
+            <Picker
+              open={pickerIsShown}
+              toggle={this.togglePicker}
+              date={counterTo}
+              onChange={this.onDateChange}
+            />
+          )}
 
           <Input
             open={inputIsShown}

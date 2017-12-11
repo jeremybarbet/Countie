@@ -34,5 +34,8 @@
   },
   "moduleRoots": [
     "src/"
-  ]
+  ],
+  "rnpm": {
+    "assets": ["./src/assets/fonts"]
+  }
 }

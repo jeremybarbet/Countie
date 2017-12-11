@@ -5,7 +5,6 @@
 	};
 	objectVersion = 46;
 	objects = {
-
 /* Begin PBXBuildFile section */
 		00C302E51ABCBA2D00DB3ED1 /* libRCTActionSheet.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00C302AC1ABCB8CE00DB3ED1 /* libRCTActionSheet.a */; };
 		00C302E71ABCBA2D00DB3ED1 /* libRCTGeolocation.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00C302BA1ABCB90400DB3ED1 /* libRCTGeolocation.a */; };
@@ -654,6 +653,7 @@
 				83CBBA001A601CBA00E9B192 /* Products */,
 				6D3D09501F82B6100054CE3E /* Recovered References */,
 				6D1D6A601F851E240002551F /* Frameworks */,
+				C6269D701C42465D87B8B4EB /* Resources */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -679,6 +679,14 @@
 			);
 			name = Products;
 			sourceTree = "<group>";
+		};
+		C6269D701C42465D87B8B4EB /* Resources */ = {
+			isa = "PBXGroup";
+			children = (
+			);
+			name = Resources;
+			sourceTree = "<group>";
+			path = "";
 		};
 /* End PBXGroup section */
 
