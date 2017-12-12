@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { StyleSheet, View, Text, Image, Animated, Dimensions, Easing, AppState, Alert } from 'react-native';
+import { StyleSheet, View, Text, Image, Animated, Dimensions, Easing, AppState, Alert, Platform } from 'react-native';
 import { decorate } from 'react-mixin';
 import { inject, observer } from 'mobx-react/native';
 import { observable, action, toJS } from 'mobx';
@@ -142,7 +142,7 @@ export default class Counter extends Component {
   handleStateChange = async (state) => {
     const { counters } = this.props.ui;
 
-    if (state === 'inactive') {
+    if (state === 'inactive' || state === 'background') {
       const obj = {};
 
       this.lastClosed = new Date();
@@ -305,6 +305,10 @@ export default class Counter extends Component {
 function positions() {
   if (isIphoneX()) {
     return { top: 0 };
+  }
+
+  if (Platform.OS === 'android') {
+    return { bottom: 4 };
   }
 
   return { bottom: 0 };

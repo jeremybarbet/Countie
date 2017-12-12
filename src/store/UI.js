@@ -51,4 +51,11 @@ export default class UI {
 
   @action
   updateDate = ({ ...args }) => timeDiff(args);
+
+  @action
+  setAndroidDate = (date) => {
+    this.counterTo = date;
+    this.firstPickDate = true;
+    this.showDate = true;
+  }
 }

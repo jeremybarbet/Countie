@@ -44,6 +44,7 @@ export default class Input extends PureComponent {
             placeholder={placeholder}
             placeholderTextColor="#c1ccdb"
             autoCapitalize="none"
+            underlineColorAndroid="transparent"
           />
         </Modal>
       </KeyboardAvoidingView>

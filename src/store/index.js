@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
+import { Platform } from 'react-native';
 import { Provider } from 'mobx-react/native';
 import moment from 'moment';
 
@@ -17,7 +18,7 @@ export default class Store {
 
       this.ui.permission = permission;
 
-      if (permission !== null) {
+      if (Platform.OS === 'android' || permission !== null) {
         const lastOpened = new Date();
         const lastClosed = await storage.get(prefix('last_closed'));
         const remaining = await storage.get(prefix('time_remaining'));

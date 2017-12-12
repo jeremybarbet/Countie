@@ -5,7 +5,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Image, Linking, PushNotificat
 import moment from 'moment';
 import { isNil, isEmpty } from 'lodash';
 import { inject, observer } from 'mobx-react/native';
-import { action, observable, useStrict } from 'mobx';
+import { action, observable } from 'mobx';
 
 import Container from 'components/container';
 import Picker from 'components/picker';
@@ -130,30 +130,15 @@ export default class Welcome extends Component {
     });
   }
 
-  // @action
-  // androidDate = (year, month, day) => {
-  //   this.props.ui.counterTo = moment().year(year).month(month).date(day).format();
-  // }
-
-  @action
   togglePickerAndroid = async () => {
-    useStrict(false);
-
     try {
-      const opts = { date: this.props.ui.counterTo };
-      const { action, year, month, day } = await DatePickerAndroid.open(opts);
-
-      if (action === DatePickerAndroid.dismissedAction) {
-        return;
-      }
-
-      // console.log('-hello');
-
-      // this.setState({ test: true });
-
-      // this.props.ui.counterTo = moment().year(year).month(month).date(day).format();
-      // this.props.ui.firstPickDate = true;
-      // this.props.ui.showDate = true;
+      await DatePickerAndroid
+        .open({ date: this.props.ui.counterTo })
+        .then(({ action, year, month, day }) => { // eslint-disable-line
+          if (action !== DatePickerAndroid.dismissedAction) {
+            this.props.ui.setAndroidDate(new Date(year, month, day));
+          }
+        });
     } catch ({ code, message }) {
       console.error(`Cannot open date picker ${code} ${message}`);
     }
@@ -197,10 +182,6 @@ export default class Welcome extends Component {
     const { showDate, firstPickDate, firstPickText, counterText, counterTo } = this.props.ui;
     const { pickerIsShown, inputIsShown } = this.state;
 
-    // console.log('-showDate', showDate)
-    // console.log('-firstPickDate', firstPickDate)
-    // console.log('this.test', this.state.test)
-
     const validDate = moment(counterTo).isAfter(new Date());
     const validText = !isEmpty(counterText);
     const isClickable = validDate && validText;
@@ -214,14 +195,18 @@ export default class Welcome extends Component {
     return (
       <Container>
         {this.showBackButton && (
-          <Text style={s.welcome__error} onPress={this.backToModal}>
-            Back to the counters
+          <TouchableOpacity
+            style={s.welcome__backButton}
+            onPress={this.backToModal}
+            activeOpacity={0.75}
+          >
+            <Text style={s.welcome__backButtonText}>Back to the counters</Text>
 
             <Image
-              style={s.welcome__arrow}
+              style={[s.welcome__arrow, s.welcome__backButtonIcon]}
               source={require('../assets/images/arrow.png')}
             />
-          </Text>
+          </TouchableOpacity>
         )}
 
         {firstPickDate && !validDate && (
@@ -318,6 +303,28 @@ const s = StyleSheet.create({
 
   welcome__iconActive: {
     tintColor: '#6ef09f',
+  },
+
+  welcome__backButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+
+    position: 'absolute',
+    top: 40,
+    left: 30,
+
+    paddingRight: 80,
+  },
+
+  welcome__backButtonText: {
+    fontFamily: 'Avenir-Medium',
+    fontSize: 15,
+    color: '#a2abb8',
+  },
+
+  welcome__backButtonIcon: {
+    width: 10,
+    height: 5,
   },
 
   welcome__error: {
