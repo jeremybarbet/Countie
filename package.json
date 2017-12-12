@@ -1,6 +1,6 @@
 {
   "name": "countie",
-  "version": "1.5.1",
+  "version": "1.6.0",
   "private": true,
   "scripts": {
     "postinstall": "sh scripts/postinstall.sh",
@@ -36,6 +36,8 @@
     "src/"
   ],
   "rnpm": {
-    "assets": ["./src/assets/fonts"]
+    "assets": [
+      "./src/assets/fonts"
+    ]
   }
 }
