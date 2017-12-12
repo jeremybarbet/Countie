@@ -288,7 +288,7 @@ const s = StyleSheet.create({
   welcome__submit: {
     alignSelf: 'flex-start',
 
-    marginLeft: 30,
+    marginLeft: 24,
     marginTop: 60,
   },
 
