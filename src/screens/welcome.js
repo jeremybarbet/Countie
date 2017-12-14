@@ -6,6 +6,8 @@ import moment from 'moment';
 import { isNil, isEmpty } from 'lodash';
 import { inject, observer } from 'mobx-react/native';
 import { action, observable } from 'mobx';
+import { decorate } from 'react-mixin';
+import TimerMixin from 'react-native-timer-mixin';
 
 import Container from 'components/container';
 import Picker from 'components/picker';
@@ -24,6 +26,7 @@ const ONE_HOUR = 60 * 60 * 1000;
 
 @inject('ui')
 @observer
+@decorate(TimerMixin)
 export default class Welcome extends Component {
 
   static propTypes = {
@@ -47,10 +50,12 @@ export default class Welcome extends Component {
     };
 
     if (props.showModal) {
-      props.navigator.showModal({
-        screen: COUNTER,
-        animationType: 'slide-up',
-      });
+      this.setTimeout(() => {
+        props.navigator.showModal({
+          screen: COUNTER,
+          animationType: 'slide-up',
+        });
+      }, 600);
     }
   }
 
