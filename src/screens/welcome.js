@@ -1,13 +1,14 @@
 /* eslint-disable max-len */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { View, Text, StyleSheet, TouchableOpacity, Image, Linking, PushNotificationIOS, Platform, DatePickerAndroid } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Linking, Platform, DatePickerAndroid } from 'react-native';
 import moment from 'moment';
 import { isNil, isEmpty } from 'lodash';
 import { inject, observer } from 'mobx-react/native';
 import { action, observable } from 'mobx';
 import { decorate } from 'react-mixin';
 import TimerMixin from 'react-native-timer-mixin';
+import PushNotification from 'react-native-push-notification';
 
 import Container from 'components/container';
 import Picker from 'components/picker';
@@ -41,22 +42,9 @@ export default class Welcome extends Component {
   @observable
   showBackButton = false;
 
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      pickerIsShown: false,
-      inputIsShown: false,
-    };
-
-    if (props.showModal) {
-      this.setTimeout(() => {
-        props.navigator.showModal({
-          screen: COUNTER,
-          animationType: 'slide-up',
-        });
-      }, 600);
-    }
+  state = {
+    pickerIsShown: false,
+    inputIsShown: false,
   }
 
   componentDidMount() {
@@ -92,36 +80,42 @@ export default class Welcome extends Component {
     const from = new Date();
     const to = moment(counterTo).startOf('day').toDate();
     const diff = to.getTime() - from.getTime();
-    const twentyFourHours = new Date(to).setHours(new Date(to).getHours() - 24);
-    const oneHour = new Date(to).setHours(new Date(to).getHours() - 1);
 
     // Check if counter is valid
     if (isEmpty(text) || isNil(counterTo)) return;
     if (diff <= 0) return;
 
+    const name = moment(from).format('DD-MM-YY/HH:mm:ss');
+    const unixed = Number(moment(to).format('x'));
+    const oneHour = 60 * 60 * 1000;
+    const twentyFourHours = 24 * oneHour;
+
     // Configure notifications
-    if (Platform.OS === 'ios') {
-      if (to >= TWENTYFOUR_HOURS) {
-        PushNotificationIOS.scheduleLocalNotification({
-          alertBody: `Your countdown for « ${text} » is almost over, 24 hours remaining!`,
-          fireDate: moment(twentyFourHours).format('YYYY-MM-DDTHH:mm:ss.sssZ'),
-        });
-      }
-
-      if (to >= ONE_HOUR) {
-        PushNotificationIOS.scheduleLocalNotification({
-          alertBody: `Your countdown for « ${text} » is so close to be over, 1 hour remaining!`,
-          fireDate: moment(oneHour).format('YYYY-MM-DDTHH:mm:ss.sssZ'),
-        });
-      }
-
-      PushNotificationIOS.scheduleLocalNotification({
-        alertBody: `Hey! This is it, your countdown for « ${text} » is over. Make the most of your time!`,
-        fireDate: moment(to).format('YYYY-MM-DDTHH:mm:ss.sssZ'),
+    if (to >= TWENTYFOUR_HOURS) {
+      PushNotification.localNotificationSchedule({
+        id: name,
+        userInfo: { id: name },
+        message: `Your countdown for « ${text} » is almost over, 24 hours remaining!`,
+        date: new Date(unixed - twentyFourHours),
       });
     }
 
-    const name = moment(from).format('DD-MM-YY/HH:mm:ss');
+    if (to >= ONE_HOUR) {
+      PushNotification.localNotificationSchedule({
+        id: name,
+        userInfo: { id: name },
+        message: `Your countdown for « ${text} » is so close to be over, 1 hour remaining!`,
+        date: new Date(unixed - oneHour),
+      });
+    }
+
+    PushNotification.localNotificationSchedule({
+      id: name,
+      userInfo: { id: name },
+      message: `Hey! This is it, your countdown for « ${text} » is over. Make the most of your time!`,
+      date: unixed,
+    });
+
     const obj = { from, to, text, status: datify(diff) };
     const counter = { [name]: obj };
 

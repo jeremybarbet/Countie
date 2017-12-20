@@ -24,8 +24,6 @@ export const startApp = (data) => {
 
   if (data.permission === null && Platform.OS === 'ios') {
     startPermission();
-  } else if (data.active) {
-    startWelcome({ showModal: true });
   } else {
     startWelcome();
   }

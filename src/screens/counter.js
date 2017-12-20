@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { StyleSheet, View, Text, Image, Animated, Dimensions, Easing, AppState, Alert, Platform } from 'react-native';
+import PushNotification from 'react-native-push-notification';
 import { decorate } from 'react-mixin';
 import TimerMixin from 'react-native-timer-mixin';
 import { inject, observer } from 'mobx-react/native';
@@ -197,6 +198,7 @@ export default class Counter extends Component {
       counters.delete(id);
       this.props.ui.currentCounter = counters.keys()[0]; // eslint-disable-line
 
+      PushNotification.cancelLocalNotifications({ id });
       storage.set(prefix('counters'), toJS(counters));
     } else {
       this.props.ui.counters.clear();
@@ -204,6 +206,7 @@ export default class Counter extends Component {
       this.props.ui.activeCounter = false;
       this.props.navigator.dismissModal();
 
+      PushNotification.cancelAllLocalNotifications();
       storage.delete(prefix('counters'));
       storage.delete(prefix('last_closed'));
       storage.delete(prefix('time_remaining'));
