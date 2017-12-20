@@ -1,21 +1,30 @@
 import { observable, action, ObservableMap, computed } from 'mobx';
+import { persist } from 'mobx-persist';
 
 import { timeDiff } from 'utils/date';
 
 export default class UI {
 
+  @persist
   @observable
   permission = 'waiting';
 
   @observable
   reload = false;
 
+  @persist('object')
   @observable
-  activeCounter = false;
+  lastClosed;
 
+  @persist('object')
+  @observable
+  lastOpened;
+
+  @persist
   @observable
   currentCounter = undefined;
 
+  @persist('map')
   @observable
   counters = new ObservableMap();
 

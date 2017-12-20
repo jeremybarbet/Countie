@@ -1,60 +1,35 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Platform } from 'react-native';
+import { AsyncStorage } from 'react-native';
 import { Provider } from 'mobx-react/native';
-import moment from 'moment';
-
-import storage, { prefix } from 'utils/storage';
+import { create, persist } from 'mobx-persist';
 
 import UI from './UI';
 
+const hydrate = create({
+  storage: AsyncStorage,
+  jsonify: true,
+});
+
 export default class Store {
 
+  @persist('object', UI)
   ui = new UI();
 
   async init() {
-    try {
-      const permission = await storage.get(prefix('permission'));
+    await hydrate('store', this.ui);
 
-      this.ui.permission = permission;
+    const lastOpened = new Date();
 
-      if (Platform.OS === 'android' || permission !== null) {
-        const lastOpened = new Date();
-        const lastClosed = await storage.get(prefix('last_closed'));
-        const remaining = await storage.get(prefix('time_remaining'));
-        const counters = await storage.get(prefix('counters'));
+    this.ui.counters.forEach((c, k) =>
+      this.ui.updateStatus(k, {
+        lastClosed: this.ui.lastClosed,
+        lastOpened,
+        remaining: c.status.total,
+      }),
+    );
 
-        if (lastClosed && counters) {
-          this.ui.activeCounter = true;
-          this.ui.currentCounter = Object.keys(counters)[0]; // eslint-disable-line
-
-          Object.keys(counters).forEach((c) => {
-            const obj = {
-              from: moment(counters[c].from).toDate(),
-              to: moment(counters[c].to).toDate(),
-              text: counters[c].text,
-              status: this.ui.updateDate({
-                lastClosed,
-                lastOpened,
-                remaining: remaining[c],
-              }),
-            };
-
-            this.ui.counters.set(c, obj);
-          });
-        } else {
-          this.ui.activeCounter = false;
-        }
-      }
-    } catch (error) {
-      console.error(error);
-    }
-
-    return {
-      permission: this.ui.permission,
-      active: this.ui.activeCounter,
-      counters: this.ui.counters,
-    };
+    return true;
   }
 }
 

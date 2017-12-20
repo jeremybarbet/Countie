@@ -13,7 +13,6 @@ import PushNotification from 'react-native-push-notification';
 import Container from 'components/container';
 import Picker from 'components/picker';
 import Input from 'components/input';
-import storage, { prefix } from 'utils/storage';
 import { datify } from 'utils/date';
 import { navigatorTypes } from 'utils/types';
 import { isIpad } from 'utils/utils';
@@ -22,8 +21,8 @@ import { COUNTER } from './';
 
 const PLACEHOLDER_DATE = 'date';
 const PLACEHOLDER_TEXT = 'my next travel';
-const TWENTYFOUR_HOURS = 24 * 60 * 60 * 1000;
 const ONE_HOUR = 60 * 60 * 1000;
+const TWENTYFOUR_HOURS = 24 * 60 * 60 * 1000;
 
 @inject('ui')
 @observer
@@ -87,8 +86,6 @@ export default class Welcome extends Component {
 
     const name = moment(from).format('DD-MM-YY/HH:mm:ss');
     const unixed = Number(moment(to).format('x'));
-    const oneHour = 60 * 60 * 1000;
-    const twentyFourHours = 24 * oneHour;
 
     // Configure notifications
     if (to >= TWENTYFOUR_HOURS) {
@@ -96,7 +93,7 @@ export default class Welcome extends Component {
         id: name,
         userInfo: { id: name },
         message: `Your countdown for « ${text} » is almost over, 24 hours remaining!`,
-        date: new Date(unixed - twentyFourHours),
+        date: new Date(unixed - TWENTYFOUR_HOURS),
       });
     }
 
@@ -105,7 +102,7 @@ export default class Welcome extends Component {
         id: name,
         userInfo: { id: name },
         message: `Your countdown for « ${text} » is so close to be over, 1 hour remaining!`,
-        date: new Date(unixed - oneHour),
+        date: new Date(unixed - ONE_HOUR),
       });
     }
 
@@ -113,15 +110,11 @@ export default class Welcome extends Component {
       id: name,
       userInfo: { id: name },
       message: `Hey! This is it, your countdown for « ${text} » is over. Make the most of your time!`,
-      date: unixed,
+      date: new Date(unixed),
     });
 
-    const obj = { from, to, text, status: datify(diff) };
-    const counter = { [name]: obj };
-
-    ui.counters.set(name, obj);
+    ui.counters.set(name, { from, to, text, status: datify(diff) });
     ui.currentCounter = name;
-    storage.update(prefix('counters'), counter);
 
     navigator.showModal({
       screen: COUNTER,

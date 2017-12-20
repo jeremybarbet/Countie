@@ -24,8 +24,9 @@ export function isOver(date) {
 }
 
 export function timeDiff({ lastClosed, lastOpened, remaining }) {
-  const converted = typeof lastClosed === 'string' ? new Date(Date.parse(lastClosed)) : lastClosed;
-  const diff = lastOpened.getTime() - converted.getTime();
+  const closed = typeof lastClosed === 'string' ? new Date(Date.parse(lastClosed)) : lastClosed;
+  const opened = typeof lastOpened === 'string' ? new Date(Date.parse(lastOpened)) : lastOpened;
+  const diff = opened.getTime() - closed.getTime();
   const newTotal = remaining - diff;
   const date = datify(newTotal);
 

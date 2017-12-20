@@ -1,19 +1,24 @@
 /* eslint-disable max-len */
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { inject, observer } from 'mobx-react/native';
 
 import Container from 'components/container';
-import storage, { prefix } from 'utils/storage';
+// import storage, { prefix } from 'utils/storage';
 import registerNotifications from 'utils/notifications';
 import { navigatorTypes } from 'utils/types';
 import { isIpad } from 'utils/utils';
 
 import { WELCOME } from './';
 
+@inject('ui')
+@observer
 export default class Permission extends Component {
 
   static propTypes = {
     ...navigatorTypes,
+    ui: PropTypes.object,
   }
 
   static navigatorStyle = {
@@ -22,19 +27,19 @@ export default class Permission extends Component {
 
   onPressNotify = async () => {
     await registerNotifications();
-    storage.set(prefix('permission'), 'enable');
+    this.props.ui.permission = 'enable';
+    // storage.set(prefix('permission'), 'enable');
     this.nextScreen();
   }
 
   onPressNo = () => {
-    storage.set(prefix('permission'), 'disable');
+    this.props.ui.permission = 'disable';
+    // storage.set(prefix('permission'), 'disable');
     this.nextScreen();
   }
 
   nextScreen = () => {
-    this.props.navigator.resetTo({
-      screen: WELCOME,
-    });
+    this.props.navigator.resetTo({ screen: WELCOME });
   }
 
   render() {

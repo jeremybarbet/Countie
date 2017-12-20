@@ -4,8 +4,8 @@ import { StyleSheet, View, Text, Image, Animated, Dimensions, Easing, AppState, 
 import PushNotification from 'react-native-push-notification';
 import { decorate } from 'react-mixin';
 import TimerMixin from 'react-native-timer-mixin';
+import { action } from 'mobx';
 import { inject, observer } from 'mobx-react/native';
-import { observable, action, toJS } from 'mobx';
 import LinearGradient from 'react-native-linear-gradient';
 import Swiper from 'react-native-swiper';
 import moment from 'moment';
@@ -15,7 +15,6 @@ import Container from 'components/container';
 import ImagesSwitcher from 'components/images-switcher';
 import Icon from 'components/icon';
 import { datify, isOver } from 'utils/date';
-import storage, { prefix } from 'utils/storage';
 import { navigatorTypes } from 'utils/types';
 import { isIphoneX, isIpad } from 'utils/utils';
 
@@ -26,9 +25,6 @@ const ONE_SECOND = 1000;
 @observer
 @decorate(TimerMixin)
 export default class Counter extends Component {
-
-  @observable
-  lastClosed;
 
   static propTypes = {
     ...navigatorTypes,
@@ -111,7 +107,9 @@ export default class Counter extends Component {
       return { width: 0 };
     }
 
-    const t = getCounter(currentCounter).to - getCounter(currentCounter).from;
+    const to = moment(getCounter(currentCounter).to).format('x');
+    const from = moment(getCounter(currentCounter).from).format('x');
+    const t = to - from;
 
     if (getCounter(currentCounter).status.total <= 0 || t <= 0 || isNaN(t)) {
       return { width: 0 };
@@ -144,28 +142,19 @@ export default class Counter extends Component {
     const { counters } = this.props.ui;
 
     if (state === 'inactive' || state === 'background') {
-      const obj = {};
-
-      this.lastClosed = new Date();
-
-      storage.set(prefix('last_closed'), this.lastClosed);
-      counters.forEach((c, k) => obj[k] = c.status.total); // eslint-disable-line
-      storage.update(prefix('time_remaining'), obj);
+      this.props.ui.lastClosed = new Date();
     }
 
     if (state === 'active') {
-      const { lastClosed } = this;
       const lastOpened = new Date();
 
-      try {
-        const remaining = await storage.get(prefix('time_remaining'));
-
-        counters.forEach((_, k) =>
-          this.props.ui.updateStatus(k, { lastClosed, lastOpened, remaining: remaining[k] }),
-        );
-      } catch (error) {
-        console.error(error);
-      }
+      counters.forEach((c, k) =>
+        this.props.ui.updateStatus(k, {
+          lastClosed: this.props.ui.lastClosed,
+          lastOpened,
+          remaining: c.status.total,
+        }),
+      );
     }
   }
 
@@ -196,20 +185,16 @@ export default class Counter extends Component {
 
     if (counters.size > 1) {
       counters.delete(id);
+
       this.props.ui.currentCounter = counters.keys()[0]; // eslint-disable-line
 
       PushNotification.cancelLocalNotifications({ id });
-      storage.set(prefix('counters'), toJS(counters));
     } else {
       this.props.ui.counters.clear();
       this.props.ui.currentCounter = undefined;
-      this.props.ui.activeCounter = false;
       this.props.navigator.dismissModal();
 
       PushNotification.cancelAllLocalNotifications();
-      storage.delete(prefix('counters'));
-      storage.delete(prefix('last_closed'));
-      storage.delete(prefix('time_remaining'));
     }
   }
 
