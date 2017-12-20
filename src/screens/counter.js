@@ -58,6 +58,8 @@ export default class Counter extends Component {
   }
 
   componentDidMount() {
+    this.props.navigator.setOnNavigatorEvent(this.onNavigatorEvent);
+
     this.countdown = this.setInterval(() =>
       this.counter(),
     ONE_SECOND);
@@ -65,6 +67,13 @@ export default class Counter extends Component {
 
   componentWillUnmount() {
     AppState.removeEventListener('change', this.handleStateChange);
+  }
+
+  @action
+  onNavigatorEvent = (e) => {
+    if (e.id === 'willDisappear') {
+      this.props.ui.lastClosed = new Date();
+    }
   }
 
   onPressAdd = () => {
@@ -76,7 +85,7 @@ export default class Counter extends Component {
 
     Alert.alert(
       'Delete this counter',
-      `Are you sure you want to delete « ${getCounter(currentCounter).text} »?`,
+      `You will remove « ${getCounter(currentCounter).text} ». Are you sure you want to do this?`,
       [
         {
           text: 'Cancel',

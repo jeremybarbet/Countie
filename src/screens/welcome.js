@@ -164,6 +164,16 @@ export default class Welcome extends Component {
   }
 
   backToModal = () => {
+    const lastOpened = new Date();
+
+    this.props.ui.counters.forEach((c, k) =>
+      this.props.ui.updateStatus(k, {
+        lastClosed: this.props.ui.lastClosed,
+        lastOpened,
+        remaining: c.status.total,
+      }),
+    );
+
     this.props.navigator.showModal({
       screen: COUNTER,
       animationType: 'slide-up',

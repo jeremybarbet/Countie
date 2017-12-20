@@ -5,7 +5,6 @@ import { Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { inject, observer } from 'mobx-react/native';
 
 import Container from 'components/container';
-// import storage, { prefix } from 'utils/storage';
 import registerNotifications from 'utils/notifications';
 import { navigatorTypes } from 'utils/types';
 import { isIpad } from 'utils/utils';
@@ -28,13 +27,11 @@ export default class Permission extends Component {
   onPressNotify = async () => {
     await registerNotifications();
     this.props.ui.permission = 'enable';
-    // storage.set(prefix('permission'), 'enable');
     this.nextScreen();
   }
 
   onPressNo = () => {
     this.props.ui.permission = 'disable';
-    // storage.set(prefix('permission'), 'disable');
     this.nextScreen();
   }
 
