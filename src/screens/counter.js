@@ -17,6 +17,7 @@ import Icon from 'components/icon';
 import { datify, isOver } from 'utils/date';
 import { navigatorTypes } from 'utils/types';
 import { isIphoneX, isIpad } from 'utils/utils';
+import { fonts } from 'theme';
 
 const { width } = Dimensions.get('window');
 const ONE_SECOND = 1000;
@@ -388,7 +389,7 @@ const s = StyleSheet.create({
   },
 
   counter__title: {
-    fontFamily: 'Avenir-Medium',
+    ...fonts.medium,
     fontSize: isIpad() ? 48 : 32,
     color: '#fff',
 
@@ -400,7 +401,7 @@ const s = StyleSheet.create({
   counter__countdown: {
     opacity: 0.85,
 
-    fontFamily: 'Avenir-Medium',
+    ...fonts.medium,
     fontSize: isIpad() ? 32 : 26,
     color: '#fff',
     lineHeight: isIpad() ? 48 : 42,
@@ -413,7 +414,7 @@ const s = StyleSheet.create({
 
     marginTop: 4,
 
-    fontFamily: 'Avenir-Medium',
+    ...fonts.medium,
     fontSize: isIpad() ? 24 : 18,
     color: '#fff',
 

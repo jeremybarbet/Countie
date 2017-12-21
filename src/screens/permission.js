@@ -8,6 +8,7 @@ import Container from 'components/container';
 import registerNotifications from 'utils/notifications';
 import { navigatorTypes } from 'utils/types';
 import { isIpad } from 'utils/utils';
+import { fonts } from 'theme';
 
 import { WELCOME } from './';
 
@@ -74,7 +75,6 @@ const s = StyleSheet.create({
     marginTop: 200,
     marginBottom: 15,
 
-    fontFamily: 'Avenir-Medium',
     fontSize: isIpad() ? 48 : 32,
     color: '#FFFFFF',
     lineHeight: isIpad() ? 56 : 46,
@@ -84,7 +84,6 @@ const s = StyleSheet.create({
     paddingLeft: 30,
     paddingRight: isIpad() ? 120 : 40,
 
-    fontFamily: 'Avenir-Medium',
     fontSize: isIpad() ? 22 : 16,
     color: '#FFFFFF',
     lineHeight: isIpad() ? 35 : 25,
@@ -109,7 +108,6 @@ const s = StyleSheet.create({
     marginTop: 'auto',
     marginBottom: 30,
 
-    fontFamily: 'Avenir-Medium',
     fontSize: isIpad() ? 18 : 15,
     color: '#FFFFFF',
     letterSpacing: 0.4,
