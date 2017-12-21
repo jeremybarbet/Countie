@@ -197,13 +197,17 @@ export default class Counter extends Component {
 
       this.props.ui.currentCounter = counters.keys()[0]; // eslint-disable-line
 
-      PushNotification.cancelLocalNotifications({ id });
+      if (Platform.OS === 'ios') {
+        PushNotification.cancelLocalNotifications({ id });
+      }
     } else {
       this.props.ui.counters.clear();
       this.props.ui.currentCounter = undefined;
       this.props.navigator.dismissModal();
 
-      PushNotification.cancelAllLocalNotifications();
+      if (Platform.OS === 'ios') {
+        PushNotification.cancelAllLocalNotifications();
+      }
     }
   }
 

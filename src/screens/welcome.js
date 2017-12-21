@@ -16,6 +16,7 @@ import Input from 'components/input';
 import { datify } from 'utils/date';
 import { navigatorTypes } from 'utils/types';
 import { isIpad } from 'utils/utils';
+import { fonts } from 'theme';
 
 import { COUNTER } from './';
 
@@ -88,30 +89,32 @@ export default class Welcome extends Component {
     const unixed = Number(moment(to).format('x'));
 
     // Configure notifications
-    if (to >= TWENTYFOUR_HOURS) {
+    if (Platform.OS === 'ios') {
+      if (to >= TWENTYFOUR_HOURS) {
+        PushNotification.localNotificationSchedule({
+          id: name,
+          userInfo: { id: name },
+          message: `Your countdown for « ${text} » is almost over, 24 hours remaining!`,
+          date: new Date(unixed - TWENTYFOUR_HOURS),
+        });
+      }
+
+      if (to >= ONE_HOUR) {
+        PushNotification.localNotificationSchedule({
+          id: name,
+          userInfo: { id: name },
+          message: `Your countdown for « ${text} » is so close to be over, 1 hour remaining!`,
+          date: new Date(unixed - ONE_HOUR),
+        });
+      }
+
       PushNotification.localNotificationSchedule({
         id: name,
         userInfo: { id: name },
-        message: `Your countdown for « ${text} » is almost over, 24 hours remaining!`,
-        date: new Date(unixed - TWENTYFOUR_HOURS),
+        message: `Hey! This is it, your countdown for « ${text} » is over. Make the most of your time!`,
+        date: new Date(unixed),
       });
     }
-
-    if (to >= ONE_HOUR) {
-      PushNotification.localNotificationSchedule({
-        id: name,
-        userInfo: { id: name },
-        message: `Your countdown for « ${text} » is so close to be over, 1 hour remaining!`,
-        date: new Date(unixed - ONE_HOUR),
-      });
-    }
-
-    PushNotification.localNotificationSchedule({
-      id: name,
-      userInfo: { id: name },
-      message: `Hey! This is it, your countdown for « ${text} » is over. Make the most of your time!`,
-      date: new Date(unixed),
-    });
 
     ui.counters.set(name, { from, to, text, status: datify(diff) });
     ui.currentCounter = name;
@@ -261,6 +264,18 @@ export default class Welcome extends Component {
   }
 }
 
+function lineHeight() {
+  if (isIpad()) {
+    return { lineHeight: 56 };
+  }
+
+  if (Platform.OS === 'ios') {
+    return { lineHeight: 34 };
+  }
+
+  return { lineHeight: 46 };
+}
+
 const s = StyleSheet.create({
   welcome__form: {
     marginTop: 200,
@@ -271,10 +286,10 @@ const s = StyleSheet.create({
     marginLeft: 30,
     marginRight: 30,
 
-    fontFamily: 'Avenir-Medium',
+    ...fonts.medium,
     fontSize: isIpad() ? 48 : 32,
     color: '#333',
-    lineHeight: isIpad() ? 56 : 46,
+    ...lineHeight(),
   },
 
   welcome__placeholder: {
@@ -319,7 +334,7 @@ const s = StyleSheet.create({
   },
 
   welcome__backButtonText: {
-    fontFamily: 'Avenir-Medium',
+    ...fonts.medium,
     fontSize: 15,
     color: '#a2abb8',
   },
@@ -336,7 +351,7 @@ const s = StyleSheet.create({
 
     paddingRight: 80,
 
-    fontFamily: 'Avenir-Medium',
+    ...fonts.medium,
     fontSize: 15,
     color: '#a2abb8',
   },
@@ -352,7 +367,7 @@ const s = StyleSheet.create({
     marginTop: 'auto',
     marginBottom: 30,
 
-    fontFamily: 'Avenir-Medium',
+    ...fonts.medium,
     fontSize: isIpad() ? 18 : 15,
     color: '#c1ccdb',
   },
