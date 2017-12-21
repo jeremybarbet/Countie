@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { StyleSheet, Text, Image, Animated, Dimensions, Easing, AppState, Alert } from 'react-native';
+import { StyleSheet, View, Text, Image, Animated, Dimensions, Easing, AppState, Alert, Platform } from 'react-native';
+import PushNotification from 'react-native-push-notification';
 import { decorate } from 'react-mixin';
-import { autobind } from 'core-decorators';
-import { inject, observer } from 'mobx-react/native';
-import { observable, action } from 'mobx';
-import LinearGradient from 'react-native-linear-gradient';
 import TimerMixin from 'react-native-timer-mixin';
+import { action } from 'mobx';
+import { inject, observer } from 'mobx-react/native';
+import LinearGradient from 'react-native-linear-gradient';
+import Swiper from 'react-native-swiper';
 import moment from 'moment';
 import { isNaN } from 'lodash';
 
@@ -14,14 +15,11 @@ import Container from 'components/container';
 import ImagesSwitcher from 'components/images-switcher';
 import Icon from 'components/icon';
 import { datify, isOver } from 'utils/date';
-import storage, { prefix } from 'utils/storage';
 import { navigatorTypes } from 'utils/types';
 import { isIphoneX, isIpad } from 'utils/utils';
-
-import { WELCOME } from './';
+import { fonts } from 'theme';
 
 const { width } = Dimensions.get('window');
-const keys = ['from', 'to', 'text', 'last_closed', 'time_remaining'];
 const ONE_SECOND = 1000;
 
 @inject('ui')
@@ -29,61 +27,39 @@ const ONE_SECOND = 1000;
 @decorate(TimerMixin)
 export default class Counter extends Component {
 
-  @observable
-  remaining;
-
-  @observable
-  lastClosed;
-
   static propTypes = {
     ...navigatorTypes,
     ui: PropTypes.object.isRequired,
-    from: PropTypes.object.isRequired,
-    to: PropTypes.object.isRequired,
-    text: PropTypes.string.isRequired,
-    activeCounter: PropTypes.bool,
-    remaining: PropTypes.number,
-  }
-
-  static defaultProps = {
-    activeCounter: false,
   }
 
   static navigatorStyle = {
     navBarHidden: true,
+    screenBackgroundColor: 'transparent',
   }
 
   constructor(props) {
     super(props);
 
+    const { getCounter, currentCounter } = props.ui;
+
     this.rotation = new Animated.Value(0);
-
-    if (props.ui.activeCounter) {
-      this.remaining = props.ui.date.total;
-      this.progress = new Animated.Value(props.remaining);
-    } else {
-      const t = props.to - props.from;
-      const get = v => datify(t)[v];
-
-      this.remaining = t;
-      this.progress = new Animated.Value(t);
-
-      props.ui.date = { // eslint-disable-line
-        total: get('total'),
-        days: get('days'),
-        hours: get('hours'),
-        minutes: get('minutes'),
-        seconds: get('seconds'),
-      };
-    }
+    this.progress = new Animated.Value(getCounter(currentCounter).status.total);
   }
 
+  @action
   componentWillMount() {
     AppState.addEventListener('change', this.handleStateChange);
+
+    // Reset inputs
+    this.props.ui.showDate = false;
+    this.props.ui.counterTo = new Date();
+    this.props.ui.counterText = undefined;
+    this.props.ui.firstPickDate = false;
+    this.props.ui.firstPickText = false;
   }
 
   componentDidMount() {
-    if (isNaN(this.remaining)) return;
+    this.props.navigator.setOnNavigatorEvent(this.onNavigatorEvent);
 
     this.countdown = this.setInterval(() =>
       this.counter(),
@@ -94,27 +70,38 @@ export default class Counter extends Component {
     AppState.removeEventListener('change', this.handleStateChange);
   }
 
-  @autobind
-  onPressClose() {
+  @action
+  onNavigatorEvent = (e) => {
+    if (e.id === 'willDisappear') {
+      this.props.ui.lastClosed = new Date();
+    }
+  }
+
+  onPressAdd = () => {
+    this.props.navigator.dismissModal();
+  }
+
+  onPressClose = () => {
+    const { getCounter, currentCounter } = this.props.ui;
+
     Alert.alert(
-      'Delete counter',
-      'Are you sure you want to delete this counter?',
+      'Delete this counter',
+      `You will remove « ${getCounter(currentCounter).text} ». Are you sure you want to do this?`,
       [
         {
           text: 'Cancel',
         },
         {
           text: 'Yes',
-          onPress: this.deleteCounter,
+          onPress: () => this.deleteCounter(currentCounter),
           style: 'destructive',
         },
       ],
     );
   }
 
-  @autobind
   @action
-  onPressReload() {
+  onPressReload = () => {
     this.props.ui.reload = true;
 
     Animated.timing(this.rotation, {
@@ -124,13 +111,18 @@ export default class Counter extends Component {
   }
 
   get width() {
-    const { from, to } = this.props;
+    const { counters, getCounter, currentCounter } = this.props.ui;
+
+    if (counters.size === 0) {
+      return { width: 0 };
+    }
+
+    const to = moment(getCounter(currentCounter).to).format('x');
+    const from = moment(getCounter(currentCounter).from).format('x');
     const t = to - from;
 
-    if (this.remaining <= 0 || t <= 0 || isNaN(t)) {
-      return {
-        width: 0,
-      };
+    if (getCounter(currentCounter).status.total <= 0 || t <= 0 || isNaN(t)) {
+      return { width: 0 };
     }
 
     return {
@@ -155,73 +147,81 @@ export default class Counter extends Component {
     };
   }
 
-  @autobind
   @action
-  handleStateChange(state) {
-    const { ui } = this.props;
+  handleStateChange = async (state) => {
+    const { counters } = this.props.ui;
 
-    if (state === 'inactive') {
-      this.lastClosed = new Date();
-
-      storage.set(prefix('last_closed'), this.lastClosed);
-      storage.set(prefix('time_remaining'), this.remaining);
+    if (state === 'inactive' || state === 'background') {
+      this.props.ui.lastClosed = new Date();
     }
 
     if (state === 'active') {
-      const { lastClosed, remaining } = this;
       const lastOpened = new Date();
 
-      ui.newDate({ lastClosed, lastOpened, remaining });
-      this.remaining = ui.date.total;
+      counters.forEach((c, k) =>
+        this.props.ui.updateStatus(k, {
+          lastClosed: this.props.ui.lastClosed,
+          lastOpened,
+          remaining: c.status.total,
+        }),
+      );
     }
   }
 
   @action
-  counter() {
-    this.remaining = this.remaining - ONE_SECOND;
+  counter = () => {
+    const { counters, getCounter, currentCounter } = this.props.ui;
 
-    const { ui } = this.props;
-    const date = datify(this.remaining);
+    if (counters.size === 0) {
+      return;
+    }
 
-    if (isOver(ui.date)) {
+    counters.forEach(c => c.status = datify(c.status.total - ONE_SECOND)); // eslint-disable-line
+
+    if (isOver(getCounter(currentCounter).status)) {
       clearInterval(this.countdown);
     }
 
     Animated.timing(this.progress, {
-      toValue: this.remaining,
+      toValue: getCounter(currentCounter).status.total,
       duration: ONE_SECOND,
       easing: Easing.linear,
     }).start();
-
-    ui.date = date;
   }
 
-  @autobind
   @action
-  deleteCounter() {
-    keys.map(k => storage.delete(prefix(k)));
+  deleteCounter = (id) => {
+    const { counters } = this.props.ui;
 
-    clearInterval(this.countdown);
+    if (counters.size > 1) {
+      counters.delete(id);
 
-    this.props.ui.showDate = false;
-    this.props.ui.activeCounter = false;
+      this.props.ui.currentCounter = counters.keys()[0]; // eslint-disable-line
 
-    this.props.ui.counter = {
-      from: undefined,
-      to: new Date(),
-      text: undefined,
-    };
+      if (Platform.OS === 'ios') {
+        PushNotification.cancelLocalNotifications({ id });
+      }
+    } else {
+      this.props.ui.counters.clear();
+      this.props.ui.currentCounter = undefined;
+      this.props.navigator.dismissModal();
 
-    this.props.navigator.resetTo({
-      screen: WELCOME,
-      animationType: 'fade',
-    });
+      if (Platform.OS === 'ios') {
+        PushNotification.cancelAllLocalNotifications();
+      }
+    }
   }
 
-  @autobind
-  renderCounter() {
-    const { days, hours, minutes, seconds } = this.props.ui.date;
+  renderCounter = ({ total, days, hours, minutes, seconds }) => {
     const f = (v, p) => v.toString().length > 1 ? `${v}${p}` : `0${v}${p}`; // eslint-disable-line
+
+    if (isNaN(total)) {
+      return (
+        <Text style={s.counter__countdown}>
+          Loading...
+        </Text>
+      );
+    }
 
     return (
       <Text style={s.counter__countdown}>
@@ -230,20 +230,63 @@ export default class Counter extends Component {
     );
   }
 
+  @action
+  handleChange = (index) => {
+    const { counters, getCounter } = this.props.ui;
+    const newCurrent = counters.keys()[index];
+
+    this.props.ui.currentCounter = newCurrent;
+    this.progress = new Animated.Value(getCounter(newCurrent).status.total);
+  }
+
+  counters = () => {
+    const { all } = this.props.ui;
+
+    return (
+      <Swiper
+        style={s.counter__swiper}
+        showsButtons={false}
+        paginationStyle={s.counter__pagination}
+        dotStyle={s.counter__dot}
+        activeDotStyle={s.counter__dotActive}
+        onIndexChanged={this.handleChange}
+        loop={false}
+        bounces
+      >
+        {all.map(c => (
+          <View key={c.from} style={s.counter__slide}>
+            <Text style={s.counter__title}>{c.text}</Text>
+
+            {isOver(c.status)
+              ? <Text style={s.counter__countdown}>Make the most of it!</Text>
+              : this.renderCounter(c.status)
+            }
+
+            <Text style={s.counter__date}>{moment(c.to).format('MMMM Do, YYYY')}</Text>
+          </View>
+        ))}
+      </Swiper>
+    );
+  }
+
   render() {
-    const { ui, to, text } = this.props;
+    const { ui } = this.props;
 
     return (
       <Container>
         <Icon onPress={this.onPressReload} style={s.counter__reload}>
           <Animated.Image
             style={[s.counter__image, this.transform]}
-            source={require('../images/reload.png')}
+            source={require('../assets/images/reload.png')}
           />
         </Icon>
 
+        <Icon onPress={this.onPressAdd} style={s.counter__add}>
+          <Image style={s.counter__image} source={require('../assets/images/add.png')} />
+        </Icon>
+
         <Icon onPress={this.onPressClose} style={s.counter__close}>
-          <Image style={s.counter__image} source={require('../images/close.png')} />
+          <Image style={s.counter__image} source={require('../assets/images/close.png')} />
         </Icon>
 
         <ImagesSwitcher reload={ui.reload} />
@@ -252,17 +295,10 @@ export default class Counter extends Component {
           colors={['rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 0.5)']}
           style={s.counter__gradient}
         >
-          <Text style={s.counter__title}>{text}</Text>
+          {this.counters()}
 
-          {isOver(ui.date)
-            ? <Text style={s.counter__countdown}>Make the most of it!</Text>
-            : this.renderCounter()
-          }
-
-          <Text style={s.counter__date}>{moment(to).format('MMMM Do, YYYY')}</Text>
+          <Animated.View style={[s.counter__progress, this.width]} />
         </LinearGradient>
-
-        <Animated.View style={[s.counter__progress, this.width]} />
       </Container>
     );
   }
@@ -270,14 +306,14 @@ export default class Counter extends Component {
 
 function positions() {
   if (isIphoneX()) {
-    return {
-      top: 0,
-    };
+    return { top: 0 };
   }
 
-  return {
-    bottom: 0,
-  };
+  if (Platform.OS === 'android') {
+    return { bottom: 4 };
+  }
+
+  return { bottom: 0 };
 }
 
 const s = StyleSheet.create({
@@ -294,6 +330,10 @@ const s = StyleSheet.create({
   },
 
   counter__reload: {
+    right: 145,
+  },
+
+  counter__add: {
     right: 85,
   },
 
@@ -302,23 +342,58 @@ const s = StyleSheet.create({
   },
 
   counter__gradient: {
-    justifyContent: 'flex-end',
-
     position: 'absolute',
     left: 0,
     bottom: 0,
     right: 0,
 
-    paddingHorizontal: 25,
-    paddingBottom: 30,
+    height: 300,
+  },
 
-    height: 280,
+  counter__swiper: {
+    marginHorizontal: 25,
+    paddingBottom: 30,
+  },
+
+  counter__slide: {
+    flex: 1,
+    justifyContent: 'flex-end',
+
+    paddingBottom: 55,
+  },
+
+  counter__pagination: {
+    justifyContent: 'flex-start',
+
+    marginLeft: 25,
+  },
+
+  counter__dot: {
+    marginRight: 6,
+
+    width: 6,
+    height: 6,
+
+    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+    borderRadius: 3,
+  },
+
+  counter__dotActive: {
+    marginRight: 6,
+
+    width: 6,
+    height: 6,
+
+    backgroundColor: '#fff',
+    borderRadius: 3,
   },
 
   counter__title: {
-    fontFamily: 'Avenir-Medium',
+    ...fonts.medium,
     fontSize: isIpad() ? 48 : 32,
     color: '#fff',
+
+    paddingRight: 50,
 
     backgroundColor: 'transparent',
   },
@@ -326,7 +401,7 @@ const s = StyleSheet.create({
   counter__countdown: {
     opacity: 0.85,
 
-    fontFamily: 'Avenir-Medium',
+    ...fonts.medium,
     fontSize: isIpad() ? 32 : 26,
     color: '#fff',
     lineHeight: isIpad() ? 48 : 42,
@@ -339,7 +414,7 @@ const s = StyleSheet.create({
 
     marginTop: 4,
 
-    fontFamily: 'Avenir-Medium',
+    ...fonts.medium,
     fontSize: isIpad() ? 24 : 18,
     color: '#fff',
 

@@ -22,6 +22,9 @@ DerivedData
 *.xcuserstate
 project.xcworkspace
 
+#Android
+**.apk
+
 # Android/IntelliJ
 #
 build/
@@ -42,7 +45,7 @@ buck-out/
 *.keystore
 
 # Fonts
-src/fonts
+src/assets/fonts
 
 # fastlane
 #

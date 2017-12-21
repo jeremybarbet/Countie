@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import { Navigation } from 'react-native-navigation';
 import { useStrict } from 'mobx';
 
@@ -21,10 +22,8 @@ Screens.set(COUNTER, () => Counter);
 export const startApp = (data) => {
   useStrict(true);
 
-  if (data.permission === null) {
+  if (data.permission === null && Platform.OS === 'ios') {
     startPermission();
-  } else if (data.active) {
-    startCounter(data.props);
   } else {
     startWelcome();
   }
@@ -38,19 +37,11 @@ export const startPermission = () =>
     },
   });
 
-export const startCounter = props =>
-  Navigation.startSingleScreenApp({
-    screen: {
-      screen: COUNTER,
-      navigatorStyle: { navBarHidden: true },
-    },
-    passProps: props,
-  });
-
-export const startWelcome = () =>
+export const startWelcome = props =>
   Navigation.startSingleScreenApp({
     screen: {
       screen: WELCOME,
       navigatorStyle: { navBarHidden: true },
     },
+    passProps: props,
   });

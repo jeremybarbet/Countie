@@ -1,29 +1,33 @@
 /* eslint-disable max-len */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { View, Text, StyleSheet, TouchableOpacity, Image, Linking, PushNotificationIOS } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Linking, Platform, DatePickerAndroid } from 'react-native';
 import moment from 'moment';
 import { isNil, isEmpty } from 'lodash';
 import { inject, observer } from 'mobx-react/native';
-import { action } from 'mobx';
-import { autobind } from 'core-decorators';
+import { action, observable } from 'mobx';
+import { decorate } from 'react-mixin';
+import TimerMixin from 'react-native-timer-mixin';
+import PushNotification from 'react-native-push-notification';
 
 import Container from 'components/container';
 import Picker from 'components/picker';
 import Input from 'components/input';
-import storage, { prefix } from 'utils/storage';
+import { datify } from 'utils/date';
 import { navigatorTypes } from 'utils/types';
 import { isIpad } from 'utils/utils';
+import { fonts } from 'theme';
 
 import { COUNTER } from './';
 
 const PLACEHOLDER_DATE = 'date';
 const PLACEHOLDER_TEXT = 'my next travel';
-const TWENTYFOUR_HOURS = 24 * 60 * 60 * 1000;
 const ONE_HOUR = 60 * 60 * 1000;
+const TWENTYFOUR_HOURS = 24 * 60 * 60 * 1000;
 
 @inject('ui')
 @observer
+@decorate(TimerMixin)
 export default class Welcome extends Component {
 
   static propTypes = {
@@ -35,138 +39,207 @@ export default class Welcome extends Component {
     navBarHidden: true,
   }
 
+  @observable
+  showBackButton = false;
+
   state = {
     pickerIsShown: false,
     inputIsShown: false,
   }
 
-  firstPickDate = false
-  firstPickText = false
-
-  @autobind
-  @action
-  onDateChange(to) {
-    this.firstPickDate = true;
-    this.props.ui.counter.to = to;
+  componentDidMount() {
+    this.props.navigator.setOnNavigatorEvent(this.onNavigatorEvent);
   }
 
-  @autobind
   @action
-  onTextChange(text) {
-    this.firstPickText = true;
-    this.props.ui.counter.text = text;
+  onNavigatorEvent = (e) => {
+    const { counters } = this.props.ui;
+
+    if (e.id === 'willAppear') {
+      this.showBackButton = counters.size > 0;
+    }
   }
 
-  @autobind
-  submit() {
+  @action
+  onDateChange = (to) => {
+    this.props.ui.firstPickDate = true;
+    this.props.ui.counterTo = to;
+  }
+
+  @action
+  onTextChange = (text) => {
+    this.props.ui.firstPickText = true;
+    this.props.ui.counterText = text;
+  }
+
+  @action
+  submit = () => {
     const { ui, navigator } = this.props;
-    const { text } = ui.counter;
+    const { counterText: text, counterTo } = ui;
 
-    const to = moment(ui.counter.to).startOf('day').toDate();
     const from = new Date();
+    const to = moment(counterTo).startOf('day').toDate();
     const diff = to.getTime() - from.getTime();
-    const twentyFourHours = new Date(to).setHours(new Date(to).getHours() - 24);
-    const oneHour = new Date(to).setHours(new Date(to).getHours() - 1);
 
-    if (isEmpty(ui.counter.text) || isNil(ui.counter.to)) return;
+    // Check if counter is valid
+    if (isEmpty(text) || isNil(counterTo)) return;
     if (diff <= 0) return;
 
+    const name = moment(from).format('DD-MM-YY/HH:mm:ss');
+    const unixed = Number(moment(to).format('x'));
+
     // Configure notifications
-    if (to >= TWENTYFOUR_HOURS) {
-      PushNotificationIOS.scheduleLocalNotification({
-        alertBody: `Your countdown for « ${text} » is almost over, 24 hours remaining!`,
-        fireDate: moment(twentyFourHours).format('YYYY-MM-DDTHH:mm:ss.sssZ'),
+    if (Platform.OS === 'ios') {
+      if (to >= TWENTYFOUR_HOURS) {
+        PushNotification.localNotificationSchedule({
+          id: name,
+          userInfo: { id: name },
+          message: `Your countdown for « ${text} » is almost over, 24 hours remaining!`,
+          date: new Date(unixed - TWENTYFOUR_HOURS),
+        });
+      }
+
+      if (to >= ONE_HOUR) {
+        PushNotification.localNotificationSchedule({
+          id: name,
+          userInfo: { id: name },
+          message: `Your countdown for « ${text} » is so close to be over, 1 hour remaining!`,
+          date: new Date(unixed - ONE_HOUR),
+        });
+      }
+
+      PushNotification.localNotificationSchedule({
+        id: name,
+        userInfo: { id: name },
+        message: `Hey! This is it, your countdown for « ${text} » is over. Make the most of your time!`,
+        date: new Date(unixed),
       });
     }
 
-    if (to >= ONE_HOUR) {
-      PushNotificationIOS.scheduleLocalNotification({
-        alertBody: `Your countdown for « ${text} » is so close to be over, 1 hour remaining!`,
-        fireDate: moment(oneHour).format('YYYY-MM-DDTHH:mm:ss.sssZ'),
-      });
-    }
+    ui.counters.set(name, { from, to, text, status: datify(diff) });
+    ui.currentCounter = name;
 
-    PushNotificationIOS.scheduleLocalNotification({
-      alertBody: `Hey! This is it, your countdown for « ${text} » is over. Make the most of your time!`,
-      fireDate: moment(to).format('YYYY-MM-DDTHH:mm:ss.sssZ'),
-    });
-
-    // Store counter infos
-    storage.set(prefix('from'), from);
-    storage.set(prefix('to'), to);
-    storage.set(prefix('text'), text);
-
-    navigator.push({
+    navigator.showModal({
       screen: COUNTER,
-      passProps: { from, to, text },
+      animationType: 'slide-up',
     });
   }
 
-  @autobind
+  togglePickerAndroid = async () => {
+    try {
+      await DatePickerAndroid
+        .open({ date: this.props.ui.counterTo })
+        .then(({ action, year, month, day }) => { // eslint-disable-line
+          if (action !== DatePickerAndroid.dismissedAction) {
+            this.props.ui.setAndroidDate(new Date(year, month, day));
+          }
+        });
+    } catch ({ code, message }) {
+      console.error(`Cannot open date picker ${code} ${message}`);
+    }
+  }
+
   @action
-  togglePicker() {
+  togglePicker = () => {
+    if (Platform.OS === 'android') {
+      return this.togglePickerAndroid();
+    }
+
     const { pickerIsShown } = this.state;
 
     if (pickerIsShown) {
-      this.firstPickDate = true;
+      this.props.ui.firstPickDate = true;
     }
 
     this.props.ui.showDate = true;
     this.setState({ pickerIsShown: !pickerIsShown });
   }
 
-  @autobind
   @action
-  toggleInput() {
+  toggleInput = () => {
     const { inputIsShown } = this.state;
 
     if (inputIsShown) {
-      this.firstPickText = true;
+      this.props.ui.firstPickText = true;
     }
 
     this.setState({ inputIsShown: !inputIsShown });
   }
 
+  backToModal = () => {
+    const lastOpened = new Date();
+
+    this.props.ui.counters.forEach((c, k) =>
+      this.props.ui.updateStatus(k, {
+        lastClosed: this.props.ui.lastClosed,
+        lastOpened,
+        remaining: c.status.total,
+      }),
+    );
+
+    this.props.navigator.showModal({
+      screen: COUNTER,
+      animationType: 'slide-up',
+    });
+  }
+
   render() {
-    const { ui } = this.props;
+    const { showDate, firstPickDate, firstPickText, counterText, counterTo } = this.props.ui;
     const { pickerIsShown, inputIsShown } = this.state;
 
-    const validDate = moment(ui.counter.to).isAfter(new Date());
-    const validText = !isEmpty(ui.counter.text);
+    const validDate = moment(counterTo).isAfter(new Date());
+    const validText = !isEmpty(counterText);
     const isClickable = validDate && validText;
 
-    const valueDate = ui.showDate ? moment(ui.counter.to).format('DD/MM/YY') : PLACEHOLDER_DATE;
-    const valueText = ui.counter.text || PLACEHOLDER_TEXT;
+    const valueDate = showDate ? moment(counterTo).format('DD/MM/YY') : PLACEHOLDER_DATE;
+    const valueText = counterText || PLACEHOLDER_TEXT;
     const styles = state => state ? s.welcome__value : s.welcome__placeholder;
 
     const breakLine = isIpad() ? ' ' : '\n';
 
     return (
       <Container>
-        {this.firstPickDate && !validDate && (
+        {this.showBackButton && (
+          <TouchableOpacity
+            style={s.welcome__backButton}
+            onPress={this.backToModal}
+            activeOpacity={0.75}
+          >
+            <Text style={s.welcome__backButtonText}>Back to the counters</Text>
+
+            <Image
+              style={[s.welcome__arrow, s.welcome__backButtonIcon]}
+              source={require('../assets/images/arrow.png')}
+            />
+          </TouchableOpacity>
+        )}
+
+        {firstPickDate && !validDate && (
           <Text style={s.welcome__error}>You have to select a date in the future to start the countdown.</Text>
         )}
 
-        {this.firstPickText && !validText && (
+        {firstPickText && !validText && (
           <Text style={s.welcome__error}>You have to choose a name to your countdown.</Text>
         )}
 
         <View style={s.welcome__form}>
           <Text style={s.welcome__text}>
-            Let’s count <Text style={styles(ui.showDate)} onPress={this.togglePicker}>{valueDate}</Text>{breakLine}for <Text style={styles(ui.counter.text)} onPress={this.toggleInput}>{valueText}</Text>.
+            Let’s count <Text style={styles(showDate)} onPress={this.togglePicker}>{valueDate}</Text>{breakLine}for <Text style={styles(counterText)} onPress={this.toggleInput}>{valueText}</Text>.
           </Text>
 
-          <Picker
-            open={pickerIsShown}
-            toggle={this.togglePicker}
-            date={ui.counter.to}
-            onChange={this.onDateChange}
-          />
+          {(Platform.OS === 'ios') && (
+            <Picker
+              open={pickerIsShown}
+              toggle={this.togglePicker}
+              date={counterTo}
+              onChange={this.onDateChange}
+            />
+          )}
 
           <Input
             open={inputIsShown}
             toggle={this.toggleInput}
-            text={ui.counter.text}
+            text={counterText}
             placeholder={PLACEHOLDER_TEXT}
             onChange={this.onTextChange}
           />
@@ -177,8 +250,8 @@ export default class Welcome extends Component {
             style={s.welcome__submit}
           >
             <Image
-              style={isClickable ? [s.welcome__image, s.welcome__iconActive] : [s.welcome__image, s.welcome__icon]}
-              source={require('../images/submit.png')}
+              style={isClickable ? [s.welcome__arrow, s.welcome__iconActive] : [s.welcome__arrow, s.welcome__icon]}
+              source={require('../assets/images/submit.png')}
             />
           </TouchableOpacity>
         </View>
@@ -191,6 +264,18 @@ export default class Welcome extends Component {
   }
 }
 
+function lineHeight() {
+  if (isIpad()) {
+    return { lineHeight: 56 };
+  }
+
+  if (Platform.OS === 'ios') {
+    return { lineHeight: 34 };
+  }
+
+  return { lineHeight: 46 };
+}
+
 const s = StyleSheet.create({
   welcome__form: {
     marginTop: 200,
@@ -201,10 +286,10 @@ const s = StyleSheet.create({
     marginLeft: 30,
     marginRight: 30,
 
-    fontFamily: 'Avenir-Medium',
+    ...fonts.medium,
     fontSize: isIpad() ? 48 : 32,
     color: '#333',
-    lineHeight: isIpad() ? 56 : 46,
+    ...lineHeight(),
   },
 
   welcome__placeholder: {
@@ -220,7 +305,7 @@ const s = StyleSheet.create({
   welcome__submit: {
     alignSelf: 'flex-start',
 
-    marginLeft: 30,
+    marginLeft: 24,
     marginTop: 60,
   },
 
@@ -237,16 +322,46 @@ const s = StyleSheet.create({
     tintColor: '#6ef09f',
   },
 
+  welcome__backButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+
+    position: 'absolute',
+    top: 40,
+    left: 30,
+
+    paddingRight: 80,
+  },
+
+  welcome__backButtonText: {
+    ...fonts.medium,
+    fontSize: 15,
+    color: '#a2abb8',
+  },
+
+  welcome__backButtonIcon: {
+    top: Platform.select({ ios: -2, android: 1 }),
+
+    width: 10,
+    height: 5,
+  },
+
   welcome__error: {
     position: 'absolute',
     top: 40,
-    left: 40,
+    left: 30,
 
     paddingRight: 80,
 
-    fontFamily: 'Avenir-Medium',
+    ...fonts.medium,
     fontSize: 15,
     color: '#a2abb8',
+  },
+
+  welcome__arrow: {
+    marginLeft: 6,
+
+    tintColor: '#a2abb8',
   },
 
   welcome__footer: {
@@ -254,7 +369,7 @@ const s = StyleSheet.create({
     marginTop: 'auto',
     marginBottom: 30,
 
-    fontFamily: 'Avenir-Medium',
+    ...fonts.medium,
     fontSize: isIpad() ? 18 : 15,
     color: '#c1ccdb',
   },

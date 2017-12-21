@@ -1,0 +1,26 @@
+From 3e32b4838e372ad96542a5c30b591227ed618b38 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?J=C3=A9r=C3=A9my=20Barbet?= <jeremgraph@gmail.com>
+Date: Sun, 26 Nov 2017 21:13:34 +0000
+Subject: [PATCH] Show pagination all the time
+
+---
+ src/index.js | 3 ---
+ 1 file changed, 3 deletions(-)
+
+diff --git a/src/index.js b/src/index.js
+index 3a32427..c71c42e 100644
+--- a/src/index.js
++++ b/src/index.js
+@@ -520,9 +520,6 @@ export default class extends Component {
+    * @return {object} react-dom
+    */
+   renderPagination = () => {
+-     // By default, dots only show when `total` >= 2
+-    if (this.state.total <= 1) return null
+-
+     let dots = []
+     const ActiveDot = this.props.activeDot || <View style={[{
+       backgroundColor: this.props.activeDotColor || '#007aff',
+-- 
+2.14.2
+

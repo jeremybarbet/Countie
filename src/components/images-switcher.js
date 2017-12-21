@@ -7,18 +7,26 @@ import { inject, observer } from 'mobx-react/native';
 import TimerMixin from 'react-native-timer-mixin';
 import { range } from 'lodash';
 
-const TEN_MINUTES = 600000;
+import { borderRadius } from 'theme';
+
+const TEN_MINUTES = 10 * 60 * 1000;
 
 const backgrounds = [
-  { key: 0, src: require('../images/backgrounds/bg-1.png') },
-  { key: 1, src: require('../images/backgrounds/bg-2.png') },
-  { key: 2, src: require('../images/backgrounds/bg-3.png') },
-  { key: 3, src: require('../images/backgrounds/bg-4.png') },
-  { key: 4, src: require('../images/backgrounds/bg-5.png') },
-  { key: 5, src: require('../images/backgrounds/bg-6.png') },
-  { key: 6, src: require('../images/backgrounds/bg-7.png') },
-  { key: 7, src: require('../images/backgrounds/bg-8.png') },
-  { key: 8, src: require('../images/backgrounds/bg-9.png') },
+  { key: 0, src: require('../assets/images/backgrounds/bg-1.jpg') },
+  { key: 1, src: require('../assets/images/backgrounds/bg-2.jpg') },
+  { key: 2, src: require('../assets/images/backgrounds/bg-3.jpg') },
+  { key: 3, src: require('../assets/images/backgrounds/bg-4.jpg') },
+  { key: 4, src: require('../assets/images/backgrounds/bg-5.jpg') },
+  { key: 5, src: require('../assets/images/backgrounds/bg-6.jpg') },
+  { key: 6, src: require('../assets/images/backgrounds/bg-7.jpg') },
+  { key: 7, src: require('../assets/images/backgrounds/bg-8.jpg') },
+  { key: 8, src: require('../assets/images/backgrounds/bg-9.jpg') },
+  { key: 9, src: require('../assets/images/backgrounds/bg-10.jpg') },
+  { key: 10, src: require('../assets/images/backgrounds/bg-11.jpg') },
+  { key: 11, src: require('../assets/images/backgrounds/bg-12.jpg') },
+  { key: 12, src: require('../assets/images/backgrounds/bg-13.jpg') },
+  { key: 13, src: require('../assets/images/backgrounds/bg-14.jpg') },
+  { key: 14, src: require('../assets/images/backgrounds/bg-15.jpg') },
 ];
 
 @inject('ui')
@@ -120,6 +128,9 @@ const s = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
+
+    backgroundColor: '#c1ccdb',
+    ...borderRadius,
   },
 
   fader__image: {
@@ -131,6 +142,8 @@ const s = StyleSheet.create({
 
     width: '100%',
     height: '100%',
+
+    ...borderRadius,
   },
 
   fader__active: {

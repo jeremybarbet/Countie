@@ -1,54 +1,35 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
+import { AsyncStorage } from 'react-native';
 import { Provider } from 'mobx-react/native';
-import moment from 'moment';
-
-import storage, { prefix } from 'utils/storage';
+import { create, persist } from 'mobx-persist';
 
 import UI from './UI';
 
+const hydrate = create({
+  storage: AsyncStorage,
+  jsonify: true,
+});
+
 export default class Store {
 
+  @persist('object', UI)
   ui = new UI();
 
   async init() {
-    try {
-      const permission = await storage.get(prefix('permission'));
+    await hydrate('store', this.ui);
 
-      this.ui.permission = permission;
+    const lastOpened = new Date();
 
-      if (permission !== null) {
-        const lastOpened = new Date();
-        const lastClosed = await storage.get(prefix('last_closed'));
-        const remaining = await storage.get(prefix('time_remaining'));
-        const from = await storage.get(prefix('from'));
-        const to = await storage.get(prefix('to'));
-        const text = await storage.get(prefix('text'));
+    this.ui.counters.forEach((c, k) =>
+      this.ui.updateStatus(k, {
+        lastClosed: this.ui.lastClosed,
+        lastOpened,
+        remaining: c.status.total,
+      }),
+    );
 
-        if (lastClosed && to && text) {
-          this.ui.activeCounter = true;
-
-          this.ui.newDate({ lastClosed, lastOpened, remaining });
-
-          this.ui.props = {
-            from: moment(from).toDate(),
-            to: moment(to).toDate(),
-            text,
-            remaining,
-          };
-        } else {
-          this.ui.activeCounter = false;
-        }
-      }
-    } catch (error) {
-      console.log(error) // eslint-disable-line
-    }
-
-    return {
-      permission: this.ui.permission,
-      active: this.ui.activeCounter,
-      props: this.ui.props,
-    };
+    return true;
   }
 }
 

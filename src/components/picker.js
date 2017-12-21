@@ -2,6 +2,8 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { StyleSheet, DatePickerIOS } from 'react-native';
 
+import { fonts } from 'theme';
+
 import Modal from './modal';
 import Button from './button';
 
@@ -41,7 +43,7 @@ const s = StyleSheet.create({
   picker__text: {
     paddingVertical: 15,
 
-    fontFamily: 'Avenir-Heavy',
+    ...fonts.heavy,
     fontSize: 14,
     color: '#FFFFFF',
     letterSpacing: 1,
