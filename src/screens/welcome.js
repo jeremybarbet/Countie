@@ -340,6 +340,8 @@ const s = StyleSheet.create({
   },
 
   welcome__backButtonIcon: {
+    top: Platform.select({ ios: -2, android: 1 }),
+
     width: 10,
     height: 5,
   },

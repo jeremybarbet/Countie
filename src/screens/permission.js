@@ -75,6 +75,7 @@ const s = StyleSheet.create({
     marginTop: 200,
     marginBottom: 15,
 
+    ...fonts.medium,
     fontSize: isIpad() ? 48 : 32,
     color: '#FFFFFF',
     lineHeight: isIpad() ? 56 : 46,
@@ -84,6 +85,7 @@ const s = StyleSheet.create({
     paddingLeft: 30,
     paddingRight: isIpad() ? 120 : 40,
 
+    ...fonts.medium,
     fontSize: isIpad() ? 22 : 16,
     color: '#FFFFFF',
     lineHeight: isIpad() ? 35 : 25,
@@ -108,6 +110,7 @@ const s = StyleSheet.create({
     marginTop: 'auto',
     marginBottom: 30,
 
+    ...fonts.medium,
     fontSize: isIpad() ? 18 : 15,
     color: '#FFFFFF',
     letterSpacing: 0.4,

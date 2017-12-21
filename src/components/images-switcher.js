@@ -7,7 +7,9 @@ import { inject, observer } from 'mobx-react/native';
 import TimerMixin from 'react-native-timer-mixin';
 import { range } from 'lodash';
 
-const TEN_MINUTES = 600000;
+import { borderRadius } from 'theme';
+
+const TEN_MINUTES = 10 * 60 * 1000;
 
 const backgrounds = [
   { key: 0, src: require('../assets/images/backgrounds/bg-1.jpg') },
@@ -128,6 +130,7 @@ const s = StyleSheet.create({
     bottom: 0,
 
     backgroundColor: '#c1ccdb',
+    ...borderRadius,
   },
 
   fader__image: {
@@ -139,6 +142,8 @@ const s = StyleSheet.create({
 
     width: '100%',
     height: '100%',
+
+    ...borderRadius,
   },
 
   fader__active: {
