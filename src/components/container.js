@@ -2,7 +2,8 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { View, StyleSheet, StatusBar, Dimensions, SafeAreaView } from 'react-native';
 
-import isIphoneX from 'utils/utils';
+import { isIphoneX } from 'utils/utils';
+import { borderRadius } from 'theme';
 
 const { height } = Dimensions.get('window');
 const STATUSBAR_HEIGHT = 20;
@@ -52,8 +53,7 @@ const s = StyleSheet.create({
 
     height: isIphoneX() ? height - STATUSBAR_HEIGHT_IPHONE_X : height - STATUSBAR_HEIGHT,
 
-    borderTopLeftRadius: 4,
-    borderTopRightRadius: 4,
+    ...borderRadius,
     overflow: 'hidden',
   },
 });

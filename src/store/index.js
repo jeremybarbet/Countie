@@ -21,33 +21,35 @@ export default class Store {
         const lastOpened = new Date();
         const lastClosed = await storage.get(prefix('last_closed'));
         const remaining = await storage.get(prefix('time_remaining'));
-        const from = await storage.get(prefix('from'));
-        const to = await storage.get(prefix('to'));
-        const text = await storage.get(prefix('text'));
+        const counters = await storage.get(prefix('counters'));
 
-        if (lastClosed && to && text) {
-          this.ui.activeCounter = true;
+        if (lastClosed && counters) {
+          this.ui.lastClosed = lastClosed;
+          this.ui.currentCounter = Object.keys(counters)[0]; // eslint-disable-line
 
-          this.ui.newDate({ lastClosed, lastOpened, remaining });
+          Object.keys(counters).forEach((c) => {
+            const obj = {
+              from: moment(counters[c].from).toDate(),
+              to: moment(counters[c].to).toDate(),
+              text: counters[c].text,
+              status: this.ui.updateDate({
+                lastClosed,
+                lastOpened,
+                remaining: remaining[c],
+              }),
+            };
 
-          this.ui.props = {
-            from: moment(from).toDate(),
-            to: moment(to).toDate(),
-            text,
-            remaining,
-          };
-        } else {
-          this.ui.activeCounter = false;
+            this.ui.counters.set(c, obj);
+          });
         }
       }
     } catch (error) {
-      console.log(error) // eslint-disable-line
+      console.error(error);
     }
 
     return {
       permission: this.ui.permission,
-      active: this.ui.activeCounter,
-      props: this.ui.props,
+      counters: this.ui.counters,
     };
   }
 }

@@ -1,4 +1,4 @@
-import { observable, action } from 'mobx';
+import { observable, action, ObservableMap, computed } from 'mobx';
 
 import { timeDiff } from 'utils/date';
 
@@ -8,29 +8,68 @@ export default class UI {
   permission = 'waiting';
 
   @observable
-  activeCounter = false;
+  reload = false;
 
   @observable
-  props = {};
+  currentCounter = undefined;
+
+  @observable
+  counters = new ObservableMap();
+
+  @observable
+  lastClosed;
+
+  @observable
+  lastOpened;
 
   @observable
   showDate = false;
 
   @observable
-  date = {};
+  counterTo = new Date();
 
   @observable
-  counter = {
-    from: undefined,
-    to: new Date(),
-    text: undefined,
-  };
+  counterText = undefined;
 
   @observable
-  reload = false;
+  firstPickDate = false;
+
+  @observable
+  firstPickText = false;
+
+  @computed
+  get all() {
+    return this.counters.values().sort((a, b) => a.from - b.from);
+  }
+
+  getCounter = (id) => {
+    if (this.counters.has(id)) {
+      return this.counters.get(id);
+    }
+  }
 
   @action
-  newDate({ ...args }) {
-    this.date = timeDiff(args);
+  updateStatus = (id, { lastClosed, lastOpened, remaining }) => // eslint-disable-line
+    this.getCounter(id).status = this.updateDate({ lastClosed, lastOpened, remaining });
+
+  @action
+  updateDate = ({ ...args }) => timeDiff(args);
+
+  @action
+  refresh = (lastOpened) => {
+    this.counters.forEach((c, k) =>
+      this.updateStatus(k, {
+        lastClosed: this.lastClosed,
+        lastOpened,
+        remaining: c.status.total,
+      }),
+    );
+  }
+
+  @action
+  setAndroidDate = (date) => {
+    this.counterTo = date;
+    this.firstPickDate = true;
+    this.showDate = true;
   }
 }

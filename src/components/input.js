@@ -2,6 +2,8 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { StyleSheet, TextInput, KeyboardAvoidingView, Dimensions } from 'react-native';
 
+import { fonts } from 'theme';
+
 import Modal from './modal';
 import Button from './button';
 
@@ -44,6 +46,7 @@ export default class Input extends PureComponent {
             placeholder={placeholder}
             placeholderTextColor="#c1ccdb"
             autoCapitalize="none"
+            underlineColorAndroid="transparent"
           />
         </Modal>
       </KeyboardAvoidingView>
@@ -62,7 +65,7 @@ const s = StyleSheet.create({
 
     height: 80,
 
-    fontFamily: 'Avenir-Medium',
+    ...fonts.medium,
     fontSize: 18,
     color: '#333333',
 

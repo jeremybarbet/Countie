@@ -1,12 +1,14 @@
 /* eslint-disable max-len */
 import React, { Component } from 'react';
 import { Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
-import { autobind } from 'core-decorators';
 
 import Container from 'components/container';
+
 import storage, { prefix } from 'utils/storage';
 import registerNotifications from 'utils/notifications';
 import { navigatorTypes } from 'utils/types';
+import { isIpad } from 'utils/utils';
+import { fonts } from 'theme';
 
 import { WELCOME } from './';
 
@@ -20,21 +22,20 @@ export default class Permission extends Component {
     navBarHidden: true,
   }
 
-  @autobind
-  async onPressNotify() {
+  onPressNotify = async () => {
     await registerNotifications();
     storage.set(prefix('permission'), 'enable');
+
     this.nextScreen();
   }
 
-  @autobind
-  onPressNo() {
+  onPressNo = () => {
     storage.set(prefix('permission'), 'disable');
+
     this.nextScreen();
   }
 
-  @autobind
-  nextScreen() {
+  nextScreen = () => {
     this.props.navigator.resetTo({
       screen: WELCOME,
     });
@@ -53,7 +54,7 @@ export default class Permission extends Component {
         >
           <Image
             style={s.permission__icon}
-            source={require('../images/submit.png')}
+            source={require('../assets/images/submit.png')}
           />
         </TouchableOpacity>
 
@@ -70,41 +71,48 @@ export default class Permission extends Component {
 
 const s = StyleSheet.create({
   permission__title: {
-    paddingHorizontal: 40,
+    paddingHorizontal: 30,
+    paddingVertical: isIpad() ? 20 : 0,
     marginTop: 200,
     marginBottom: 15,
 
-    fontFamily: 'Avenir-Medium',
-    fontSize: 32,
+    ...fonts.medium,
+    fontSize: isIpad() ? 48 : 32,
     color: '#FFFFFF',
-    lineHeight: 42,
+    lineHeight: isIpad() ? 56 : 46,
   },
 
   permission__description: {
-    paddingHorizontal: 40,
+    paddingLeft: 30,
+    paddingRight: isIpad() ? 120 : 40,
 
-    fontFamily: 'Avenir-Medium',
-    fontSize: 16,
+    ...fonts.medium,
+    fontSize: isIpad() ? 22 : 16,
     color: '#FFFFFF',
-    lineHeight: 25,
+    lineHeight: isIpad() ? 35 : 25,
   },
 
   permission__submit: {
-    paddingHorizontal: 40,
+    alignSelf: 'flex-start',
+
+    marginLeft: 30,
     marginTop: 60,
   },
 
   permission__icon: {
+    width: isIpad() ? 62 : 52,
+    height: isIpad() ? 62 : 52,
+
     tintColor: '#FFFFFF',
   },
 
   permission__footer: {
-    paddingHorizontal: 40,
+    paddingHorizontal: 30,
     marginTop: 'auto',
     marginBottom: 30,
 
-    fontFamily: 'Avenir-Medium',
-    fontSize: 14,
+    ...fonts.medium,
+    fontSize: isIpad() ? 18 : 15,
     color: '#FFFFFF',
     letterSpacing: 0.4,
   },
