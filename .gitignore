@@ -44,8 +44,9 @@ buck-out/
 \.buckd/
 *.keystore
 
-# Fonts
+# Projects
 src/assets/fonts
+android/app/*.jks
 
 # fastlane
 #
