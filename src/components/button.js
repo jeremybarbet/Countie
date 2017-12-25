@@ -27,7 +27,8 @@ export default class Button extends PureComponent {
 
 const s = StyleSheet.create({
   button: {
-    paddingVertical: 15,
+    paddingTop: 18,
+    paddingBottom: 15,
 
     ...fonts.heavy,
     fontSize: 14,

@@ -76,6 +76,10 @@ export default class Counter extends Component {
 
   @action
   onNavigatorEvent = (e) => {
+    if (e.id === 'willAppear') {
+      this.props.ui.currentCounter = this.props.ui.counters.keys()[0]; // eslint-disable-line
+    }
+
     if (e.id === 'willDisappear') {
       this.props.ui.lastClosed = new Date();
     }
