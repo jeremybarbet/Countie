@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { View, StyleSheet, ViewPropTypes } from 'react-native';
+import { View, StyleSheet, ViewPropTypes, Platform } from 'react-native';
 import Modal from 'react-native-modal';
 
 export default class ModalContainer extends PureComponent {
@@ -22,7 +22,7 @@ export default class ModalContainer extends PureComponent {
         backdropOpacity={0.9}
         backdropColor="#fff"
         onBackdropPress={onPress}
-        avoidKeyboard
+        avoidKeyboard={Platform.OS === 'ios'}
       >
         <View style={s.modal__content}>
           {children}
