@@ -119,8 +119,8 @@ android {
         applicationId "com.countie"
         minSdkVersion 16
         targetSdkVersion 22
-        versionCode 25
-        versionName "1.7.0"
+        versionCode 10701
+        versionName "1.7.1"
         ndk {
             abiFilters "armeabi-v7a", "x86"
         }
