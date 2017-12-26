@@ -1,7 +1,7 @@
 From 6f45b2ab6bf335060241f21b77e74395c17d285d Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?J=C3=A9r=C3=A9my=20Barbet?= <jeremgraph@gmail.com>
 Date: Mon, 25 Dec 2017 17:32:51 +0000
-Subject: [PATCH] Fix assets
+Subject: [PATCH 1/2] Fix assets
 
 ---
  react.gradle | 17 +++++++++++++++++
@@ -35,6 +35,32 @@ index 109b0dab9..eec0dec20 100644
                  // Set up inputs and outputs so gradle can cache the result
                  inputs.files fileTree(dir: reactRoot, excludes: inputExcludes)
                  outputs.dir jsBundleDir
+-- 
+2.14.2
+
+
+From bc55bb2f00752f13638233146e6e1608986abf7f Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?J=C3=A9r=C3=A9my=20Barbet?= <jeremgraph@gmail.com>
+Date: Tue, 26 Dec 2017 17:55:48 +0000
+Subject: [PATCH 2/2] Fix Libraries/Components/Subscribable.js
+
+---
+ Libraries/Components/Subscribable.js | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Libraries/Components/Subscribable.js b/Libraries/Components/Subscribable.js
+index 8474b2149..086c97c99 100644
+--- a/Libraries/Components/Subscribable.js
++++ b/Libraries/Components/Subscribable.js
+@@ -30,7 +30,7 @@ Subscribable.Mixin = {
+   },
+ 
+   componentWillUnmount: function() {
+-    this._subscribableSubscriptions.forEach(
++    this._subscribableSubscriptions && this._subscribableSubscriptions.forEach(
+       (subscription) => subscription.remove()
+     );
+     this._subscribableSubscriptions = null;
 -- 
 2.14.2
 
