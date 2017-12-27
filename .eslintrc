@@ -3,5 +3,6 @@
   "rules": {
     "import/extensions": 0,
     "function-paren-newline": 0,
+    "react/prop-types": 2,
   },
 }

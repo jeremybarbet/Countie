@@ -79,7 +79,6 @@ const s = StyleSheet.create({
     ...fonts.medium,
     fontSize: isIpad() ? 48 : 32,
     color: '#FFFFFF',
-    lineHeight: isIpad() ? 56 : 46,
   },
 
   permission__description: {

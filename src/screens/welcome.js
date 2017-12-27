@@ -259,18 +259,6 @@ export default class Welcome extends Component {
   }
 }
 
-function lineHeight() {
-  if (isIpad()) {
-    return { lineHeight: 56 };
-  }
-
-  if (Platform.OS === 'ios') {
-    return { lineHeight: 34 };
-  }
-
-  return { lineHeight: 46 };
-}
-
 const s = StyleSheet.create({
   welcome__form: {
     marginTop: 200,
@@ -284,7 +272,6 @@ const s = StyleSheet.create({
     ...fonts.medium,
     fontSize: isIpad() ? 48 : 32,
     color: '#333',
-    ...lineHeight(),
   },
 
   welcome__placeholder: {
