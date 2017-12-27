@@ -5,9 +5,6 @@ import { timeDiff } from 'utils/date';
 export default class UI {
 
   @observable
-  permission = 'waiting';
-
-  @observable
   reload = false;
 
   @observable
@@ -49,16 +46,13 @@ export default class UI {
   }
 
   @action
-  updateStatus = (id, { lastClosed, lastOpened, remaining }) => // eslint-disable-line
-    this.getCounter(id).status = this.updateDate({ lastClosed, lastOpened, remaining });
+  updateStatus = (lastOpened) => {
+    if (!this.lastClosed) {
+      return;
+    }
 
-  @action
-  updateDate = ({ ...args }) => timeDiff(args);
-
-  @action
-  refresh = (lastOpened) => {
-    this.counters.forEach((c, k) =>
-      this.updateStatus(k, {
+    this.counters.forEach(c => // eslint-disable-line
+      c.status = timeDiff({
         lastClosed: this.lastClosed,
         lastOpened,
         remaining: c.status.total,

@@ -86,6 +86,7 @@ export default class Counter extends Component {
   }
 
   onPressAdd = () => {
+    this.props.ui.lastClosed = new Date();
     this.props.navigator.dismissModal();
   }
 
@@ -157,19 +158,13 @@ export default class Counter extends Component {
 
   @action
   handleStateChange = (state) => {
-    const { counters } = this.props.ui;
-
     if (state === 'inactive' || state === 'background') {
-      const obj = {};
-
       this.props.ui.lastClosed = new Date();
       storage.set(prefix('last_closed'), this.props.ui.lastClosed);
-      counters.forEach((c, k) => obj[k] = c.status.total); // eslint-disable-line
-      storage.update(prefix('time_remaining'), obj);
     }
 
     if (state === 'active') {
-      this.props.ui.refresh(new Date());
+      this.props.ui.updateStatus(new Date());
     }
   }
 

@@ -122,6 +122,8 @@ export default class Welcome extends Component {
     ui.currentCounter = name;
     storage.update(prefix('counters'), counter);
 
+    ui.updateStatus(new Date());
+
     navigator.showModal({
       screen: COUNTER,
       animationType: 'slide-up',
@@ -170,7 +172,7 @@ export default class Welcome extends Component {
   }
 
   backToModal = () => {
-    this.props.ui.refresh(new Date());
+    this.props.ui.updateStatus(new Date());
 
     this.props.navigator.showModal({
       screen: COUNTER,

@@ -4,6 +4,7 @@ import { Provider } from 'mobx-react/native';
 import moment from 'moment';
 
 import storage, { prefix } from 'utils/storage';
+import { timeDiff } from 'utils/date';
 
 import UI from './UI';
 
@@ -12,15 +13,15 @@ export default class Store {
   ui = new UI();
 
   async init() {
+    const lastOpened = new Date();
+
     try {
       const permission = await storage.get(prefix('permission'));
 
-      this.ui.permission = permission;
+      this.permission = permission;
 
       if (permission !== null) {
-        const lastOpened = new Date();
         const lastClosed = await storage.get(prefix('last_closed'));
-        const remaining = await storage.get(prefix('time_remaining'));
         const counters = await storage.get(prefix('counters'));
 
         if (lastClosed && counters) {
@@ -28,27 +29,27 @@ export default class Store {
           this.ui.currentCounter = Object.keys(counters)[0]; // eslint-disable-line
 
           Object.keys(counters).forEach((c) => {
-            const obj = {
-              from: moment(counters[c].from).toDate(),
-              to: moment(counters[c].to).toDate(),
-              text: counters[c].text,
-              status: this.ui.updateDate({
+            const counter = counters[c];
+
+            this.ui.counters.set(c, {
+              from: moment(counter.from).toDate(),
+              to: moment(counter.to).toDate(),
+              text: counter.text,
+              status: timeDiff({
                 lastClosed,
                 lastOpened,
-                remaining: remaining[c],
+                remaining: counter.status.total,
               }),
-            };
-
-            this.ui.counters.set(c, obj);
+            });
           });
         }
       }
     } catch (error) {
-      console.error(error);
+      console.error(`Error when trying to initialize store ${error}`);
     }
 
     return {
-      permission: this.ui.permission,
+      permission: this.permission,
       counters: this.ui.counters,
     };
   }
