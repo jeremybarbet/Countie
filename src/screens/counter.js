@@ -205,7 +205,6 @@ export default class Counter extends Component {
       PushNotification.cancelAllLocalNotifications();
       storage.delete(prefix('counters'));
       storage.delete(prefix('last_closed'));
-      storage.delete(prefix('time_remaining'));
       this.props.navigator.dismissModal();
     }
   }

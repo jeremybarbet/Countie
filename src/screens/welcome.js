@@ -118,11 +118,10 @@ export default class Welcome extends Component {
       date: new Date(unixed),
     });
 
+    ui.updateStatus(from);
     ui.counters.set(name, obj);
     ui.currentCounter = name;
     storage.update(prefix('counters'), counter);
-
-    ui.updateStatus(new Date());
 
     navigator.showModal({
       screen: COUNTER,
