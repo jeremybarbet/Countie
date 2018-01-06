@@ -386,17 +386,20 @@ const s = StyleSheet.create({
   },
 
   counter__title: {
+    paddingRight: 50,
+
     ...fonts.medium,
     fontSize: isIpad() ? 48 : 32,
+    lineHeight: Platform.select({ ios: undefined, android: 46 }),
     color: '#fff',
-
-    paddingRight: 50,
 
     backgroundColor: 'transparent',
   },
 
   counter__countdown: {
     opacity: 0.85,
+
+    marginBottom: Platform.select({ ios: 0, android: 2 }),
 
     ...fonts.medium,
     fontSize: isIpad() ? 32 : 26,

@@ -273,6 +273,7 @@ const s = StyleSheet.create({
     ...fonts.medium,
     fontSize: isIpad() ? 48 : 32,
     color: '#333',
+    lineHeight: Platform.select({ ios: undefined, android: 46 }),
   },
 
   welcome__placeholder: {
