@@ -23,10 +23,12 @@
     "react": "16.0.0",
     "react-mixin": "3.1.1",
     "react-native": "0.50.3",
+    "react-native-config": "0.11.5",
     "react-native-linear-gradient": "2.3.0",
     "react-native-modal": "4.1.1",
     "react-native-navigation": "1.1.295",
     "react-native-push-notification": "3.0.1",
+    "react-native-sentry": "0.32.1",
     "react-native-swiper": "1.5.13",
     "react-native-timer-mixin": "0.11.0"
   },

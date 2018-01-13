@@ -47,6 +47,7 @@ buck-out/
 # Projects
 src/assets/fonts
 android/app/*.jks
+.env
 
 # fastlane
 #

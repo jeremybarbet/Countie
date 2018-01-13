@@ -3,6 +3,8 @@ package com.countie;
 import com.dieam.reactnativepushnotification.ReactNativePushNotificationPackage;
 import com.reactnativenavigation.NavigationApplication;
 import com.BV.LinearGradient.LinearGradientPackage;
+import com.lugg.ReactNativeConfig.ReactNativeConfigPackage;
+import io.sentry.RNSentryPackage;
 import com.facebook.react.ReactPackage;
 import com.facebook.soloader.SoLoader;
 
@@ -22,7 +24,9 @@ public class MainApplication extends NavigationApplication {
     // No need to add RnnPackage and MainReactPackage
     return Arrays.<ReactPackage>asList(
       new ReactNativePushNotificationPackage(),
-      new LinearGradientPackage()
+      new LinearGradientPackage(),
+      new ReactNativeConfigPackage(),
+      new RNSentryPackage(MainApplication.this)
     );
   }
 
